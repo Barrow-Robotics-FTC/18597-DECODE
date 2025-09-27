@@ -32,10 +32,11 @@ public class TeleOpExample extends LinearOpMode {
     private final double nonSlowModeMultiplier = 1; // Multiplier for normal driving speed
     private final boolean brakeMode = true; // Whether the motors should break on stop (recommended)
     private final boolean robotCentric = true; // True for robot centric driving, false for field centric
+    public static Pose startingPose = new Pose(); // Starting pose of the robot for TeleOp
 
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower; // Pedro pathing follower
-    public static Pose startingPose; // Starting pose of the robot for TeleOp
+    private Pose currentPose; // Current pose of the robot
     private boolean automatedDrive; // Is Pedro Pathing driving?
     private TelemetryManager panelsTelemetry; // Panels telemetry
     private boolean slowMode = false; // Slow down the robot
@@ -63,11 +64,21 @@ public class TeleOpExample extends LinearOpMode {
         }
     }
 
+    private void intakeArtifacts() {
+        // Put your intake logic here
+        return;
+    }
+
+    private void shootArtifacts() {
+        // Put your shooting logic here
+        return;
+    }
+
     @Override
     public void runOpMode() {
         // Initialize the follower with the starting position, if it is null, assume 0, 0, 0
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
+        follower.setStartingPose(startingPose);
         follower.update();
 
         // Initialize Panels telemetry
@@ -114,45 +125,35 @@ public class TeleOpExample extends LinearOpMode {
             }
 
             // Right bumper enables slow mode
-            if (gamepad1.rightBumperWasPressed()) {
+            if (gamepad1.yWasReleased()) {
                 slowMode = !slowMode;
             }
 
             // X: Higher slow mode speed
-            if (gamepad1.xWasPressed()) {
+            if (gamepad1.dpadUpWasReleased()) {
                 slowModeMultiplier += 0.25;
             }
 
-            // Y: Lower slow mode speed
-            if (gamepad1.yWasPressed()) {
+            // D Pad Down: Lower slow mode speed
+            if (gamepad1.dpadDownWasReleased()) {
                 slowModeMultiplier -= 0.25;
             }
 
-            // Left trigger: intake artifacts
-            if (gamepad1.leftTriggerWasPressed()) {
+            // Left Trigger: intake artifacts
+            if (gamepad1.leftBumperWasReleased()) {
                 intakeArtifacts();
             }
 
-            // Right trigger: shoot artifacts
-            if (gamepad1.rightTriggerWasPressed()) {
+            // Right Trigger: shoot artifacts
+            if (gamepad1.rightBumperWasReleased()) {
                 shootArtifacts();
             }
 
             // Log to Panels and driver station (custom log function)
-            log("X: ", currentPose,getX());
+            log("X: ", currentPose.getX());
             log("Y: ", currentPose.getY());
             log("Heading: ", currentPose.getHeading());
             telemetry.update(); // Update the driver station after logging
         }
-    }
-
-    private void intakeArtifacts() {
-        // Put your instake logic here
-        return;
-    }
-
-    private void shootArtifacts() {
-        // Put your shooting logic here
-        return;
     }
 }
