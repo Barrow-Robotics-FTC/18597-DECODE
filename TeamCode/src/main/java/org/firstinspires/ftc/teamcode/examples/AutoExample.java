@@ -65,6 +65,14 @@ public class AutoExample extends LinearOpMode {
         }
     }
 
+    public void intakeArtifacts() {
+        // Put your intake logic here
+    }
+
+    public void shootArtifacts() {
+        // Put your shooting logic here
+    }
+
     @Override
     public void runOpMode() {
         // Initialize Panels telemetry
@@ -106,14 +114,6 @@ public class AutoExample extends LinearOpMode {
             log("Heading", currentPose.getHeading());
             telemetry.update(); // Update the driver station after logging
         }
-    }
-
-    public void intakeArtifacts() {
-        // Put your intake logic here
-    }
-
-    public void shootArtifacts() {
-        // Put your shooting logic here
     }
 
     public void buildPaths() {
