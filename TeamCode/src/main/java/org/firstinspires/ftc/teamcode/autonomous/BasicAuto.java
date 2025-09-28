@@ -46,16 +46,6 @@ public class BasicAuto extends LinearOpMode {
     // Initialize elapsed timer
     private final ElapsedTime runtime = new ElapsedTime();
 
-    // Initialize variables for paths
-    private PathChain scorePreload;
-    private PathChain grabPickup1;
-    private PathChain scorePickup1;
-    private PathChain grabPickup2;
-    private PathChain scorePickup2;
-    private PathChain grabPickup3;
-    private PathChain scorePickup3;
-    private PathChain returnHome;
-
     // Other variables
     private Pose currentPose; // Current pose of the robot
     public Follower follower; // Pedro Pathing follower
@@ -73,12 +63,8 @@ public class BasicAuto extends LinearOpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(Poses.home);
 
-        // Build paths (hardcode to PPG pattern until April Tags are implemented)
-        Paths.build(follower, "PPG");
-
         // Create and initialize state machine
         stateMachine = new StateMachine();
-        stateMachine.init(follower, stateList, HUMAN_PLAYER_WAIT_TIME);
 
         // Log completed initialization to Panels and driver station (custom log function)
         log("Status", "Initialized");
@@ -86,10 +72,18 @@ public class BasicAuto extends LinearOpMode {
 
         // Wait for the game to start (driver presses START)
         waitForStart();
+
+        // Reset runtime timer
         runtime.reset();
 
-        // Reset runtime timer after start
-        runtime.reset();
+        /*
+        The April tag obelisk is randomized after the OpMode is initialized, so right after we run the OpMode
+        we'll need to immediately scan the April Tag and then initialize our paths and state machine.
+
+        For now the obelisk pattern is hardcoded until we have April Tag scanning capability.
+         */
+        Paths.build(follower, "PPG");
+        stateMachine.init(follower, stateList, HUMAN_PLAYER_WAIT_TIME);
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
