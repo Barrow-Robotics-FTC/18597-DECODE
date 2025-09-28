@@ -66,9 +66,9 @@ public class BasicAuto extends LinearOpMode {
         // Create and initialize state machine
         stateMachine = new StateMachine();
 
-        // Log completed initialization to Panels and driver station (custom log function)
-        log("Status", "Initialized");
-        telemetry.update(); // Update driver station after logging
+        // Log completed initialization to Panels and driver station
+        panelsTelemetry.debug("Status", "Initialized");
+        panelsTelemetry.update(telemetry); // Update Panels and driver station after logging
 
         // Wait for the game to start (driver presses START)
         waitForStart();
@@ -94,13 +94,13 @@ public class BasicAuto extends LinearOpMode {
             // Run the state machine update loop
             pathState = stateMachine.update();
 
-            // Log to Panels and driver station (custom log function)
-            log("Elapsed", runtime.toString());
-            log("Path State", pathState);
-            log("X", currentPose.getX());
-            log("Y", currentPose.getY());
-            log("Heading", currentPose.getHeading());
-            telemetry.update(); // Update the driver station after logging
+            // Log status to Panels and driver station
+            panelsTelemetry.debug("Elapsed", runtime.toString());
+            panelsTelemetry.debug("Path State", pathState);
+            panelsTelemetry.debug("X", currentPose.getX());
+            panelsTelemetry.debug("Y", currentPose.getY());
+            panelsTelemetry.debug("Heading", currentPose.getHeading());
+            panelsTelemetry.update(telemetry); // Update Panels and driver station after logging
         }
 
         // Set the ending pose to be used in TeleOp
@@ -243,22 +243,6 @@ public class BasicAuto extends LinearOpMode {
                 }
             }
             return currentState;
-        }
-    }
-
-    // Custom logging function to support telemetry and Panels
-    private void log(String caption, Object... text) {
-        if (text.length == 1) {
-            telemetry.addData(caption, text[0]);
-            panelsTelemetry.debug(caption + ": " + text[0]);
-        } else if (text.length >= 2) {
-            StringBuilder message = new StringBuilder();
-            for (int i = 0; i < text.length; i++) {
-                message.append(text[i]);
-                if (i < text.length - 1) message.append(" ");
-            }
-            telemetry.addData(caption, message.toString());
-            panelsTelemetry.debug(caption + ": " + message);
         }
     }
 }
