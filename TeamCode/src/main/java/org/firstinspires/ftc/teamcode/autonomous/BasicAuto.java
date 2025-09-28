@@ -51,7 +51,7 @@ public class BasicAuto extends LinearOpMode {
     public Follower follower; // Pedro Pathing follower
     private StateMachine stateMachine; // Custom autonomous state machine
     private TelemetryManager panelsTelemetry; // Panels telemetry
-    private int pathState; // Current state machine value
+    private StateMachine.State pathState; // Current state machine value
     public static Pose autonomousEndPose = new Pose(72, 8, Math.toRadians(90)); // Ending pose in autonomous, will be edited at the end
 
     @Override
@@ -92,7 +92,7 @@ public class BasicAuto extends LinearOpMode {
             currentPose = follower.getPose(); // Update the current pose
 
             // Run the state machine update loop
-            stateMachine.update();
+            pathState = stateMachine.update();
 
             // Log to Panels and driver station (custom log function)
             log("Elapsed", runtime.toString());
@@ -130,7 +130,7 @@ public class BasicAuto extends LinearOpMode {
 
         public static void build(Follower follower, String pattern) {
             // Select the correct intake pose based on pattern
-            Pose patternIntakePose = null;
+            Pose patternIntakePose;
             if (Objects.equals(pattern, "PPG")) {
                 patternIntakePose = Poses.PPGArtifacts;
             } else if (Objects.equals(pattern, "PGP")) {
@@ -177,7 +177,7 @@ public class BasicAuto extends LinearOpMode {
         private int HUMAN_PLAYER_WAIT_TIME; // Time that the human player has to fill the hopper (milliseconds)
         private final ElapsedTime HUMAN_PLAYER_WAIT_TIMER = new ElapsedTime();
 
-        public static enum State {
+        public enum State {
             INTAKE,
             LAUNCH,
             WAIT_FOR_HUMAN_PLAYER,
