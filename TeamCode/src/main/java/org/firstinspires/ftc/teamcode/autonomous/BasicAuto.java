@@ -53,9 +53,9 @@ public class BasicAuto extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
 
     // Motors and servos
-    private DcMotorEx leftLauncherMotor;
-    private DcMotorEx rightLauncherMotor;
-    private Servo tapperServo;
+    private DcMotorEx leftLauncherMotor; // Left flywheel motor (looking from the robots perspective)
+    private DcMotorEx rightLauncherMotor; // Right flywheel motor (looking from the robots perspective)
+    private Servo tapperServo; // Tapper servo that pushes the ball into the shooter wheels
 
     // Other variables
     private Pose currentPose; // Current pose of the robot
