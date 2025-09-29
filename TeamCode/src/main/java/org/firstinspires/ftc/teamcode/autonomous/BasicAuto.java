@@ -86,7 +86,7 @@ public class BasicAuto extends LinearOpMode {
 
         // Initialize launcher state machine, autonomous state machine is initialized later
         launcherStateMachine.init(leftLauncherMotor, rightLauncherMotor, tapperServo,
-                TARGET_LAUNCHER_RPM, LAUNCHER_RPM_TOLERANCE, LAUNCHER_RPM_IN_RANGE_TIME);
+                TARGET_LAUNCHER_RPM, LAUNCHER_RPM_TOLERANCE, LAUNCHER_RPM_IN_RANGE_TIME, TAPPER_ROTATION_AMOUNT);
 
         // Log completed initialization to Panels and driver station
         panelsTelemetry.debug("Status", "Initialized");
@@ -201,6 +201,7 @@ public class BasicAuto extends LinearOpMode {
         private int targetRPM;
         private int RPMTolerance;
         private int requiredInToleranceTime;
+        private double tapperRotationAmount;
 
         private double currentLeftRPM;
         private double currentRightRPM;
@@ -213,13 +214,14 @@ public class BasicAuto extends LinearOpMode {
         }
 
         public void init(DcMotorEx left_motor, DcMotorEx right_motor, Servo tapper_servo,
-                         int target_rpm, int rpm_tolerance, int required_in_tolerance_time) {
+                         int target_rpm, int rpm_tolerance, int required_in_tolerance_time, double tapper_rotation_amount) {
             leftMotor = left_motor;
             rightMotor = right_motor;
             tapperServo = tapper_servo;
             targetRPM = target_rpm;
             RPMTolerance = rpm_tolerance;
             requiredInToleranceTime = required_in_tolerance_time;
+            tapperRotationAmount = tapper_rotation_amount;
             state = State.IDLE;
         }
 
@@ -248,7 +250,8 @@ public class BasicAuto extends LinearOpMode {
                     }
                     break;
                 case LAUNCH:
-                    tapperServo.setPosition(0.5); // Push the ball into the shooter wheels
+                    // Push the ball into the shooter wheels
+                    tapperServo.setPosition(tapperRotationAmount);
 
                     // Detect shooter flywheel RPM drop to know when ball shoots
                     if (leftMotor.getVelocity() <= targetRPM - 100) {
