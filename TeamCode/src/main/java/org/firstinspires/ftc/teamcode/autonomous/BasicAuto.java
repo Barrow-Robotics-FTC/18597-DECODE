@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 // FTC SDK
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -67,7 +68,7 @@ public class BasicAuto extends LinearOpMode {
     public static Pose autonomousEndPose = new Pose(72, 8, Math.toRadians(90)); // Ending pose in autonomous, will be edited at the end
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         // Initialize Panels telemetry
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
@@ -75,6 +76,10 @@ public class BasicAuto extends LinearOpMode {
         leftLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
         rightLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
         tapperServo = hardwareMap.get(Servo.class, "tapper");
+
+        // Set launcher motors to brake
+        leftLauncherMotor.setZeroPowerBehavior(BRAKE);
+        rightLauncherMotor.setZeroPowerBehavior(BRAKE);
 
         // Initialize Pedro Pathing follower
         follower = Constants.createFollower(hardwareMap);
@@ -110,7 +115,6 @@ public class BasicAuto extends LinearOpMode {
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
             follower.update();
-            panelsTelemetry.update();
             currentPose = follower.getPose(); // Update the current pose
 
             // Run the state machine update loop
@@ -264,6 +268,10 @@ public class BasicAuto extends LinearOpMode {
                             // When the state is set to idle, the main state machine will catch this and continue on.
                             // With the state being idle, the next time update is called, this cycle will start over again.
                             state = State.IDLE;
+
+                            // Stop the shooter
+                            leftMotor.setPower(0);
+                            rightMotor.setPower(0);
                         } else {
                             // Recover from launch
                             state = State.SPEED_UP;
