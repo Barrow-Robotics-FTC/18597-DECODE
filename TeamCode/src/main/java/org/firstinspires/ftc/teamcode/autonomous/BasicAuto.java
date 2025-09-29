@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.autonomous;
 // FTC SDK
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.Servo;
 
 // Panels
 import com.bylazar.configurables.annotations.Configurable;
@@ -28,6 +30,10 @@ import java.util.List;
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
 public class BasicAuto extends LinearOpMode {
     // Editable variables
+    final int TARGET_LAUNCHER_RPM = 1500; // Target RPM for both launcher motors
+    final int LAUNCHER_RPM_TOLERANCE = 100; // Tolerance of RPM required for launch
+    final int LAUNCHER_RPM_IN_RANGE_TIME = 250; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
+    final double TAPPER_ROTATION_AMOUNT = 0.5; // How much the tapper servo rotates to push a ball into the shooter
     final int HUMAN_PLAYER_WAIT_TIME = 3000; // Time that the human player has to fill the hopper (milliseconds)
     List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
             StateMachine.State.HOME_TO_INTAKE,
@@ -46,10 +52,16 @@ public class BasicAuto extends LinearOpMode {
     // Initialize elapsed timer
     private final ElapsedTime runtime = new ElapsedTime();
 
+    // Motors and servos
+    private DcMotorEx leftLauncherMotor;
+    private DcMotorEx rightLauncherMotor;
+    private Servo tapperServo;
+
     // Other variables
     private Pose currentPose; // Current pose of the robot
     public Follower follower; // Pedro Pathing follower
     private StateMachine stateMachine; // Custom autonomous state machine
+    private LauncherStateMachine launcherStateMachine; // Custom launcher state machine
     private TelemetryManager panelsTelemetry; // Panels telemetry
     private StateMachine.State pathState; // Current state machine value
     public static Pose autonomousEndPose = new Pose(72, 8, Math.toRadians(90)); // Ending pose in autonomous, will be edited at the end
@@ -59,12 +71,22 @@ public class BasicAuto extends LinearOpMode {
         // Initialize Panels telemetry
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
+        // initialize hardware (drivetrain is initialized by Pedro Pathing)
+        leftLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
+        rightLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
+        tapperServo = hardwareMap.get(Servo.class, "tapper");
+
         // Initialize Pedro Pathing follower
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(Poses.home);
 
-        // Create and initialize state machine
+        // Create state machines
         stateMachine = new StateMachine();
+        launcherStateMachine = new LauncherStateMachine();
+
+        // Initialize launcher state machine, autonomous state machine is initialized later
+        launcherStateMachine.init(leftLauncherMotor, rightLauncherMotor, tapperServo,
+                TARGET_LAUNCHER_RPM, LAUNCHER_RPM_TOLERANCE, LAUNCHER_RPM_IN_RANGE_TIME);
 
         // Log completed initialization to Panels and driver station
         panelsTelemetry.debug("Status", "Initialized");
@@ -83,7 +105,7 @@ public class BasicAuto extends LinearOpMode {
         For now the obelisk pattern is hardcoded until we have April Tag scanning capability.
          */
         Paths.build(follower, "PPG");
-        stateMachine.init(follower, stateList, HUMAN_PLAYER_WAIT_TIME);
+        stateMachine.init(follower, stateList, launcherStateMachine, HUMAN_PLAYER_WAIT_TIME);
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
@@ -169,9 +191,91 @@ public class BasicAuto extends LinearOpMode {
         }
     }
 
+    // State machine for a horizontal double flywheel launcher with 6k RPM GoBilda Yellow Jackets
+    static class LauncherStateMachine {
+        private final ElapsedTime inToleranceTimer = new ElapsedTime();
+        private DcMotorEx leftMotor;
+        private DcMotorEx rightMotor;
+        private Servo tapperServo;
+        private State state;
+        private int targetRPM;
+        private int RPMTolerance;
+        private int requiredInToleranceTime;
+
+        private double currentLeftRPM;
+        private double currentRightRPM;
+        private int launches;
+
+        public enum State {
+            IDLE,
+            SPEED_UP,
+            LAUNCH
+        }
+
+        public void init(DcMotorEx left_motor, DcMotorEx right_motor, Servo tapper_servo,
+                         int target_rpm, int rpm_tolerance, int required_in_tolerance_time) {
+            leftMotor = left_motor;
+            rightMotor = right_motor;
+            tapperServo = tapper_servo;
+            targetRPM = target_rpm;
+            RPMTolerance = rpm_tolerance;
+            requiredInToleranceTime = required_in_tolerance_time;
+            state = State.IDLE;
+        }
+
+        public State update() {
+            switch(state) {
+                case IDLE:
+                    // If this rums, we are starting a new launch cycle, so we'll move to the speed up state
+                    state = State.SPEED_UP;
+                    launches = 0; // Reset launch amount
+                    inToleranceTimer.reset(); // Reset in tolerance timer
+
+                    break;
+                case SPEED_UP:
+                    currentLeftRPM = leftMotor.getVelocity();
+                    currentRightRPM = rightMotor.getVelocity();
+
+                    // Check if we are within the tolerance
+                    if (Math.abs(currentLeftRPM - targetRPM) <= RPMTolerance && Math.abs(currentRightRPM - targetRPM) <= RPMTolerance) {
+                        // Check if we have been within tolerance for the required amount of time (eliminates inconsistency due to oscillation)
+                        if (inToleranceTimer.milliseconds() >= requiredInToleranceTime) {
+                            // We have reached all prerequisites for launch
+                            state = State.LAUNCH;
+                        }
+                    } else {
+                        inToleranceTimer.reset();
+                    }
+                    break;
+                case LAUNCH:
+                    tapperServo.setPosition(0.5); // Push the ball into the shooter wheels
+
+                    // Detect shooter flywheel RPM drop to know when ball shoots
+                    if (leftMotor.getVelocity() <= targetRPM - 100) {
+                        // Put tapper down
+                        tapperServo.setPosition(0.0);
+
+                        // Check if we've launched 3 artifacts
+                        launches += 1;
+                        if (launches >= 3) {
+                            // When the state is set to idle, the main state machine will catch this and continue on.
+                            // With the state being idle, the next time update is called, this cycle will start over again.
+                            state = State.IDLE;
+                        } else {
+                            // Recover from launch
+                            state = State.SPEED_UP;
+                        }
+                    }
+                    break;
+            }
+            return state;
+        }
+    }
+
     static class StateMachine {
         private Follower follower; // Pedro Pathing follower (passed in init)
         private List<State> states; // List of states provided in init
+        private LauncherStateMachine launcherStateMachine;
         private int statesIndex; // Current index in states
         private State currentState; // current state (only used in update for cleaner code)
         private int HUMAN_PLAYER_WAIT_TIME; // Time that the human player has to fill the hopper (milliseconds)
@@ -195,8 +299,10 @@ public class BasicAuto extends LinearOpMode {
             }
         }
 
-        public void init(Follower pedro_follower, List<State> state_list, int human_player_wait_time) {
+        public void init(Follower pedro_follower, List<State> state_list, LauncherStateMachine launcher_state_machine,
+                         int human_player_wait_time) {
             follower = pedro_follower;
+            launcherStateMachine = launcher_state_machine;
             states = state_list;
             statesIndex = 0;
             HUMAN_PLAYER_WAIT_TIME = human_player_wait_time;
@@ -211,8 +317,14 @@ public class BasicAuto extends LinearOpMode {
                         nextState();
                         break;
                     case LAUNCH:
-                        // Put launch logic here
-                        nextState();
+                        /*
+                        launcherStateMachine.update() will run the launcher state machine to launch 3 artifacts.
+                        The state will become IDLE when all 3 artifacts are launched.
+                         */
+                        if (launcherStateMachine.update() == LauncherStateMachine.State.IDLE) {
+                            nextState();
+                        }
+
                         break;
                     case WAIT_FOR_HUMAN_PLAYER:
                         // Note: timer is reset upon state change (above)
