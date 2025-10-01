@@ -196,7 +196,7 @@ public class BasicAuto extends LinearOpMode {
     }
 
     // State machine for a horizontal double flywheel launcher with 6k RPM GoBilda Yellow Jackets
-    static class LauncherStateMachine {
+    public static class LauncherStateMachine {
         private final ElapsedTime inToleranceTimer = new ElapsedTime();
         private DcMotorEx leftMotor;
         private DcMotorEx rightMotor;
