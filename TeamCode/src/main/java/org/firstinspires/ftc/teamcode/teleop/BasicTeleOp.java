@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.teleop;
 // FTC SDK
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Panels
@@ -11,6 +13,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.bylazar.telemetry.PanelsTelemetry;
 
 // Pedro Pathing
+import org.firstinspires.ftc.teamcode.autonomous.BasicAuto;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.geometry.BezierLine;
@@ -18,6 +21,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
+import org.firstinspires.ftc.teamcode.autonomous.BasicAuto.LauncherStateMachine;
 
 // Java
 import java.util.function.Supplier;
@@ -29,17 +33,24 @@ import static org.firstinspires.ftc.teamcode.autonomous.BasicAuto.autonomousEndP
 @Configurable // Use Panels
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
 public class BasicTeleOp extends LinearOpMode {
+    final int TARGET_LAUNCHER_RPM = 1500; // Target RPM for both launcher motors
+    final int LAUNCHER_RPM_TOLERANCE = 100; // Tolerance of RPM required for launch
+    final int LAUNCHER_RPM_IN_RANGE_TIME = 250; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
+    final double TAPPER_ROTATION_AMOUNT = 0.5;  // How much the tapper servo rotates to push a ball into the shooter
     private double slowModeMultiplier = 0.5; // Multiplier for slow mode speed
     private final double nonSlowModeMultiplier = 1; // Multiplier for normal driving speed
     private final boolean brakeMode = true; // Whether the motors should break on stop (recommended)
     private final boolean robotCentric = true; // True for robot centric driving, false for field centric
-
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower; // Pedro pathing follower
     private Pose currentPose; // Current pose of the robot
     private boolean automatedDrive; // Is Pedro Pathing driving?
     private TelemetryManager panelsTelemetry; // Panels telemetry
     private boolean slowMode = false; // Slow down the robot
+    private LauncherStateMachine launcherStateMachine; // Custom launcher state machine
+    private DcMotorEx leftLauncherMotor; // Left flywheel motor (looking from the robots perspective)
+    private DcMotorEx rightLauncherMotor; // Right flywheel motor (looking from the robots perspective)
+    private Servo tapperServo; // Tapper servo that pushes the ball into the shooter wheels
 
     // Create path which moves to the line in front of the red goal from the current position
     // Use the Pedro Pathing Visualizer to see what this will do
@@ -60,6 +71,9 @@ public class BasicTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        leftLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
+        rightLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
+        tapperServo = hardwareMap.get(Servo.class, "tapper");
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(autonomousEndPose);
@@ -67,6 +81,10 @@ public class BasicTeleOp extends LinearOpMode {
 
         // Initialize Panels telemetry
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+
+        launcherStateMachine = new LauncherStateMachine();
+        launcherStateMachine.init(leftLauncherMotor, rightLauncherMotor, tapperServo,
+                TARGET_LAUNCHER_RPM, LAUNCHER_RPM_TOLERANCE, LAUNCHER_RPM_IN_RANGE_TIME, TAPPER_ROTATION_AMOUNT);
 
         // Log completed initialization to Panels and driver station
         panelsTelemetry.debug("Status", "Initialized");
@@ -95,7 +113,7 @@ public class BasicTeleOp extends LinearOpMode {
                 );
             }
 
-            // Use A to follow the path
+            // Use A to follow the path to score
             if (gamepad1.aWasPressed()) {
                 follower.followPath(scorePosePath.get()); // Follow path
                 automatedDrive = true;
@@ -112,6 +130,11 @@ public class BasicTeleOp extends LinearOpMode {
                 slowMode = !slowMode;
             }
 
+            // Left bumper disables slow mode
+            if (gamepad1.yWasReleased()) {
+                slowMode = !slowMode;
+            }
+
             // X: Higher slow mode speed
             if (gamepad1.dpadUpWasReleased()) {
                 slowModeMultiplier += 0.25;
@@ -123,12 +146,12 @@ public class BasicTeleOp extends LinearOpMode {
             }
 
             // Left Trigger: intake artifacts
-            if (gamepad1.leftBumperWasReleased()) {
+            if (gamepad2.leftBumperWasReleased()) {
                 intakeArtifacts();
             }
 
             // Right Trigger: shoot artifacts
-            if (gamepad1.rightBumperWasReleased()) {
+            if (gamepad2.rightBumperWasReleased()) {
                 shootArtifacts();
             }
 
