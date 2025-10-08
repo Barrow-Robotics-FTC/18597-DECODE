@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 // FTC SDK
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Panels
@@ -28,10 +26,6 @@ import java.util.function.Supplier;
 @Configurable // Use Panels
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
 public class BasicTeleOp extends LinearOpMode {
-    final int TARGET_LAUNCHER_RPM = 1500; // Target RPM for both launcher motors
-    final int LAUNCHER_RPM_TOLERANCE = 100; // Tolerance of RPM required for launch
-    final int LAUNCHER_RPM_IN_RANGE_TIME = 250; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
-    final double TAPPER_ROTATION_AMOUNT = 0.5;  // How much the tapper servo rotates to push a ball into the shooter
     private double slowModeMultiplier = 0.5; // Multiplier for slow mode speed
     private final double nonSlowModeMultiplier = 1; // Multiplier for normal driving speed
     private final boolean brakeMode = true; // Whether the motors should break on stop (recommended)
@@ -62,9 +56,6 @@ public class BasicTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        leftLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
-        rightLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
-        tapperServo = hardwareMap.get(Servo.class, "tapper");
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose());
