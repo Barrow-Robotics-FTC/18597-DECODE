@@ -13,7 +13,6 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.bylazar.telemetry.PanelsTelemetry;
 
 // Pedro Pathing
-import org.firstinspires.ftc.teamcode.autonomous.BasicAuto;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.geometry.BezierLine;
@@ -21,13 +20,9 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
-import org.firstinspires.ftc.teamcode.autonomous.BasicAuto.LauncherStateMachine;
 
 // Java
 import java.util.function.Supplier;
-
-// Import the ending pose from the Autonomous OpMode
-import static org.firstinspires.ftc.teamcode.autonomous.BasicAuto.autonomousEndPose;
 
 @TeleOp(name = "Basic TeleOp", group = "TeleOp")
 @Configurable // Use Panels
@@ -47,10 +42,6 @@ public class BasicTeleOp extends LinearOpMode {
     private boolean automatedDrive; // Is Pedro Pathing driving?
     private TelemetryManager panelsTelemetry; // Panels telemetry
     private boolean slowMode = false; // Slow down the robot
-    private LauncherStateMachine launcherStateMachine; // Custom launcher state machine
-    private DcMotorEx leftLauncherMotor; // Left flywheel motor (looking from the robots perspective)
-    private DcMotorEx rightLauncherMotor; // Right flywheel motor (looking from the robots perspective)
-    private Servo tapperServo; // Tapper servo that pushes the ball into the shooter wheels
 
     // Create path which moves to the line in front of the red goal from the current position
     // Use the Pedro Pathing Visualizer to see what this will do
@@ -76,15 +67,11 @@ public class BasicTeleOp extends LinearOpMode {
         tapperServo = hardwareMap.get(Servo.class, "tapper");
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(autonomousEndPose);
+        follower.setStartingPose(new Pose());
         follower.update();
 
         // Initialize Panels telemetry
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
-        launcherStateMachine = new LauncherStateMachine();
-        launcherStateMachine.init(leftLauncherMotor, rightLauncherMotor, tapperServo,
-                TARGET_LAUNCHER_RPM, LAUNCHER_RPM_TOLERANCE, LAUNCHER_RPM_IN_RANGE_TIME, TAPPER_ROTATION_AMOUNT);
 
         // Log completed initialization to Panels and driver station
         panelsTelemetry.debug("Status", "Initialized");
