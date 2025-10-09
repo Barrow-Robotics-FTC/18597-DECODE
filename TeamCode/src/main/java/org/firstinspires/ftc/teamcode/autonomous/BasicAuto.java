@@ -21,6 +21,7 @@ import com.pedropathing.geometry.Pose;
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.Launcher;
 import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
+import org.firstinspires.ftc.teamcode.utils.AprilTag;
 
 // Java
 import java.util.Arrays;
@@ -29,7 +30,7 @@ import java.util.List;
 
 @Autonomous(name = "Basic Autonomous", group = "Autonomous")
 @Configurable // Panels
-@SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
+@SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class BasicAuto extends LinearOpMode {
     // Editable variables
     final int HUMAN_PLAYER_WAIT_TIME = 3000; // Time that the human player has to fill the hopper (milliseconds)
@@ -52,13 +53,14 @@ public class BasicAuto extends LinearOpMode {
 
     // Other variables
     private AllianceSelector.Alliance alliance; // Alliance of the robot
-    private Pose currentPose; // Current pose of the robot
-    public Follower follower; // Pedro Pathing follower
     private StateMachine stateMachine; // Custom autonomous state machine
     private Launcher launcher; // Custom launcher class
+    private AprilTag aprilTag; // Custom April Tag class
+    private Pose currentPose; // Current pose of the robot
+    public Follower follower; // Pedro Pathing follower
     private TelemetryManager panelsTelemetry; // Panels telemetry
     private StateMachine.State pathState; // Current state machine value
-    public static Pose autonomousEndPose = new Pose(72, 8, Math.toRadians(90)); // Ending pose in autonomous, will be edited at the end
+    private AprilTag.Pattern targetPattern; // Target pattern determined by obelisk April Tag
 
     @Override
     public void runOpMode() {
@@ -69,12 +71,17 @@ public class BasicAuto extends LinearOpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(Poses.home);
 
-        // Create state machine
+        // Create state machine and initialize
         stateMachine = new StateMachine();
+        stateMachine.init(follower, stateList, launcher, HUMAN_PLAYER_WAIT_TIME);
 
         // Create instance of launcher and initialize
         launcher = new Launcher();
         launcher.init(hardwareMap);
+
+        // Crate instance of April Tag and initialize
+        aprilTag = new AprilTag();
+        aprilTag.init(hardwareMap);
 
         // Prompt the driver to select an alliance
         alliance = AllianceSelector.run(gamepad1, panelsTelemetry, telemetry);
@@ -92,11 +99,9 @@ public class BasicAuto extends LinearOpMode {
         /*
         The April tag obelisk is randomized after the OpMode is initialized, so right after we run the OpMode
         we'll need to immediately scan the April Tag and then initialize our paths and state machine.
-
-        For now the obelisk pattern is hardcoded until we have April Tag scanning capability.
-         */
-        Paths.build(follower, "PPG");
-        stateMachine.init(follower, stateList, launcher, HUMAN_PLAYER_WAIT_TIME);
+        */
+        targetPattern = aprilTag.detectPattern();
+        Paths.build(follower, targetPattern);
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
@@ -114,10 +119,6 @@ public class BasicAuto extends LinearOpMode {
             panelsTelemetry.debug("Heading", currentPose.getHeading());
             panelsTelemetry.update(telemetry); // Update Panels and driver station after logging
         }
-
-        // Set the ending pose to be used in TeleOp
-        follower.update();
-        autonomousEndPose = follower.getPose();
     }
 
     static class Poses {
@@ -140,18 +141,13 @@ public class BasicAuto extends LinearOpMode {
         public static PathChain loadToScore; // Poses.loadZone -> Poses.score
         public static PathChain scoreToHome; // Poses.score -> Poses.home
 
-        public static void build(Follower follower, String pattern) {
+        public static void build(Follower follower, AprilTag.Pattern pattern) {
             // Select the correct intake pose based on pattern
-            Pose patternIntakePose;
-            if (Objects.equals(pattern, "PPG")) {
-                patternIntakePose = Poses.PPGArtifacts;
-            } else if (Objects.equals(pattern, "PGP")) {
+            Pose patternIntakePose = Poses.PPGArtifacts;
+            if (pattern == AprilTag.Pattern.PGP) {
                 patternIntakePose = Poses.PGPArtifacts;
-            } else if (Objects.equals(pattern, "GPP")) {
+            } else if (pattern == AprilTag.Pattern.GPP) {
                 patternIntakePose = Poses.GPPArtifacts;
-            } else {
-                // Default to the closest one if the pattern is invalid for some reason
-                patternIntakePose = Poses.PPGArtifacts;
             }
 
             homeToIntake = follower.pathBuilder()
