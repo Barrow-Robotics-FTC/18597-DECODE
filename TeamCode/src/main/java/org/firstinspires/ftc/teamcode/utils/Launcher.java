@@ -41,6 +41,31 @@ public class Launcher {
         rightMotor.setZeroPowerBehavior(BRAKE);
     }
 
+    public void stop() {
+        // When the state is set to idle, whatever ran this state machine will know that artifacts have been launched
+        // With the state being idle, the next time update is called, the launch cycle will start over again.
+        state = State.IDLE;
+
+        // Stop the shooter motors
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+
+        // Reset launch count
+        launches = 0;
+    }
+
+    public double getLeftRPM() {
+        return leftMotor.getVelocity();
+    }
+
+    public double getRightRPM() {
+        return rightMotor.getVelocity();
+    }
+
+    public double getCommandedTapperRotation() {
+        return tapperServo.getPosition();
+    }
+
     public State update() {
         switch(state) {
             case IDLE:
@@ -77,16 +102,8 @@ public class Launcher {
                     // Check if we've launched 3 artifacts
                     launches += 1;
                     if (launches >= 3) {
-                        // When the state is set to idle, whatever ran this state machine will know that artifacts have been launched
-                        // With the state being idle, the next time this function is called, the launch cycle will start over again.
-                        state = State.IDLE;
-
-                        // Stop the shooter
-                        leftMotor.setPower(0);
-                        rightMotor.setPower(0);
-
-                        // Reset launch count
-                        launches = 0;
+                        // Stop the launcher after all 3 artifacts have been launched
+                        stop();
                     } else {
                         // Recover from launch
                         state = State.SPEED_UP;
