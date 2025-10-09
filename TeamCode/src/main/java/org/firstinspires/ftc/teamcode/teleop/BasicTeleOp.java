@@ -19,6 +19,9 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 
+// Local helper files
+import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
+
 // Java
 import java.util.function.Supplier;
 
@@ -26,16 +29,23 @@ import java.util.function.Supplier;
 @Configurable // Use Panels
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
 public class BasicTeleOp extends LinearOpMode {
-    private double slowModeMultiplier = 0.5; // Multiplier for slow mode speed
-    private final double nonSlowModeMultiplier = 1; // Multiplier for normal driving speed
+    // Editable variables
     private final boolean brakeMode = true; // Whether the motors should break on stop (recommended)
     private final boolean robotCentric = true; // True for robot centric driving, false for field centric
+    private final double slowModeMultiplier = 0.5; // Multiplier for slow mode speed
+    private final double nonSlowModeMultiplier = 1; // Multiplier for normal driving speed
+    private boolean slowMode = false; // Slow down the robot (change this to change the starting config)
+
+    // Other variables
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower; // Pedro pathing follower
     private Pose currentPose; // Current pose of the robot
     private boolean automatedDrive; // Is Pedro Pathing driving?
     private TelemetryManager panelsTelemetry; // Panels telemetry
-    private boolean slowMode = false; // Slow down the robot
+
+    // Variables from autonomous
+    private AllianceSelector.Alliance alliance; // Alliance of the robot
+    private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
 
     // Create path which moves to the line in front of the red goal from the current position
     // Use the Pedro Pathing Visualizer to see what this will do
@@ -44,18 +54,12 @@ public class BasicTeleOp extends LinearOpMode {
             .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), 0.8))
             .build();
 
-    private void intakeArtifacts() {
-        // Put your intake logic here
-        return;
-    }
-
-    private void shootArtifacts() {
-        // Put your shooting logic here
-        return;
-    }
-
     @Override
     public void runOpMode() {
+        // Get variables from Blackboard
+        alliance = (AllianceSelector.Alliance) blackboard.getOrDefault("alliance", AllianceSelector.Alliance.RED);
+        autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(72, 8, Math.toRadians(90)));
+
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose());
@@ -101,36 +105,6 @@ public class BasicTeleOp extends LinearOpMode {
             if (automatedDrive && (gamepad1.bWasPressed() || !follower.isBusy())) {
                 follower.startTeleopDrive(brakeMode); // Restart the manual TeleOp drive
                 automatedDrive = false;
-            }
-
-            // Right bumper enables slow mode
-            if (gamepad1.yWasReleased()) {
-                slowMode = !slowMode;
-            }
-
-            // Left bumper disables slow mode
-            if (gamepad1.yWasReleased()) {
-                slowMode = !slowMode;
-            }
-
-            // X: Higher slow mode speed
-            if (gamepad1.dpadUpWasReleased()) {
-                slowModeMultiplier += 0.25;
-            }
-
-            // D Pad Down: Lower slow mode speed
-            if (gamepad1.dpadDownWasReleased()) {
-                slowModeMultiplier -= 0.25;
-            }
-
-            // Left Trigger: intake artifacts
-            if (gamepad2.leftBumperWasReleased()) {
-                intakeArtifacts();
-            }
-
-            // Right Trigger: shoot artifacts
-            if (gamepad2.rightBumperWasReleased()) {
-                shootArtifacts();
             }
 
             // Log status to Panels and driver station
