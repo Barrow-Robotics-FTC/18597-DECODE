@@ -118,6 +118,10 @@ public class BasicAuto extends LinearOpMode {
             panelsTelemetry.debug("Heading", currentPose.getHeading());
             panelsTelemetry.update(telemetry); // Update Panels and driver station after logging
         }
+
+        // Save values for TeleOp
+        blackboard.put("alliance", alliance);
+        blackboard.put("autoEndPose", currentPose);
     }
 
     static class Poses {
