@@ -25,7 +25,6 @@ import org.firstinspires.ftc.teamcode.utils.AprilTag;
 
 // Java
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.List;
 
 @Autonomous(name = "Basic Autonomous", group = "Autonomous")
