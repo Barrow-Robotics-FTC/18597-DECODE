@@ -21,7 +21,7 @@ If at any point, the launcher needs to be stopped, press the right bumper on gam
 
 @TeleOp(name = "Launcher Test", group = "Tests")
 @Configurable // Use Panels
-@SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
+@SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LauncherTest extends LinearOpMode {
     private TelemetryManager panelsTelemetry; // Panels telemetry
     private Launcher launcher; // Custom launcher class
