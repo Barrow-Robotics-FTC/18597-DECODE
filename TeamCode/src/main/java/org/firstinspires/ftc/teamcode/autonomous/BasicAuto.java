@@ -20,6 +20,7 @@ import com.pedropathing.geometry.Pose;
 
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.Launcher;
+import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
 
 // Java
 import java.util.Arrays;
@@ -50,6 +51,7 @@ public class BasicAuto extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
 
     // Other variables
+    private AllianceSelector.Alliance alliance; // Alliance of the robot
     private Pose currentPose; // Current pose of the robot
     public Follower follower; // Pedro Pathing follower
     private StateMachine stateMachine; // Custom autonomous state machine
@@ -73,6 +75,9 @@ public class BasicAuto extends LinearOpMode {
         // Create instance of launcher and initialize
         launcher = new Launcher();
         launcher.init(hardwareMap);
+
+        // Prompt the driver to select an alliance
+        alliance = AllianceSelector.run(gamepad1, panelsTelemetry, telemetry);
 
         // Log completed initialization to Panels and driver station
         panelsTelemetry.debug("Status", "Initialized");
