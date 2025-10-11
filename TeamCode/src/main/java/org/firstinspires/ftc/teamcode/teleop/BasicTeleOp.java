@@ -12,18 +12,27 @@ import com.bylazar.telemetry.PanelsTelemetry;
 
 // Pedro Pathing
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
+import org.firstinspires.ftc.teamcode.utils.Launcher;
+import org.firstinspires.ftc.teamcode.utils.Intake;
 
-// Java
-import java.util.function.Supplier;
+/*
+Gamepad Map for TeleOp (FTCPadMap file available in this programs folder)
+Upload the file to https://barrow-robotics-ftc.github.io/FTCPadMap/ for an interactive view
+
+Left Stick X: Strafe
+Left Stick Y: Forward
+Right Stick X: Turn
+B (On press): Stop auto drive
+Right Trigger (on release): Drive to scoring position and launch 3 artifacts
+ */
+
 
 @TeleOp(name = "Basic TeleOp", group = "TeleOp")
 @Configurable // Use Panels
@@ -34,7 +43,15 @@ public class BasicTeleOp extends LinearOpMode {
     private final boolean robotCentric = true; // True for robot centric driving, false for field centric
     private final double slowModeMultiplier = 0.5; // Multiplier for slow mode speed
     private final double nonSlowModeMultiplier = 1; // Multiplier for normal driving speed
-    private boolean slowMode = false; // Slow down the robot (change this to change the starting config)
+
+    // Values retrieved from blackboard
+    private AllianceSelector.Alliance alliance; // Alliance of the robot
+    private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
+
+    // Driver controller variables
+    private boolean slowMode = false;
+    private boolean launching = false;
+    private boolean intaking = false;
 
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime();
@@ -43,16 +60,25 @@ public class BasicTeleOp extends LinearOpMode {
     private boolean automatedDrive; // Is Pedro Pathing driving?
     private TelemetryManager panelsTelemetry; // Panels telemetry
 
-    // Variables from autonomous
-    private AllianceSelector.Alliance alliance; // Alliance of the robot
-    private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
+    // Class to store poses (access with Poses.poseName)
+    static class Poses {
+        // Poses (assuming red alliance)
+        public static Pose score = new Pose(60, 83.5, Math.toRadians(135)); // Facing goal (close to the white line point)
+    }
 
-    // Create path which moves to the line in front of the red goal from the current position
-    // Use the Pedro Pathing Visualizer to see what this will do
-    private final Supplier<PathChain> scorePosePath = () -> follower.pathBuilder()
-            .addPath(new Path(new BezierLine(follower::getPose, new Pose(45, 98))))
-            .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), 0.8))
-            .build();
+    // Go from the current position to any pose
+    private PathChain getPathToPose(Pose pose) {
+        // Flip the pose if the alliance is blue
+        if (alliance == AllianceSelector.Alliance.BLUE) {
+            pose = pose.mirror();
+        }
+
+        // Return the PathChain
+        return follower.pathBuilder()
+                .addPath(new BezierLine(follower.getPose(), pose))
+                .setLinearHeadingInterpolation(follower.getHeading(), pose.getHeading())
+                .build();
+    }
 
     @Override
     public void runOpMode() {
@@ -67,6 +93,14 @@ public class BasicTeleOp extends LinearOpMode {
 
         // Initialize Panels telemetry
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+
+        // Create instance of launcher and initialize
+        Launcher launcher = new Launcher();
+        launcher.init(hardwareMap);
+
+        // Create instance of intake and initialize
+        Intake intake = new Intake();
+        intake.init(hardwareMap);
 
         // Log completed initialization to Panels and driver station
         panelsTelemetry.debug("Status", "Initialized");
@@ -84,27 +118,25 @@ public class BasicTeleOp extends LinearOpMode {
             follower.update();
             currentPose = follower.getPose();
 
+            // If the robot isn't being controlled by Pedro Pathing, send gamepad inputs to the robot
             if (!automatedDrive) {
-                // Send gamepad inputs to Pedro Pathing for driving
-                // Make the last parameter false for field-centric
                 follower.setTeleOpDrive(
                         -gamepad1.left_stick_y * (slowMode ? slowModeMultiplier : nonSlowModeMultiplier),
                         -gamepad1.left_stick_x * (slowMode ? slowModeMultiplier : nonSlowModeMultiplier),
                         -gamepad1.right_stick_x * (slowMode ? slowModeMultiplier : nonSlowModeMultiplier),
                         robotCentric
                 );
-            }
-
-            // Use A to follow the path to score
-            if (gamepad1.aWasPressed()) {
-                follower.followPath(scorePosePath.get()); // Follow path
-                automatedDrive = true;
-            }
-
-            // Stop automated following if the follower is done or the driver presses B
-            if (automatedDrive && (gamepad1.bWasPressed() || !follower.isBusy())) {
-                follower.startTeleopDrive(brakeMode); // Restart the manual TeleOp drive
+            } else if ((gamepad1.bWasPressed() || !follower.isBusy())) {
+                // If auto drive is active, check if the follower is busy
+                // B (on press): Stop auto drive
+                follower.startTeleopDrive(brakeMode); // Restart manual control
                 automatedDrive = false;
+            }
+
+            // Right Bumper (on release): Go to scoring position and launch
+            if (gamepad1.rightBumperWasReleased()) {
+                follower.followPath(getPathToPose(Poses.score));
+                automatedDrive = true;
             }
 
             // Log status to Panels and driver station
