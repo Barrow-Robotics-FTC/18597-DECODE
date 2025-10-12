@@ -6,11 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Panels
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.TelemetryManager;
-import com.bylazar.telemetry.PanelsTelemetry;
-
 // Pedro Pathing
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.geometry.BezierLine;
@@ -20,7 +15,6 @@ import com.pedropathing.geometry.Pose;
 
 @Autonomous(name = "Example Auto", group = "Examples")
 @Disabled // REMOVE THI LINE TO SEE ON DRIVER HUB
-@Configurable // Panels
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
 public class AutoExample extends LinearOpMode {
     // Initialize elapsed timer
@@ -46,24 +40,7 @@ public class AutoExample extends LinearOpMode {
     // Other variables
     private Pose currentPose; // Current pose of the robot
     private Follower follower; // Pedro Pathing follower
-    private TelemetryManager panelsTelemetry; // Panels telemetry
     private int pathState; // Current state machine value
-
-    // Custom logging function to support telemetry and Panels
-    private void log(String caption, Object... text) {
-        if (text.length == 1) {
-            telemetry.addData(caption, text[0]);
-            panelsTelemetry.debug(caption + ": " + text[0]);
-        } else if (text.length >= 2) {
-            StringBuilder message = new StringBuilder();
-            for (int i = 0; i < text.length; i++) {
-                message.append(text[i]);
-                if (i < text.length - 1) message.append(" ");
-            }
-            telemetry.addData(caption, message.toString());
-            panelsTelemetry.debug(caption + ": " + message);
-        }
-    }
 
     public void intakeArtifacts() {
         // Put your intake logic here
@@ -75,9 +52,6 @@ public class AutoExample extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        // Initialize Panels telemetry
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
         // Initialize Pedro Pathing follower
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
@@ -85,9 +59,9 @@ public class AutoExample extends LinearOpMode {
         // Create paths
         buildPaths();
 
-        // Log completed initialization to Panels and driver station (custom log function)
-        log("Status", "Initialized");
-        telemetry.update(); // Update driver station after logging
+        // Log completed initialization
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
 
         // Wait for the game to start (driver presses START)
         waitForStart();
@@ -98,21 +72,20 @@ public class AutoExample extends LinearOpMode {
         runtime.reset();
 
         while (opModeIsActive()) {
-            // Update Pedro Pathing and Panels every iteration
+            // Update Pedro Pathing every iteration
             follower.update();
-            panelsTelemetry.update();
             currentPose = follower.getPose(); // Update the current pose
 
             // Update the state machine
             updateStateMachine();
 
-            // Log to Panels and driver station (custom log function)
-            log("Elapsed", runtime.toString());
-            log("Path State", pathState);
-            log("X", currentPose.getX());
-            log("Y", currentPose.getY());
-            log("Heading", currentPose.getHeading());
-            telemetry.update(); // Update the driver station after logging
+            // Log status
+            telemetry.addData("Elapsed", runtime.toString());
+            telemetry.addData("Path State", pathState);
+            telemetry.addData("X", currentPose.getX());
+            telemetry.addData("Y", currentPose.getY());
+            telemetry.addData("Heading", currentPose.getHeading());
+            telemetry.update();
         }
     }
 

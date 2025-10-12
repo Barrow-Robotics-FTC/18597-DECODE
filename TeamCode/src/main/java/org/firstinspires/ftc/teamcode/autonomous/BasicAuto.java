@@ -5,11 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Panels
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.TelemetryManager;
-import com.bylazar.telemetry.PanelsTelemetry;
-
 // Pedro Pathing
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.geometry.BezierLine;
@@ -28,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Autonomous(name = "Basic Autonomous", group = "Autonomous")
-@Configurable // Panels
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class BasicAuto extends LinearOpMode {
     // Editable variables
@@ -65,15 +59,11 @@ public class BasicAuto extends LinearOpMode {
     private AprilTag aprilTag; // Custom April Tag class
     private Pose currentPose; // Current pose of the robot
     public Follower follower; // Pedro Pathing follower
-    private TelemetryManager panelsTelemetry; // Panels telemetry
     private StateMachine.State pathState; // Current state machine value
     private AprilTag.Pattern targetPattern; // Target pattern determined by obelisk April Tag
 
     @Override
     public void runOpMode() {
-        // Initialize Panels telemetry
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
         // Initialize Pedro Pathing follower
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(Poses.home);
@@ -85,11 +75,11 @@ public class BasicAuto extends LinearOpMode {
         stateMachine = new StateMachine(follower, stateList, launcher, intake);
 
         // Prompt the driver to select an alliance
-        alliance = AllianceSelector.run(gamepad1, panelsTelemetry, telemetry);
+        alliance = AllianceSelector.run(gamepad1, telemetry);
 
-        // Log completed initialization to Panels and driver station
-        panelsTelemetry.debug("Status", "Initialized");
-        panelsTelemetry.update(telemetry); // Update Panels and driver station after logging
+        // Log completed initialization
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
 
         // Wait for the game to start (driver presses START)
         waitForStart();
@@ -112,13 +102,13 @@ public class BasicAuto extends LinearOpMode {
             // Run the state machine update loop
             pathState = stateMachine.update();
 
-            // Log status to Panels and driver station
-            panelsTelemetry.debug("Elapsed", runtime.toString());
-            panelsTelemetry.debug("Path State", pathState);
-            panelsTelemetry.debug("X", currentPose.getX());
-            panelsTelemetry.debug("Y", currentPose.getY());
-            panelsTelemetry.debug("Heading", currentPose.getHeading());
-            panelsTelemetry.update(telemetry); // Update Panels and driver station after logging
+            // Log status
+            telemetry.addData("Elapsed", runtime.toString());
+            telemetry.addData("Path State", pathState);
+            telemetry.addData("X", currentPose.getX());
+            telemetry.addData("Y", currentPose.getY());
+            telemetry.addData("Heading", currentPose.getHeading());
+            telemetry.update();
         }
 
         // Save values for TeleOp

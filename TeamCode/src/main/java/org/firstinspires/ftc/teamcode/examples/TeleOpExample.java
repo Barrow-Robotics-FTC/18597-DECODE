@@ -6,11 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Panels
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.TelemetryManager;
-import com.bylazar.telemetry.PanelsTelemetry;
-
 // Pedro Pathing
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.paths.HeadingInterpolator;
@@ -25,7 +20,6 @@ import java.util.function.Supplier;
 
 @TeleOp(name = "Example TeleOp", group = "Examples")
 @Disabled // REMOVE THI LINE TO SEE ON DRIVER HUB
-@Configurable // Use Panels
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
 public class TeleOpExample extends LinearOpMode {
     private double slowModeMultiplier = 0.5; // Multiplier for slow mode speed
@@ -38,7 +32,6 @@ public class TeleOpExample extends LinearOpMode {
     private Follower follower; // Pedro pathing follower
     private Pose currentPose; // Current pose of the robot
     private boolean automatedDrive; // Is Pedro Pathing driving?
-    private TelemetryManager panelsTelemetry; // Panels telemetry
     private boolean slowMode = false; // Slow down the robot
 
     // Create path which moves to the line in front of the red goal from the current position
@@ -47,22 +40,6 @@ public class TeleOpExample extends LinearOpMode {
             .addPath(new Path(new BezierLine(follower::getPose, new Pose(45, 98))))
             .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), 0.8))
             .build();
-
-    // Custom logging function to support telemetry and Panels
-    private void log(String caption, Object... text) {
-        if (text.length == 1) {
-            telemetry.addData(caption, text[0]);
-            panelsTelemetry.debug(caption + ": " + text[0]);
-        } else if (text.length >= 2) {
-            StringBuilder message = new StringBuilder();
-            for (int i = 0; i < text.length; i++) {
-                message.append(text[i]);
-                if (i < text.length - 1) message.append(" ");
-            }
-            telemetry.addData(caption, message.toString());
-            panelsTelemetry.debug(caption + ": " + message);
-        }
-    }
 
     private void intakeArtifacts() {
         // Put your intake logic here
@@ -81,12 +58,9 @@ public class TeleOpExample extends LinearOpMode {
         follower.setStartingPose(startingPose);
         follower.update();
 
-        // Initialize Panels telemetry
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
-        // Log completed initialization to Panels and driver station (custom log function)
-        log("Status", "Initialized");
-        telemetry.update(); // Update driver station after logging
+        // Log completed initialization
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
 
         // Wait for the TeleOp period to start (driver presses START)
         waitForStart();
@@ -98,7 +72,6 @@ public class TeleOpExample extends LinearOpMode {
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
             follower.update();
-            panelsTelemetry.update();
             currentPose = follower.getPose();
 
             if (!automatedDrive) {
@@ -149,11 +122,11 @@ public class TeleOpExample extends LinearOpMode {
                 shootArtifacts();
             }
 
-            // Log to Panels and driver station (custom log function)
-            log("X: ", currentPose.getX());
-            log("Y: ", currentPose.getY());
-            log("Heading: ", currentPose.getHeading());
-            telemetry.update(); // Update the driver station after logging
+            // Log status
+            telemetry.addData("X: ", currentPose.getX());
+            telemetry.addData("Y: ", currentPose.getY());
+            telemetry.addData("Heading: ", currentPose.getHeading());
+            telemetry.update();
         }
     }
 }

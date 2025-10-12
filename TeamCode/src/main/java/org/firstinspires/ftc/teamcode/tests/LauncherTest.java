@@ -4,11 +4,6 @@ package org.firstinspires.ftc.teamcode.tests;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-// Panels
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.TelemetryManager;
-import com.bylazar.telemetry.PanelsTelemetry;
-
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.Launcher;
 
@@ -20,25 +15,19 @@ If at any point, the launcher needs to be stopped, press the right bumper on gam
 */
 
 @TeleOp(name = "Launcher Test", group = "Tests")
-@Configurable // Use Panels
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LauncherTest extends LinearOpMode {
-    private TelemetryManager panelsTelemetry; // Panels telemetry
     private Launcher launcher; // Custom launcher class
     private Launcher.State launcherState; // Current launcher state
 
     @Override
     public void runOpMode() {
-        // Initialize Panels telemetry
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
         // Create instance of launcher and initialize
-        launcher = new Launcher();
-        launcher.init(hardwareMap);
+        launcher = new Launcher(hardwareMap);
 
         // Log completed initialization to Panels and driver station
-        panelsTelemetry.debug("Status", "Initialized");
-        panelsTelemetry.update(telemetry); // Update Panels and driver station after logging
+        telemetry.addData("Status", "Initialized");
+        telemetry.update(); // Update Panels and driver station after logging
 
         // Wait for the TeleOp period to start (driver presses START)
         waitForStart();
@@ -55,11 +44,11 @@ public class LauncherTest extends LinearOpMode {
                 }
             }
 
-            panelsTelemetry.debug("Launcher State", launcherState);
-            panelsTelemetry.debug("Left Motor RPM", launcher.getLeftRPM());
-            panelsTelemetry.debug("Right Motor RPM", launcher.getRightRPM());
-            panelsTelemetry.debug("Tapper Rotation (commanded)", launcher.getCommandedTapperRotation());
-            panelsTelemetry.update(telemetry); // Update Panels and Driver Station after logging
+            telemetry.addData("Launcher State", launcherState);
+            telemetry.addData("Left Motor RPM", launcher.getLeftRPM());
+            telemetry.addData("Right Motor RPM", launcher.getRightRPM());
+            telemetry.addData("Tapper Rotation (commanded)", launcher.getCommandedTapperRotation());
+            telemetry.update(); // Update Panels and Driver Station after logging
         }
     }
 }

@@ -5,11 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Panels
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.TelemetryManager;
-import com.bylazar.telemetry.PanelsTelemetry;
-
 // Pedro Pathing
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.geometry.BezierLine;
@@ -34,7 +29,6 @@ Right Trigger (on release): Drive to scoring position and launch 3 artifacts
  */
 
 @TeleOp(name = "Basic TeleOp", group = "TeleOp")
-@Configurable // Use Panels
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
 public class BasicTeleOp extends LinearOpMode {
     // Editable variables
@@ -57,7 +51,6 @@ public class BasicTeleOp extends LinearOpMode {
     private Follower follower; // Pedro pathing follower
     private Pose currentPose; // Current pose of the robot
     private boolean automatedDrive; // Is Pedro Pathing driving?
-    private TelemetryManager panelsTelemetry; // Panels telemetry
 
     // Class to store poses (access with Poses.poseName)
     static class Poses {
@@ -90,16 +83,13 @@ public class BasicTeleOp extends LinearOpMode {
         follower.setStartingPose(new Pose());
         follower.update();
 
-        // Initialize Panels telemetry
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
         // Initialize all utilities used in TeleOp
         Launcher launcher = new Launcher(hardwareMap);
         Intake intake = new Intake(hardwareMap);
 
         // Log completed initialization to Panels and driver station
-        panelsTelemetry.debug("Status", "Initialized");
-        panelsTelemetry.update(telemetry); // Update Panels and driver station after logging
+        telemetry.addData("Status", "Initialized");
+        telemetry.update(); // Update Panels and driver station after logging
 
         // Wait for the TeleOp period to start (driver presses START)
         waitForStart();
@@ -134,11 +124,11 @@ public class BasicTeleOp extends LinearOpMode {
                 automatedDrive = true;
             }
 
-            // Log status to Panels and driver station
-            panelsTelemetry.debug("X: ", currentPose.getX());
-            panelsTelemetry.debug("Y: ", currentPose.getY());
-            panelsTelemetry.debug("Heading: ", currentPose.getHeading());
-            panelsTelemetry.update(telemetry); // Update Panels and Driver Station after logging
+            // Log status
+            telemetry.addData("X: ", currentPose.getX());
+            telemetry.addData("Y: ", currentPose.getY());
+            telemetry.addData("Heading: ", currentPose.getHeading());
+            telemetry.update();
         }
     }
 }
