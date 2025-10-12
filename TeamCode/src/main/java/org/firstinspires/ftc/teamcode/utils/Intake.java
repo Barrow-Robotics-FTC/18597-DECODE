@@ -9,7 +9,7 @@ public class Intake {
     CRServo intake_left;
     CRServo intake_right;
 
-    public void init(HardwareMap hardwareMap) {
+    public Intake(HardwareMap hardwareMap) {
         intake_left = hardwareMap.get(CRServo.class, "intake_left");
         intake_right = hardwareMap.get(CRServo.class, "intake_right");
     }

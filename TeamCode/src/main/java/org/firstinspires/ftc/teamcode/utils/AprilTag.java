@@ -21,8 +21,8 @@ public class AprilTag {
     private static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
     private static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
     private static final int GPP_TAG_ID = 21; // Tag ID for GPP on the obelisk
-    private VisionPortal visionPortal; // Manages webcam
-    private AprilTagProcessor aprilTagProcessor; // Manages April tag detection
+    private final VisionPortal visionPortal; // Manages webcam
+    private final AprilTagProcessor aprilTagProcessor; // Manages April tag detection
 
     public enum Pattern {
         PPG,
@@ -37,7 +37,7 @@ public class AprilTag {
         }
     }
 
-    public void init(HardwareMap hardwareMap) {
+    public AprilTag(HardwareMap hardwareMap) {
         // Create the AprilTag processor and set decimation
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
         aprilTagProcessor.setDecimation(APRIL_TAG_CAMERA_DECIMATION);

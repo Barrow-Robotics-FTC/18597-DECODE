@@ -33,7 +33,6 @@ B (On press): Stop auto drive
 Right Trigger (on release): Drive to scoring position and launch 3 artifacts
  */
 
-
 @TeleOp(name = "Basic TeleOp", group = "TeleOp")
 @Configurable // Use Panels
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
@@ -94,13 +93,9 @@ public class BasicTeleOp extends LinearOpMode {
         // Initialize Panels telemetry
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        // Create instance of launcher and initialize
-        Launcher launcher = new Launcher();
-        launcher.init(hardwareMap);
-
-        // Create instance of intake and initialize
-        Intake intake = new Intake();
-        intake.init(hardwareMap);
+        // Initialize all utilities used in TeleOp
+        Launcher launcher = new Launcher(hardwareMap);
+        Intake intake = new Intake(hardwareMap);
 
         // Log completed initialization to Panels and driver station
         panelsTelemetry.debug("Status", "Initialized");

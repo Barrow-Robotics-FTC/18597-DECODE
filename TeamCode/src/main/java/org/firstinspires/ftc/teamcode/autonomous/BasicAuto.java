@@ -78,21 +78,11 @@ public class BasicAuto extends LinearOpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(Poses.home);
 
-        // Create instance of launcher and initialize
-        launcher = new Launcher();
-        launcher.init(hardwareMap);
-
-        // Create instance of intake and initialize
-        intake = new Intake();
-        intake.init(hardwareMap);
-
-        // Crate instance of April Tag and initialize
-        aprilTag = new AprilTag();
-        aprilTag.init(hardwareMap);
-
-        // Create state machine and initialize
-        stateMachine = new StateMachine();
-        stateMachine.init(follower, stateList, launcher, intake);
+        // Initialize all utilities used in auto
+        launcher = new Launcher(hardwareMap);
+        intake = new Intake(hardwareMap);
+        aprilTag = new AprilTag(hardwareMap);
+        stateMachine = new StateMachine(follower, stateList, launcher, intake);
 
         // Prompt the driver to select an alliance
         alliance = AllianceSelector.run(gamepad1, panelsTelemetry, telemetry);
@@ -214,10 +204,10 @@ public class BasicAuto extends LinearOpMode {
     }
 
     static class StateMachine {
-        private Follower follower;
-        private List<State> states;
-        private Launcher launcher;
-        private Intake intake;
+        private final Follower follower;
+        private final List<State> states;
+        private final Launcher launcher;
+        private final Intake intake;
         private int statesIndex; // Current index in states
         private State currentState; // Current state (only used in update for cleaner code)
 
@@ -242,7 +232,7 @@ public class BasicAuto extends LinearOpMode {
             statesIndex += 1;
         }
 
-        public void init(Follower pedro_follower, List<State> state_list, Launcher launcher_instance, Intake intake_instance) {
+        public StateMachine(Follower pedro_follower, List<State> state_list, Launcher launcher_instance, Intake intake_instance) {
             follower = pedro_follower;
             launcher = launcher_instance;
             intake = intake_instance;

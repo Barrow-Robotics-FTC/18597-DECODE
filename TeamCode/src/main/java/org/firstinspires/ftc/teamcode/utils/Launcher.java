@@ -15,9 +15,9 @@ public class Launcher {
     final double TAPPER_ROTATION_AMOUNT = 0.5; // How much the tapper servo rotates to push a ball into the shooter
 
     // Motors and servos
-    private DcMotorEx leftMotor; // Left flywheel motor (looking from the robots perspective)
-    private DcMotorEx rightMotor; // Right flywheel motor (looking from the robots perspective)
-    private Servo tapperServo; // Tapper servo that pushes the ball into the shooter wheels
+    private final DcMotorEx leftMotor; // Left flywheel motor (looking from the robots perspective)
+    private final DcMotorEx rightMotor; // Right flywheel motor (looking from the robots perspective)
+    private final Servo tapperServo; // Tapper servo that pushes the ball into the shooter wheels
 
     // Other variables
     private final ElapsedTime inToleranceTimer = new ElapsedTime();
@@ -30,7 +30,7 @@ public class Launcher {
         LAUNCH
     }
 
-    public void init(HardwareMap hardwareMap) {
+    public Launcher(HardwareMap hardwareMap) {
         // initialize hardware (drivetrain is initialized by Pedro Pathing)
         leftMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
         rightMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
