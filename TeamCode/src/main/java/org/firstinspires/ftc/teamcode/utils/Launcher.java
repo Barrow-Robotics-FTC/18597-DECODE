@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Launcher {
     // Launcher constants
-    final int TARGET_RPM = 1500; // Target RPM for both launcher motors
+    int TARGET_RPM = 1500; // Target RPM for both launcher motors
     final int RPM_TOLERANCE = 100; // Tolerance of RPM required for launch
     final int RPM_IN_RANGE_TIME = 250; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
     final int ARTIFACT_LAUNCHED_RPM_TOLERANCE = TARGET_RPM - 100; // Launcher motor RPM must be below this for an artifact to be considered launched
@@ -70,6 +70,10 @@ public class Launcher {
 
     public int getLaunches() {
         return launches;
+    }
+
+    public void setTargetRPM(int rpm) {
+        TARGET_RPM = rpm;
     }
 
     public State update() {
