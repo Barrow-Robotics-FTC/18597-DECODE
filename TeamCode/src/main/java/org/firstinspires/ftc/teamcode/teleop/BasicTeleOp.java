@@ -24,7 +24,7 @@ Upload the file to https://barrow-robotics-ftc.github.io/FTCPadMap/ for an inter
 Left Stick X: Strafe
 Left Stick Y: Forward
 Right Stick X: Turn
-B (On press): Stop auto drive
+Y (On press): Stop auto drive
 Right Trigger (on release): Drive to scoring position and launch 3 artifacts
  */
 
@@ -118,11 +118,46 @@ public class BasicTeleOp extends LinearOpMode {
                 automatedDrive = false;
             }
 
-            // Right Bumper (on release): Go to scoring position and launch
-            if (gamepad1.rightBumperWasReleased()) {
+            // D Pad Up Button (When Pressed): Go to scoring position and launch
+            if (gamepad1.dpadUpWasPressed()) {
                 follower.followPath(getPathToPose(Poses.score));
                 automatedDrive = true;
             }
+            // D Pad Down Button (When Pressed): Go to the Human Players Position
+            if (gamepad1.dpadDownWasPressed()) {
+                // follow to human player
+                // automatedDriver = true;
+            }
+            // Initialize Intake
+            if (gamepad2.leftBumperWasPressed()) {
+            //
+            }
+            // Disable Intake
+            if (gamepad2.rightBumperWasPressed()) {
+                //
+            }
+            // Enable Slow Mode
+            if (gamepad1.leftStickButtonWasPressed()) {
+                //
+            }
+            // Disable Slow Mode
+            if (gamepad1.rightStickButtonWasPressed()) {
+                //
+            }
+            // Disable Launcher
+            if (gamepad2.left_trigger < 0.1) {
+                //
+            }
+            // Enable Launcher
+            if (gamepad2.right_trigger > 0.1) {
+                //
+            }
+            // Chassy
+            if (gamepad1.left_stick_x > 0.05) {
+                //
+            }
+            //
+
 
             // Log status
             telemetry.addData("X: ", currentPose.getX());
