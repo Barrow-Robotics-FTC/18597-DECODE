@@ -25,30 +25,31 @@ public class LauncherTest extends LinearOpMode {
         // Create instance of launcher and initialize
         launcher = new Launcher(hardwareMap);
 
-        // Log completed initialization to Panels and driver station
+        // Log completed initialization
         telemetry.addData("Status", "Initialized");
-        telemetry.update(); // Update Panels and driver station after logging
+        telemetry.update();
 
-        // Wait for the TeleOp period to start (driver presses START)
+        // Wait for START to be pressed
         waitForStart();
 
         while (opModeIsActive()) {
             if (launcherState == Launcher.State.IDLE) { // If the launcher is not running
-                if (gamepad1.right_bumper) { // When right bumper is pressed
+                if (gamepad1.rightBumperWasPressed()) { // When right bumper is pressed
                     launcherState = launcher.update(); // Start the launcher (running update will get the launcher out of IDLE)
                 }
             } else { // If the launcher is running
                 launcherState = launcher.update(); // Run the launcher update loop
-                if (gamepad1.right_bumper) { // When the right bumper is pressed
-                    launcher.stop(); // Stop the launcher (will move back to IDLE state)
+                if (gamepad1.rightBumperWasPressed()) { // When the right bumper is pressed
+                    launcherState = launcher.stop(); // Stop the launcher (will move back to IDLE state)
                 }
             }
 
+            // Log status
             telemetry.addData("Launcher State", launcherState);
             telemetry.addData("Left Motor RPM", launcher.getLeftRPM());
             telemetry.addData("Right Motor RPM", launcher.getRightRPM());
             telemetry.addData("Tapper Rotation (commanded)", launcher.getCommandedTapperRotation());
-            telemetry.update(); // Update Panels and Driver Station after logging
+            telemetry.update();
         }
     }
 }

@@ -41,7 +41,7 @@ public class Launcher {
         rightMotor.setZeroPowerBehavior(BRAKE);
     }
 
-    public void stop() {
+    public State stop() {
         // When the state is set to idle, whatever ran this state machine will know that artifacts have been launched
         // With the state being idle, the next time update is called, the launch cycle will start over again.
         state = State.IDLE;
@@ -52,6 +52,8 @@ public class Launcher {
 
         // Reset launch count
         launches = 0;
+
+        return state;
     }
 
     public double getLeftRPM() {
