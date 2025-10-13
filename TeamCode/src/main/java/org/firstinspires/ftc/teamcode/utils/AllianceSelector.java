@@ -10,12 +10,12 @@ public class AllianceSelector {
     }
 
     public static Alliance run(Gamepad gamepad1, Telemetry telemetry) {
-        Alliance selected_alliance = null;
-        while (selected_alliance == null) {
+        Alliance selectedAlliance = null;
+        while (selectedAlliance == null) {
             if (gamepad1.b) {
-                selected_alliance = Alliance.RED;
+                selectedAlliance = Alliance.RED;
             } else if (gamepad1.y) {
-                selected_alliance = Alliance.BLUE;
+                selectedAlliance = Alliance.BLUE;
             }
 
             telemetry.addData("Alliance Selector", "Select Alliance");
@@ -24,6 +24,6 @@ public class AllianceSelector {
             telemetry.update();
         }
 
-        return selected_alliance;
+        return selectedAlliance;
     }
 }

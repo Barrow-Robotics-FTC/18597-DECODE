@@ -16,6 +16,7 @@ import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
 import org.firstinspires.ftc.teamcode.utils.Intake;
 import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
+import org.firstinspires.ftc.teamcode.utils.StartPositionSelector;
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
 
 // Java
@@ -53,6 +54,7 @@ public class BasicAuto extends LinearOpMode {
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
     private AllianceSelector.Alliance alliance; // Alliance of the robot
+    private StartPositionSelector.StartPositions startPosition; // Start position of the robot (Not Pose)
     private StateMachine stateMachine; // Custom autonomous state machine
     private Launcher launcher; // Custom launcher class
     private Intake intake; // Custom intake class
@@ -66,7 +68,6 @@ public class BasicAuto extends LinearOpMode {
     public void runOpMode() {
         // Initialize Pedro Pathing follower
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(Paths.getHome());
 
         // Initialize all utilities used in auto
         launcher = new Launcher(hardwareMap);
@@ -76,6 +77,10 @@ public class BasicAuto extends LinearOpMode {
 
         // Prompt the driver to select an alliance
         alliance = AllianceSelector.run(gamepad1, telemetry);
+
+        // Prompt user to select start position and set starting pose
+        startPosition = StartPositionSelector.run(gamepad1, telemetry);
+        follower.setStartingPose(Paths.getHome(startPosition));
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -92,7 +97,7 @@ public class BasicAuto extends LinearOpMode {
         we'll need to immediately scan the April Tag and then initialize our poses and paths.
         */
         targetPattern = aprilTag.detectPattern();
-        Paths.build(follower, targetPattern, alliance);
+        Paths.build(follower, targetPattern, alliance, startPosition);
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
@@ -152,11 +157,11 @@ public class BasicAuto extends LinearOpMode {
         // Back home
         public static PathChain scoreToHome; // score -> home
 
-        public static void build(Follower follower, AprilTag.Pattern pattern, AllianceSelector.Alliance alliance) {
+        public static void build(Follower follower, AprilTag.Pattern pattern, AllianceSelector.Alliance alliance, StartPositionSelector.StartPositions startPosition) {
             mirrorPoses = (alliance == AllianceSelector.Alliance.BLUE); // Set if poses should be mirrored based on alliance
 
             // Define poses
-            home = getHome();
+            home = getHome(startPosition);
             score = buildPose(60, 83.5, 135);
             PPGArtifacts = buildPose(40, 83.75, 180);
             PGPArtifacts = buildPose(40, 59.75, 180);
@@ -219,9 +224,12 @@ public class BasicAuto extends LinearOpMode {
                     .build();
         }
 
-        // TODO: CHANGE STARTING POSE
-        public static Pose getHome() {
-            return buildPose(72, 7, 90);
+        public static Pose getHome(StartPositionSelector.StartPositions startPosition) {
+            if (startPosition == StartPositionSelector.StartPositions.TOUCHING_CENTER_LINE) {
+                return buildPose(64, 7, 90);
+            } else { // TOUCHING_OUTER_CENTER_LINE
+                return buildPose(56, 7, 90);
+            }
         }
     }
 
