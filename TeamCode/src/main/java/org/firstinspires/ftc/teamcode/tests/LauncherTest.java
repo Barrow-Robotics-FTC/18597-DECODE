@@ -46,6 +46,7 @@ public class LauncherTest extends LinearOpMode {
 
             // Log status
             telemetry.addData("Launcher State", launcherState);
+            telemetry.addData("Launches Completed", launcher.getLaunches());
             telemetry.addData("Left Motor RPM", launcher.getLeftRPM());
             telemetry.addData("Right Motor RPM", launcher.getRightRPM());
             telemetry.addData("Tapper Rotation (commanded)", launcher.getCommandedTapperRotation());

@@ -68,6 +68,10 @@ public class Launcher {
         return tapperServo.getPosition();
     }
 
+    public int getLaunches() {
+        return launches;
+    }
+
     public State update() {
         switch(state) {
             case IDLE:

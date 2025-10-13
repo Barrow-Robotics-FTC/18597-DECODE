@@ -66,7 +66,7 @@ public class BasicAuto extends LinearOpMode {
     public void runOpMode() {
         // Initialize Pedro Pathing follower
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(Poses.home);
+        follower.setStartingPose(Paths.getHome());
 
         // Initialize all utilities used in auto
         launcher = new Launcher(hardwareMap);
@@ -89,10 +89,10 @@ public class BasicAuto extends LinearOpMode {
 
         /*
         The April tag obelisk is randomized after the OpMode is initialized, so right after we run the OpMode
-        we'll need to immediately scan the April Tag and then initialize our paths and state machine.
+        we'll need to immediately scan the April Tag and then initialize our poses and paths.
         */
         targetPattern = aprilTag.detectPattern();
-        Paths.build(follower, targetPattern);
+        Paths.build(follower, targetPattern, alliance);
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
@@ -116,39 +116,101 @@ public class BasicAuto extends LinearOpMode {
         blackboard.put("autoEndPose", currentPose);
     }
 
-    static class Poses {
-        // Poses (assuming red alliance)
-        public static Pose home = new Pose(72, 7, Math.toRadians(90)); // Centered against the audience wall
-        public static Pose score = new Pose(60, 83.5, Math.toRadians(135)); // Facing goal (close to the white line point)
-        public static Pose PPGArtifacts = new Pose(40, 83.75, Math.toRadians(180)); // In front of upper artifacts
-        public static Pose PGPArtifacts = new Pose(40, 59.75, Math.toRadians(180)); // In front of middle artifacts
-        public static Pose GPPArtifacts = new Pose(40, 35.75, Math.toRadians(180)); // In front of lower artifacts
-        public static Pose PPGArtifactsEnd = new Pose(20, 83.75, Math.toRadians(180));
-        public static Pose PGPArtifactsEnd = new Pose(20, 59.75, Math.toRadians(180));
-        public static Pose GPPArtifactsEnd = new Pose(20, 35.75, Math.toRadians(180));
-    }
-
     static class Paths {
+        // Poses (assuming red alliance, last arg determines if the pose should be mirrored on blue alliance)
+        private static Pose home; // Centered against the audience wall
+        private static Pose score; // Facing goal (close to the white line point)
+        private static Pose PPGArtifacts; // In front of upper artifacts
+        private static Pose PGPArtifacts; // In front of middle artifacts
+        private static Pose GPPArtifacts; // In front of lower artifacts
+        private static Pose PPGArtifactsEnd; // 20 inches in front of PPGArtifacts
+        private static Pose PGPArtifactsEnd; // 20 inches in front of PGPArtifacts
+        private static Pose GPPArtifactsEnd; // 20 inches in front of GPPArtifacts
+
+        // Blue alliance if true, red alliance if false
+        private static boolean mirrorPoses;
+
+        // Path chains
         // Cycle 1 (score preloaded)
         public static PathChain homeToScore; // Poses.home -> Poses.score
 
         // Cycle 2 (intake pattern row and score)
-        public static PathChain scoreToPatternIntake; // Poses.score -> Poses.XXXArtifacts
-        public static PathChain patternIntakeToEnd; // Poses.XXXArtifacts -> Poses.XXXArtifact (x - 20)
-        public static PathChain patternIntakeEndToScore; // Poses.XXXArtifacts (x - 20) -> Poses.score
+        public static PathChain scoreToPatternIntake; // score -> XXXArtifacts
+        public static PathChain patternIntakeToEnd; // XXXArtifacts -> XXXArtifactsEnd
+        public static PathChain patternIntakeEndToScore; // XXXArtifactsEnd -> score
 
         // Cycle 3 (intake first non-pattern row and score
-        public static PathChain scoreToNonPatternIntake1; // Poses.score -> Poses.XXXArtifacts
-        public static PathChain nonPatternIntake1ToEnd; // Poses.XXXArtifacts -> Poses.XXXArtifactsEnd (x - 20)
-        public static PathChain nonPatternIntake1EndToScore; // Poses.XXXArtifactsEnd (x - 20) -> Poses.score
+        public static PathChain scoreToNonPatternIntake1; // score -> XXXArtifacts
+        public static PathChain nonPatternIntake1ToEnd; // XXXArtifacts -> XXXArtifactsEnd
+        public static PathChain nonPatternIntake1EndToScore; // XXXArtifactsEnd -> score
 
         // Cycle 4 (intake second non-pattern row and score)
-        public static PathChain scoreToNonPatternIntake2; // Poses.score -> Poses.XXXArtifacts
-        public static PathChain nonPatternIntake2ToEnd; // Poses.XXXArtifacts -> Poses.XXXArtifactsEnd (x - 20)
-        public static PathChain nonPatternIntake2EndToScore; // Poses.XXXArtifactsEnd (x - 20) -> Poses.score
+        public static PathChain scoreToNonPatternIntake2; // score -> XXXArtifacts
+        public static PathChain nonPatternIntake2ToEnd; // XXXArtifacts -> XXXArtifactsEnd
+        public static PathChain nonPatternIntake2EndToScore; // XXXArtifactsEnd -> score
 
         // Back home
-        public static PathChain scoreToHome;
+        public static PathChain scoreToHome; // score -> home
+
+        public static void build(Follower follower, AprilTag.Pattern pattern, AllianceSelector.Alliance alliance) {
+            mirrorPoses = (alliance == AllianceSelector.Alliance.BLUE); // Set if poses should be mirrored based on alliance
+
+            // Define poses
+            home = getHome();
+            score = buildPose(60, 83.5, 135);
+            PPGArtifacts = buildPose(40, 83.75, 180);
+            PGPArtifacts = buildPose(40, 59.75, 180);
+            GPPArtifacts = buildPose(40, 35.75, 180);
+            PPGArtifactsEnd = buildPose(20, 83.75, 180);
+            PGPArtifactsEnd = buildPose(20, 59.75, 180);
+            GPPArtifactsEnd = buildPose(20, 35.75, 180);
+
+            // Select the correct intake poses based on pattern (assume PPG initially)
+            Pose patternIntakePose = PPGArtifacts;
+            Pose nonPatternIntake1Pose = PGPArtifacts;
+            Pose nonPatternIntake2Pose = GPPArtifacts;
+            Pose patternIntakeEndPose = PPGArtifactsEnd;
+            Pose nonPatternIntake1EndPose = PGPArtifactsEnd;
+            Pose nonPatternIntake2EndPose = GPPArtifactsEnd;
+            if (pattern == AprilTag.Pattern.PGP) { // If the pattern is PGP, swap PPG and PGP
+                patternIntakePose = PGPArtifacts;
+                nonPatternIntake1Pose = PPGArtifacts;
+                patternIntakeEndPose = PGPArtifactsEnd;
+                nonPatternIntake1EndPose = PPGArtifactsEnd;
+            } else if (pattern == AprilTag.Pattern.GPP) { // If the pattern is GPP, rotate PPG, PGP, and GPP
+                patternIntakePose = GPPArtifacts;
+                nonPatternIntake1Pose = PPGArtifacts;
+                nonPatternIntake2Pose = PGPArtifacts;
+                patternIntakeEndPose = GPPArtifactsEnd;
+                nonPatternIntake1EndPose = PPGArtifactsEnd;
+                nonPatternIntake2EndPose = PGPArtifactsEnd;
+            }
+
+            homeToScore = buildPath(follower, home, score);
+            scoreToPatternIntake = buildPath(follower, score, patternIntakePose);
+            patternIntakeToEnd = buildPath(follower, patternIntakePose, patternIntakeEndPose);
+            patternIntakeEndToScore = buildPath(follower, patternIntakeEndPose, score);
+            scoreToNonPatternIntake1 = buildPath(follower, score, nonPatternIntake1Pose);
+            nonPatternIntake1ToEnd = buildPath(follower, nonPatternIntake1Pose, nonPatternIntake1EndPose);
+            nonPatternIntake1EndToScore = buildPath(follower, nonPatternIntake1EndPose, score);
+            scoreToNonPatternIntake2 = buildPath(follower, score, nonPatternIntake2Pose);
+            nonPatternIntake2ToEnd = buildPath(follower, nonPatternIntake2Pose, nonPatternIntake2EndPose);
+            nonPatternIntake2EndToScore = buildPath(follower, nonPatternIntake2EndPose, score);
+            scoreToHome = buildPath(follower, score, home);
+        }
+
+        @SuppressWarnings("SameParameterValue") // Suppress warning about mirrorIfNeeded always being true
+        private static Pose buildPose(double x, double y, double heading, boolean mirrorIfNeeded) {
+            Pose pose = new Pose(x, y, Math.toRadians(heading));
+            if (mirrorPoses && mirrorIfNeeded) {
+                pose = pose.mirror();
+            }
+            return pose;
+        }
+
+        private static Pose buildPose(double x, double y, double heading) {
+            return buildPose(x, y, heading, true);
+        }
 
         private static PathChain buildPath(Follower follower, Pose pose1, Pose pose2) {
             return follower.pathBuilder()
@@ -157,39 +219,9 @@ public class BasicAuto extends LinearOpMode {
                     .build();
         }
 
-        public static void build(Follower follower, AprilTag.Pattern pattern) {
-            // Select the correct intake poses based on pattern
-            Pose patternIntakePose = Poses.PPGArtifacts;
-            Pose nonPatternIntake1Pose = Poses.PGPArtifacts;
-            Pose nonPatternIntake2Pose = Poses.GPPArtifacts;
-            Pose patternIntakeEndPose = Poses.PPGArtifactsEnd;
-            Pose nonPatternIntake1EndPose = Poses.PGPArtifactsEnd;
-            Pose nonPatternIntake2EndPose = Poses.GPPArtifactsEnd;
-            if (pattern == AprilTag.Pattern.PGP) {
-                patternIntakePose = Poses.PGPArtifacts;
-                nonPatternIntake1Pose = Poses.PPGArtifacts;
-                patternIntakeEndPose = Poses.PGPArtifactsEnd;
-                nonPatternIntake1EndPose = Poses.PPGArtifactsEnd;
-            } else if (pattern == AprilTag.Pattern.GPP) {
-                patternIntakePose = Poses.GPPArtifacts;
-                nonPatternIntake1Pose = Poses.PPGArtifacts;
-                nonPatternIntake2Pose = Poses.PGPArtifacts;
-                patternIntakeEndPose = Poses.GPPArtifactsEnd;
-                nonPatternIntake1EndPose = Poses.PPGArtifactsEnd;
-                nonPatternIntake2EndPose = Poses.PGPArtifactsEnd;
-            }
-
-            homeToScore = buildPath(follower, Poses.home, Poses.score);
-            scoreToPatternIntake = buildPath(follower, Poses.score, patternIntakePose);
-            patternIntakeToEnd = buildPath(follower, patternIntakePose, patternIntakeEndPose);
-            patternIntakeEndToScore = buildPath(follower, patternIntakeEndPose, Poses.score);
-            scoreToNonPatternIntake1 = buildPath(follower, Poses.score, nonPatternIntake1Pose);
-            nonPatternIntake1ToEnd = buildPath(follower, nonPatternIntake1Pose, nonPatternIntake1EndPose);
-            nonPatternIntake1EndToScore = buildPath(follower, nonPatternIntake1EndPose, Poses.score);
-            scoreToNonPatternIntake2 = buildPath(follower, Poses.score, nonPatternIntake2Pose);
-            nonPatternIntake2ToEnd = buildPath(follower, nonPatternIntake2Pose, nonPatternIntake2EndPose);
-            nonPatternIntake2EndToScore = buildPath(follower, nonPatternIntake2EndPose, Poses.score);
-            scoreToHome = buildPath(follower, Poses.score, Poses.home);
+        // TODO: CHANGE STARTING POSE
+        public static Pose getHome() {
+            return buildPose(72, 7, 90);
         }
     }
 
