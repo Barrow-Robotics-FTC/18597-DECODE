@@ -21,11 +21,12 @@ import org.firstinspires.ftc.teamcode.utils.Intake;
 Gamepad Map for TeleOp (FTCPadMap file available in this programs folder)
 Upload the file to https://barrow-robotics-ftc.github.io/FTCPadMap/ for an interactive view
 
-Left Stick X: Strafe
-Left Stick Y: Forward
-Right Stick X: Turn
-Y (On press): Stop auto drive
-Right Trigger (on release): Drive to scoring position and launch 3 artifacts
+Drive Coach: NAME
+Human player: NAME
+Gamepad 1 (Driver): NAME
+    Right Trigger (When Pressed): Go to scoring position
+    Left Trigger (When Pressed): Go to human player position
+Gamepad 2 (Operator): NAME
  */
 
 @TeleOp(name = "Basic TeleOp", group = "TeleOp")
@@ -50,12 +51,16 @@ public class BasicTeleOp extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower; // Pedro pathing follower
     private Pose currentPose; // Current pose of the robot
-    private boolean automatedDrive; // Is Pedro Pathing driving?
+    private boolean automatedDrive = false; // Is Pedro Pathing driving?
+    private boolean launcherActive = false; // Is the launcher update loop running?
+    private boolean intakeActive = false; // Is the intake running?
+    private boolean readyForLaunch = false; // Are we in position to allow the launcher to launch?
 
     // Class to store poses (access with Poses.poseName)
     static class Poses {
         // Poses (assuming red alliance)
         public static Pose score = new Pose(60, 83.5, Math.toRadians(135)); // Facing goal (close to the white line point)
+        public static Pose humanPlayer = new Pose(10, 10, Math.toRadians(0)); // Facing the field from the human player station
     }
 
     // Go from the current position to any pose
@@ -118,15 +123,15 @@ public class BasicTeleOp extends LinearOpMode {
                 automatedDrive = false;
             }
 
-            // D Pad Up Button (When Pressed): Go to scoring position and launch
-            if (gamepad1.dpadUpWasPressed()) {
+            // Gamepad 1 Right Trigger (When Pressed): Go to scoring position
+            if (gamepad1.right_trigger > 0.1) {
                 follower.followPath(getPathToPose(Poses.score));
-                automatedDrive = true;
+                automatedDrive = true; // Start auto drive
             }
-            // D Pad Down Button (When Pressed): Go to the Human Players Position
-            if (gamepad1.dpadDownWasPressed()) {
-                // follow to human player
-                // automatedDriver = true;
+            // Gamepad 1 Left Trigger (When Pressed): Go to human player position
+            if (gamepad1.left_trigger > 0.1) {
+                follower.followPath(getPathToPose(Poses.humanPlayer));
+                automatedDrive = true; // Start auto drive
             }
             // Initialize Intake
             if (gamepad2.leftBumperWasPressed()) {
@@ -152,11 +157,6 @@ public class BasicTeleOp extends LinearOpMode {
             if (gamepad2.right_trigger > 0.1) {
                 //
             }
-            // Chassy
-            if (gamepad1.left_stick_x > 0.05) {
-                //
-            }
-            //
 
 
             // Log status
