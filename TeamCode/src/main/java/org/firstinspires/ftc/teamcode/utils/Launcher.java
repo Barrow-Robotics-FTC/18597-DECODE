@@ -80,7 +80,7 @@ public class Launcher {
         TARGET_RPM = rpm;
     }
 
-    public State update() {
+    public State update(boolean launchIfReady) {
         switch(state) {
             case IDLE:
                 // If this rums, we are starting a new launch cycle, so we'll move to the speed up state
@@ -98,7 +98,11 @@ public class Launcher {
                     // Check if we have been within tolerance for the required amount of time (eliminates inconsistency due to oscillation)
                     if (inToleranceTimer.milliseconds() >= RPM_IN_RANGE_TIME) {
                         // We have reached all prerequisites for launch
-                        state = State.LAUNCH;
+                        if (!launchIfReady) {
+                            // If we are not supposed to launch yet, stay in this state
+                            break;
+                        }
+                        state = State.LAUNCH; // Move to launch state
                     }
                 } else {
                     inToleranceTimer.reset();
