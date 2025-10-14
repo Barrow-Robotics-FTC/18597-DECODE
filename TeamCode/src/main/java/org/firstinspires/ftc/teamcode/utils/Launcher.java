@@ -72,6 +72,10 @@ public class Launcher {
         return launches;
     }
 
+    public int getTargetRPM() {
+        return TARGET_RPM;
+    }
+
     public void setTargetRPM(int rpm) {
         TARGET_RPM = rpm;
     }
