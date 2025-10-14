@@ -16,8 +16,10 @@ To adjust the target RPM of the launcher, use the dpad up and down buttons on ga
 @TeleOp(name = "Launcher Test", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class TapperTest extends LinearOpMode {
+    // Editable variables
     private double TAPPER_ROTATION_AMOUNT = 0.5; // How much the tapper servo rotates to push a ball into the shooter
 
+    // Other variables
     private Servo tapper; // Tapper servo
     private boolean tapperPositioned = false; // Whether the tapper is in the pushed position
 
