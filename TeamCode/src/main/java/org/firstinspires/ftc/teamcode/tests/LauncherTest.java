@@ -36,10 +36,10 @@ public class LauncherTest extends LinearOpMode {
         while (opModeIsActive()) {
             if (launcherState == Launcher.State.IDLE) { // If the launcher is not running
                 if (gamepad1.rightBumperWasPressed()) { // When right bumper is pressed
-                    launcherState = launcher.update(); // Start the launcher (running update will get the launcher out of IDLE)
+                    launcherState = launcher.update(true); // Start the launcher (running update will get the launcher out of IDLE)
                 }
             } else { // If the launcher is running
-                launcherState = launcher.update(); // Run the launcher update loop
+                launcherState = launcher.update(true); // Run the launcher update loop
                 if (gamepad1.rightBumperWasPressed()) { // When the right bumper is pressed
                     launcherState = launcher.stop(); // Stop the launcher (will move back to IDLE state)
                 }
