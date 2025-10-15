@@ -6,11 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /*
-This is a simple test OpMode for the launcher. It uses the custom Launcher helper (imported above).
-
-To start the launcher, press the right bumper on gamepad 1. This will run the launcher update loop to launch 3 artifacts.
-If at any point, the launcher needs to be stopped, press the right bumper on gamepad 1 again, this will return the launcher to an idle state.
-To adjust the target RPM of the launcher, use the dpad up and down buttons on gamepad 1.
+This is a simple test OpMode for the tapper servo.
+To move the tapper, press the right bumper on gamepad 1. This will toggle the tapper between the pushed and retracted positions.
+To adjust the pushed tapper position, use the dpad up and down buttons on gamepad 1.
 */
 
 @TeleOp(name = "Launcher Test", group = "Tests")
