@@ -287,7 +287,7 @@ public class BasicAuto extends LinearOpMode {
                         launcher.update() will run the launcher state machine to launch 3 artifacts.
                         The state will become IDLE when all 3 artifacts are launched.
                          */
-                        if (launcher.update() == Launcher.State.IDLE) {
+                        if (launcher.update(true) == Launcher.State.IDLE) {
                             nextState();
                         }
                         break;
