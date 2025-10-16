@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class Launcher {
     // Launcher constants
@@ -21,26 +24,41 @@ public class Launcher {
 
     // Other variables
     private final ElapsedTime inToleranceTimer = new ElapsedTime();
+    private double motorTicksPerRev; // How many encoder ticks per revolution the motors have
     private State state = State.IDLE;
     private int launches;
 
+    // Launcher states
     public enum State {
         IDLE,
         SPEED_UP,
         LAUNCH
     }
 
+    // Constructor
     public Launcher(HardwareMap hardwareMap) {
         // initialize hardware (drivetrain is initialized by Pedro Pathing)
         leftMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
         rightMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
         tapperServo = hardwareMap.get(Servo.class, "tapper");
 
-        // Set launcher motors to brake
-        leftMotor.setZeroPowerBehavior(BRAKE);
-        rightMotor.setZeroPowerBehavior(BRAKE);
+        // Set ticks per revolution variable
+        motorTicksPerRev = leftMotor.getMotorType().getTicksPerRev();
+
+        // Set launcher motor characteristics with a list and a for loop to reduce redundant code
+        java.util.List<DcMotorEx> motors = java.util.Arrays.asList(leftMotor, rightMotor);
+        for (DcMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(BRAKE);
+            motor.setMode(com.qualcomm.robotcore.hardware.DcMotorEx.RunMode.RUN_USING_ENCODER);
+            motor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300,0,0,10));
+        }
+        leftMotor.setDirection(DcMotorEx.Direction.REVERSE);
+
+        // Make sure tapper is in the starting position
+        tapperServo.setPosition(0.0);
     }
 
+    // Stop the launcher and return to idle state
     public State stop() {
         // When the state is set to idle, whatever ran this state machine will know that artifacts have been launched
         // With the state being idle, the next time update is called, the launch cycle will start over again.
@@ -56,18 +74,30 @@ public class Launcher {
         return state;
     }
 
+    // Unit converters
+    private double rpmToTps(double rpm) {
+        return rpm * motorTicksPerRev / 60.0;
+    }
+
+    private double tpsToRpm(double tps) {
+        return tps * 60.0 / motorTicksPerRev;
+    }
+
+    // RPM fetchers
     public double getLeftRPM() {
-        return leftMotor.getVelocity();
+        return tpsToRpm(leftMotor.getVelocity());
     }
 
     public double getRightRPM() {
-        return rightMotor.getVelocity();
+        return tpsToRpm(rightMotor.getVelocity());
     }
 
+    // Tapper position fetcher
     public double getCommandedTapperRotation() {
         return tapperServo.getPosition();
     }
 
+    // Getters and setters
     public int getLaunches() {
         return launches;
     }
@@ -80,6 +110,14 @@ public class Launcher {
         TARGET_RPM = rpm;
     }
 
+    private int getLaunchedRpmThreshold() {
+        // Dynamic threshold tied to the current target
+        return TARGET_RPM - 100;
+    }
+
+    // Update function, runs the launcher state machine
+    // If launchIfReady is true, the launcher will launch as soon as it is ready
+    // If launchIfReady is false, the launcher will spin up to speed and wait in the SPEED_UP state until launchIfReady is true
     public State update(boolean launchIfReady) {
         switch(state) {
             case IDLE:
@@ -87,14 +125,22 @@ public class Launcher {
                 state = State.SPEED_UP;
                 launches = 0; // Reset launch amount
                 inToleranceTimer.reset(); // Reset in tolerance timer
+                leftMotor.setPower(0); // Start with 0 power, will be adjusted in SPEED_UP state
+                rightMotor.setPower(0); // Start with 0 power, will be adjusted in SPEED_UP state
+                tapperServo.setPosition(0.0); // Make sure tapper is in the starting position
 
                 break;
             case SPEED_UP:
-                double currentLeftRPM = leftMotor.getVelocity();
-                double currentRightRPM = rightMotor.getVelocity();
+                // Set motor powers to reach target RPM
+                leftMotor.setVelocity(rpmToTps(TARGET_RPM));
+                rightMotor.setVelocity(rpmToTps(TARGET_RPM));
+
+                // Create variables to check if each motor is within the RPM tolerance
+                boolean leftInTol = Math.abs(TARGET_RPM - getLeftRPM()) <= RPM_TOLERANCE;
+                boolean rightInTol = Math.abs(TARGET_RPM - getRightRPM()) <= RPM_TOLERANCE;
 
                 // Check if we are within the tolerance
-                if (Math.abs(TARGET_RPM - currentLeftRPM) <= RPM_TOLERANCE && Math.abs(TARGET_RPM - currentRightRPM) <= RPM_TOLERANCE) {
+                if (leftInTol && rightInTol) {
                     // Check if we have been within tolerance for the required amount of time (eliminates inconsistency due to oscillation)
                     if (inToleranceTimer.milliseconds() >= RPM_IN_RANGE_TIME) {
                         // We have reached all prerequisites for launch
