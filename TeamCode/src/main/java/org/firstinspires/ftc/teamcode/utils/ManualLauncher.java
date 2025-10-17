@@ -81,6 +81,7 @@ public class ManualLauncher {
 
     // Stop the launcher and return to idle state
     public void stop() {
+        // TODO REST LAUNCH STATE
         // Stop the launcher motors and reset tapper
         resetMotorsAndServos();
 

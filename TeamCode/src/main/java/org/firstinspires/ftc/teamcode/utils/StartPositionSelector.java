@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+// TODO: Revamp this file
+// - Create poses here
+// - More dynamic starting positions
+// - Maybe some fancy logging
 public class StartPositionSelector {
     public enum StartPositions {
         TOUCHING_CENTER_LINE,

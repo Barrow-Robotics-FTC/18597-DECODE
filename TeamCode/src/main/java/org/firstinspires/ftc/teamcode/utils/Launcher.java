@@ -8,14 +8,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Launcher {
-    // Launcher constants
-    int TARGET_RPM = 1000; // Target RPM for both launcher motors
-    final int RPM_TOLERANCE = 100; // Tolerance of RPM required for launch
-    final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
-    final int MIN_TIME_BETWEEN_LAUNCHES = 500; // Minimum time between launches (milliseconds)
-    final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
-    final double TAPPER_PUSHED_POSITION = 0.5; // How much the tapper servo rotates to push a ball into the shooter
-    final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
+    // Constants
+    private int TARGET_RPM = 1000; // Target RPM for both launcher motors
+    private final int RPM_TOLERANCE = 100; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
+    private final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
+    private final int MIN_TIME_BETWEEN_LAUNCHES = 500; // Minimum time between launches (milliseconds)
+    private final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
+    private final double TAPPER_PUSHED_POSITION = 0.5; // Position that the tapper goes to when pushing an artifact into the launcher
+    private final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
+    private double AMOUNT_OF_LAUNCHES = 3; // Amount of launches to preform in a cycle
 
     // Motors and servos
     private final DcMotorEx leftMotor; // Left flywheel motor (looking from the robots perspective)
@@ -58,6 +59,8 @@ public class Launcher {
             motor.setMode(com.qualcomm.robotcore.hardware.DcMotorEx.RunMode.RUN_USING_ENCODER);
             motor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300,0,0,10));
         }
+
+        // Reverse left launcher motor
         leftMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
         // Reset motors and servos to default state
@@ -86,40 +89,49 @@ public class Launcher {
         return state;
     }
 
-    // Unit converters
+    // Convert RPM to TPS
     private double rpmToTps(double rpm) {
         return rpm * motorTicksPerRev / 60.0;
     }
 
+    // Convert TPS to RPM
     private double tpsToRpm(double tps) {
         return tps * 60.0 / motorTicksPerRev;
     }
 
-    // RPM fetchers
+    // Get the left launcher motor RPM
     public double getLeftRPM() {
         return tpsToRpm(leftMotor.getVelocity());
     }
 
+    // Get the right launcher motor RPM
     public double getRightRPM() {
         return tpsToRpm(rightMotor.getVelocity());
     }
 
-    // Tapper position fetcher
-    public double getCommandedTapperRotation() {
+    // Get current commanded tapper position
+    public double getCommandedTapperPosition() {
         return tapperServo.getPosition();
     }
 
-    // Getters and setters
+    // Get the amount of launches in this cycle
     public int getLaunches() {
         return launches;
     }
 
+    // Get the target RPM of the launcher motors
     public int getTargetRPM() {
         return TARGET_RPM;
     }
 
+    // Set the target RPM of the launcher motors
     public void setTargetRPM(int rpm) {
         TARGET_RPM = rpm;
+    }
+
+    // Set the amount of launches to perform in a cycle, default is 3
+    public void setAmountOfLaunches(int launches) {
+        AMOUNT_OF_LAUNCHES = launches;
     }
 
     // Update function, runs the launcher state machine
@@ -184,7 +196,7 @@ public class Launcher {
                 // At this point, the tapper should be in the pushed position
                 // This means an artifact should have been launched
                 launches += 1; // Increment launch count
-                if (launches >= 3) { // If we have launched 3 artifacts
+                if (launches >= AMOUNT_OF_LAUNCHES) { // If we have launched the target amount of artifacts
                     stop(); // Stop the launcher
                 } else {
                     state = State.SPEED_UP; // Recover motor speed for the next launch
