@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class Launcher {
+public class ManualLauncher {
     // Launcher constants
     int TARGET_RPM = 1000; // Target RPM for both launcher motors
     final int RPM_TOLERANCE = 100; // Tolerance of RPM required for launch
     final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
-    final int MIN_TIME_BETWEEN_LAUNCHES = 500; // Minimum time between launches (milliseconds)
     final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
     final double TAPPER_PUSHED_POSITION = 0.5; // How much the tapper servo rotates to push a ball into the shooter
     final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
@@ -27,12 +28,16 @@ public class Launcher {
     private final ElapsedTime timeSinceLastLaunch = new ElapsedTime();
     private final ElapsedTime tapperRaisedTimer = new ElapsedTime();
 
+    // Gamepad
+    Gamepad gamepad;
+
     // Other variables
     private final double motorTicksPerRev; // How many encoder ticks per revolution the motors have
     private State state = State.IDLE; // Current state of the launcher
     private int launches; // How many artifacts have been launched in the current launch cycle
     private boolean tapperCommanded = false; // Whether the tapper has been commanded to the push position
     private boolean tapperPositioned = false; // Whether the tapper is in the pushed position
+    private boolean readyForLaunch = false; // Launcher is ready to launch
 
     // Launcher states
     public enum State {
@@ -42,7 +47,7 @@ public class Launcher {
     }
 
     // Constructor
-    public Launcher(HardwareMap hardwareMap) {
+    public ManualLauncher(HardwareMap hardwareMap, Gamepad gamepad) {
         // initialize hardware (drivetrain is initialized by Pedro Pathing)
         leftMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
         rightMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
@@ -55,13 +60,16 @@ public class Launcher {
         java.util.List<DcMotorEx> motors = java.util.Arrays.asList(leftMotor, rightMotor);
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(BRAKE);
-            motor.setMode(com.qualcomm.robotcore.hardware.DcMotorEx.RunMode.RUN_USING_ENCODER);
+            motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             motor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300,0,0,10));
         }
         leftMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
         // Reset motors and servos to default state
         resetMotorsAndServos();
+
+        // Assign gamepad
+        this.gamepad = gamepad;
     }
 
     // Helper function to stop motors and reset servos
@@ -72,18 +80,12 @@ public class Launcher {
     }
 
     // Stop the launcher and return to idle state
-    public State stop() {
-        // When the state is set to idle, whatever ran this state machine will know that artifacts have been launched
-        // With the state being idle, the next time update is called, the launch cycle will start over again.
-        state = State.IDLE;
-
+    public void stop() {
         // Stop the launcher motors and reset tapper
         resetMotorsAndServos();
 
         // Reset launch count
         launches = 0;
-
-        return state;
     }
 
     // Unit converters
@@ -122,14 +124,29 @@ public class Launcher {
         TARGET_RPM = rpm;
     }
 
-    // Update function, runs the launcher state machine
-    // If launchIfReady is true, the launcher will launch as soon as it is ready
-    // If launchIfReady is false, the launcher will spin up to speed and wait in the SPEED_UP state until launchIfReady is true
-    public State update(boolean launchIfReady) {
+    public boolean isReadyForLaunch() {
+        return readyForLaunch;
+    }
+
+    // Update function, runs the launcher state machine with controller inputs
+    public State update() {
+        if (gamepad.leftBumperWasPressed()) {
+            if (state == State.IDLE) {
+                state = State.SPEED_UP; // Command the launcher to speed up
+            } else {
+                stop(); // Stop the launcher
+            }
+        }
+
+        // If the right bumper is pressed while in SPEED_UP state and the launcher is ready, command a launch
+        if (gamepad.rightBumperWasPressed() && state == State.SPEED_UP && readyForLaunch) {
+            state = State.LAUNCH; // Command the launcher to launch
+            readyForLaunch = false; // Reset ready for launch
+        }
+
         switch(state) {
             case IDLE:
-                // If this rums, we are starting a new launch cycle, so we'll move to the speed up state
-                state = State.SPEED_UP;
+                // Ensure variables are reset before starting a launch cycle
                 launches = 0; // Reset launch amount
                 inToleranceTimer.reset(); // Reset in tolerance timer
                 resetMotorsAndServos(); // Ensure motors and servos are reset
@@ -147,25 +164,14 @@ public class Launcher {
                 if (leftInTol && rightInTol) {
                     // Check if we have been within tolerance for the required amount of time (eliminates inconsistency due to oscillation)
                     if (inToleranceTimer.milliseconds() >= RPM_IN_RANGE_TIME) {
-                        // We have reached all prerequisites for launch
-                        if (!launchIfReady) {
-                            // If we are not supposed to launch yet, stay in this state
-                            break;
-                        }
-                        state = State.LAUNCH; // Move to launch state
-                        tapperRaisedTimer.reset(); // Reset tapper raised timer
+                        readyForLaunch = true; // Launcher is ready to launch
+                        // Now waiting for the user to command a launch via the gamepad
                     }
                 } else {
                     inToleranceTimer.reset();
                 }
                 break;
             case LAUNCH:
-                if (launches != 0) { // If we aren't on the first launch
-                    if (timeSinceLastLaunch.milliseconds() < MIN_TIME_BETWEEN_LAUNCHES) {
-                        break; // Wait until the minimum time between launches has passed
-                    }
-                }
-
                 if (!tapperPositioned) { // If the tapper isn't already positioned
                     if (!tapperCommanded) { // If the tapper hasn't already been commanded to the pushed position
                         tapperServo.setPosition(TAPPER_PUSHED_POSITION); // Command the tapper to the pushed position
@@ -184,18 +190,16 @@ public class Launcher {
                 // At this point, the tapper should be in the pushed position
                 // This means an artifact should have been launched
                 launches += 1; // Increment launch count
-                if (launches >= 3) { // If we have launched 3 artifacts
-                    stop(); // Stop the launcher
-                } else {
-                    state = State.SPEED_UP; // Recover motor speed for the next launch
-                    inToleranceTimer.reset(); // Reset in tolerance timer
-                }
+                state = State.SPEED_UP; // Recover motor speed for the next launch
+                inToleranceTimer.reset(); // Reset in tolerance timer
 
                 // Reset variables for next launch (if any)
                 tapperServo.setPosition(TAPPER_HOME_POSITION); // Retract the tapper
                 tapperCommanded = false; // Mark that the tapper is no longer commanded
                 tapperPositioned = false; // Mark that the tapper is no longer positioned
                 timeSinceLastLaunch.reset(); // Reset the time since last launch timer
+
+                // At this point, the speed up cycle will restart and the user will need to command the next launch
 
                 break;
         }
