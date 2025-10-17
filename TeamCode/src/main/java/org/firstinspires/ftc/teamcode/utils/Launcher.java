@@ -9,11 +9,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Launcher {
     // Launcher constants
-    int TARGET_RPM = 1500; // Target RPM for both launcher motors
+    int TARGET_RPM = 1000; // Target RPM for both launcher motors
     final int RPM_TOLERANCE = 100; // Tolerance of RPM required for launch
-    final int RPM_IN_RANGE_TIME = 250; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
+    final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
     final int MIN_TIME_BETWEEN_LAUNCHES = 500; // Minimum time between launches (milliseconds)
-    final int TAPPER_POSITIONING_TIME = 250; // Time to wait for the tapper to reach the pushed position (milliseconds)
+    final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
     final double TAPPER_PUSHED_POSITION = 0.5; // How much the tapper servo rotates to push a ball into the shooter
     final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
 
@@ -68,7 +68,7 @@ public class Launcher {
     private void resetMotorsAndServos() {
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-        tapperServo.setPosition(0.0);
+        tapperServo.setPosition(TAPPER_HOME_POSITION);
     }
 
     // Stop the launcher and return to idle state
@@ -132,10 +132,7 @@ public class Launcher {
                 state = State.SPEED_UP;
                 launches = 0; // Reset launch amount
                 inToleranceTimer.reset(); // Reset in tolerance timer
-                leftMotor.setPower(0); // Start with 0 power, will be adjusted in SPEED_UP state
-                rightMotor.setPower(0); // Start with 0 power, will be adjusted in SPEED_UP state
-                tapperServo.setPosition(0.0); // Make sure tapper is in the starting position
-
+                resetMotorsAndServos(); // Ensure motors and servos are reset
                 break;
             case SPEED_UP:
                 // Set motor powers to reach target RPM
@@ -195,7 +192,7 @@ public class Launcher {
                 }
 
                 // Reset variables for next launch (if any)
-                tapperServo.setPosition(0.0); // Retract the tapper
+                tapperServo.setPosition(TAPPER_HOME_POSITION); // Retract the tapper
                 tapperCommanded = false; // Mark that the tapper is no longer commanded
                 tapperPositioned = false; // Mark that the tapper is no longer positioned
                 timeSinceLastLaunch.reset(); // Reset the time since last launch timer
