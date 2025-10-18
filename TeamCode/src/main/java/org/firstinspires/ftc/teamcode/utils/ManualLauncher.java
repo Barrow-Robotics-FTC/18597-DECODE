@@ -80,53 +80,71 @@ public class ManualLauncher {
     }
 
     // Stop the launcher and return to idle state
-    public void stop() {
-        // TODO REST LAUNCH STATE
-        // Stop the launcher motors and reset tapper
-        resetMotorsAndServos();
+    public State stop() {
+        resetMotorsAndServos(); // Stop the launcher motors and reset tapper
+        launches = 0; // Reset launch amount
+        readyForLaunch = false; // Reset ready for launch state
+        tapperCommanded = false; // Reset tapper commanded state
+        tapperPositioned = false; // Reset tapper positioned state
+        inToleranceTimer.reset(); // Reset in tolerance timer
+        timeSinceLastLaunch.reset(); // Reset time since last launch timer
+        tapperRaisedTimer.reset(); // Reset tapper raised timer
+        state = State.IDLE; // Set state to IDLE
 
-        // Reset launch count
-        launches = 0;
+        return state;
     }
 
-    // Unit converters
+    // Convert RPM to TPS
     private double rpmToTps(double rpm) {
         return rpm * motorTicksPerRev / 60.0;
     }
 
+    // Convert TPS to RPM
     private double tpsToRpm(double tps) {
         return tps * 60.0 / motorTicksPerRev;
     }
 
-    // RPM fetchers
+    // Get the left launcher motor RPM
     public double getLeftRPM() {
         return tpsToRpm(leftMotor.getVelocity());
     }
 
+    // Get the right launcher motor RPM
     public double getRightRPM() {
         return tpsToRpm(rightMotor.getVelocity());
     }
 
-    // Tapper position fetcher
-    public double getCommandedTapperRotation() {
+    // Get current commanded tapper position
+    public double getCommandedTapperPosition() {
         return tapperServo.getPosition();
     }
 
-    // Getters and setters
+    // Get the amount of launches in this cycle
     public int getLaunches() {
         return launches;
     }
 
+    // Get the target RPM of the launcher motors
     public int getTargetRPM() {
         return TARGET_RPM;
     }
 
+    // Set the target RPM of the launcher motors
     public void setTargetRPM(int rpm) {
         TARGET_RPM = rpm;
     }
 
+    // Check if the launcher is ready for launch
     public boolean isReadyForLaunch() {
         return readyForLaunch;
+    }
+
+    // Command launch
+    public void commandLaunch() {
+        if (state == State.SPEED_UP && readyForLaunch) {
+            state = State.LAUNCH; // Command the launcher to launch
+            readyForLaunch = false; // Reset ready for launch
+        }
     }
 
     // Update function, runs the launcher state machine with controller inputs
@@ -149,6 +167,7 @@ public class ManualLauncher {
             case IDLE:
                 // Ensure variables are reset before starting a launch cycle
                 launches = 0; // Reset launch amount
+                readyForLaunch = false; // Reset ready for launch state
                 inToleranceTimer.reset(); // Reset in tolerance timer
                 resetMotorsAndServos(); // Ensure motors and servos are reset
                 break;
@@ -169,7 +188,8 @@ public class ManualLauncher {
                         // Now waiting for the user to command a launch via the gamepad
                     }
                 } else {
-                    inToleranceTimer.reset();
+                    readyForLaunch = false; // Launcher is not ready to launch
+                    inToleranceTimer.reset(); // Reset in tolerance timer
                 }
                 break;
             case LAUNCH:
