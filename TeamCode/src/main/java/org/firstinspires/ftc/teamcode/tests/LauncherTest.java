@@ -46,9 +46,9 @@ public class LauncherTest extends LinearOpMode {
             }
 
             if (gamepad1.dpadUpWasPressed()) {
-                launcher.setTargetRPM(launcher.getTargetRPM() + 25); // Increase target RPM by 50
+                launcher.setTargetRPM(launcher.getTargetRPM() + 25); // Increase target RPM by 25
             } else if (gamepad1.dpadDownWasPressed()) {
-                launcher.setTargetRPM(launcher.getTargetRPM() - 25); // Decrease target RPM by 50
+                launcher.setTargetRPM(launcher.getTargetRPM() - 25); // Decrease target RPM by 25
             }
 
             // Log status
@@ -57,7 +57,7 @@ public class LauncherTest extends LinearOpMode {
             telemetry.addData("Target RPM", launcher.getTargetRPM());
             telemetry.addData("Left Motor RPM", launcher.getLeftRPM());
             telemetry.addData("Right Motor RPM", launcher.getRightRPM());
-            telemetry.addData("Tapper Rotation (commanded)", launcher.getCommandedTapperRotation());
+            telemetry.addData("Tapper Position (commanded)", launcher.getCommandedTapperPosition());
             telemetry.update();
         }
     }

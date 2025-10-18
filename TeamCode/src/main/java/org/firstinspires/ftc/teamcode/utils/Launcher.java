@@ -9,14 +9,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Launcher {
     // Constants
-    private int TARGET_RPM = 1000; // Target RPM for both launcher motors
-    private final int RPM_TOLERANCE = 100; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
-    private final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
-    private final int MIN_TIME_BETWEEN_LAUNCHES = 500; // Minimum time between launches (milliseconds)
-    private final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
-    private final double TAPPER_PUSHED_POSITION = 0.5; // Position that the tapper goes to when pushing an artifact into the launcher
-    private final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
-    private double AMOUNT_OF_LAUNCHES = 3; // Amount of launches to preform in a cycle
+    int TARGET_RPM = 1000; // Target RPM for both launcher motors
+    final int RPM_TOLERANCE = 100; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
+    final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
+    final int MIN_TIME_BETWEEN_LAUNCHES = 500; // Minimum time between launches (milliseconds)
+    final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
+    final double TAPPER_PUSHED_POSITION = 0.5; // Position that the tapper goes to when pushing an artifact into the launcher
+    final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
+    double AMOUNT_OF_LAUNCHES = 3; // Amount of launches to preform in a cycle
 
     // Motors and servos
     private final DcMotorEx leftMotor; // Left flywheel motor (looking from the robots perspective)
