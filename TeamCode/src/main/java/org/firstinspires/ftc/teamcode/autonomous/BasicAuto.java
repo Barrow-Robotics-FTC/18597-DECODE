@@ -6,10 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Pedro Pathing
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
 
 // Local helper files
@@ -18,6 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.Intake;
 import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
 import org.firstinspires.ftc.teamcode.utils.StartPositionSelector;
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
+import org.firstinspires.ftc.teamcode.utils.Constants;
 
 // Java
 import java.util.Arrays;
@@ -67,7 +65,7 @@ public class BasicAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Initialize Pedro Pathing follower
-        follower = Constants.createFollower(hardwareMap);
+        follower = Constants.Pedro.createFollower(hardwareMap);
 
         // Initialize all utilities used in auto
         launcher = new Launcher(hardwareMap);
@@ -80,7 +78,7 @@ public class BasicAuto extends LinearOpMode {
 
         // Prompt user to select start position and set starting pose
         startPosition = StartPositionSelector.run(gamepad1, telemetry);
-        follower.setStartingPose(Paths.getHome(startPosition));
+        follower.setStartingPose(Constants.Paths.getHome(startPosition));
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -97,7 +95,7 @@ public class BasicAuto extends LinearOpMode {
         we'll need to immediately scan the April Tag and then initialize our poses and paths.
         */
         targetPattern = aprilTag.detectPattern();
-        Paths.build(follower, targetPattern, alliance, startPosition);
+        Constants.Paths.build(follower, targetPattern, alliance, startPosition);
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
@@ -119,118 +117,6 @@ public class BasicAuto extends LinearOpMode {
         // Save values for TeleOp
         blackboard.put("alliance", alliance);
         blackboard.put("autoEndPose", currentPose);
-    }
-
-    static class Paths {
-        // Poses (assuming red alliance, last arg determines if the pose should be mirrored on blue alliance)
-        private static Pose home; // Centered against the audience wall
-        private static Pose score; // Facing goal (close to the white line point)
-        private static Pose PPGArtifacts; // In front of upper artifacts
-        private static Pose PGPArtifacts; // In front of middle artifacts
-        private static Pose GPPArtifacts; // In front of lower artifacts
-        private static Pose PPGArtifactsEnd; // 20 inches in front of PPGArtifacts
-        private static Pose PGPArtifactsEnd; // 20 inches in front of PGPArtifacts
-        private static Pose GPPArtifactsEnd; // 20 inches in front of GPPArtifacts
-
-        // Blue alliance if true, red alliance if false
-        private static boolean mirrorPoses;
-
-        // Path chains
-        // Cycle 1 (score preloaded)
-        public static PathChain homeToScore; // Poses.home -> Poses.score
-
-        // Cycle 2 (intake pattern row and score)
-        public static PathChain scoreToPatternIntake; // score -> XXXArtifacts
-        public static PathChain patternIntakeToEnd; // XXXArtifacts -> XXXArtifactsEnd
-        public static PathChain patternIntakeEndToScore; // XXXArtifactsEnd -> score
-
-        // Cycle 3 (intake first non-pattern row and score
-        public static PathChain scoreToNonPatternIntake1; // score -> XXXArtifacts
-        public static PathChain nonPatternIntake1ToEnd; // XXXArtifacts -> XXXArtifactsEnd
-        public static PathChain nonPatternIntake1EndToScore; // XXXArtifactsEnd -> score
-
-        // Cycle 4 (intake second non-pattern row and score)
-        public static PathChain scoreToNonPatternIntake2; // score -> XXXArtifacts
-        public static PathChain nonPatternIntake2ToEnd; // XXXArtifacts -> XXXArtifactsEnd
-        public static PathChain nonPatternIntake2EndToScore; // XXXArtifactsEnd -> score
-
-        // Back home
-        public static PathChain scoreToHome; // score -> home
-
-        public static void build(Follower follower, AprilTag.Pattern pattern, AllianceSelector.Alliance alliance, StartPositionSelector.StartPositions startPosition) {
-            mirrorPoses = (alliance == AllianceSelector.Alliance.BLUE); // Set if poses should be mirrored based on alliance
-
-            // Define poses
-            home = getHome(startPosition);
-            score = buildPose(60, 83.5, 135);
-            PPGArtifacts = buildPose(40, 83.75, 180);
-            PGPArtifacts = buildPose(40, 59.75, 180);
-            GPPArtifacts = buildPose(40, 35.75, 180);
-            PPGArtifactsEnd = buildPose(20, 83.75, 180);
-            PGPArtifactsEnd = buildPose(20, 59.75, 180);
-            GPPArtifactsEnd = buildPose(20, 35.75, 180);
-
-            // Select the correct intake poses based on pattern (assume PPG initially)
-            Pose patternIntakePose = PPGArtifacts;
-            Pose nonPatternIntake1Pose = PGPArtifacts;
-            Pose nonPatternIntake2Pose = GPPArtifacts;
-            Pose patternIntakeEndPose = PPGArtifactsEnd;
-            Pose nonPatternIntake1EndPose = PGPArtifactsEnd;
-            Pose nonPatternIntake2EndPose = GPPArtifactsEnd;
-            if (pattern == AprilTag.Pattern.PGP) { // If the pattern is PGP, swap PPG and PGP
-                patternIntakePose = PGPArtifacts;
-                nonPatternIntake1Pose = PPGArtifacts;
-                patternIntakeEndPose = PGPArtifactsEnd;
-                nonPatternIntake1EndPose = PPGArtifactsEnd;
-            } else if (pattern == AprilTag.Pattern.GPP) { // If the pattern is GPP, rotate PPG, PGP, and GPP
-                patternIntakePose = GPPArtifacts;
-                nonPatternIntake1Pose = PPGArtifacts;
-                nonPatternIntake2Pose = PGPArtifacts;
-                patternIntakeEndPose = GPPArtifactsEnd;
-                nonPatternIntake1EndPose = PPGArtifactsEnd;
-                nonPatternIntake2EndPose = PGPArtifactsEnd;
-            }
-
-            homeToScore = buildPath(follower, home, score);
-            scoreToPatternIntake = buildPath(follower, score, patternIntakePose);
-            patternIntakeToEnd = buildPath(follower, patternIntakePose, patternIntakeEndPose);
-            patternIntakeEndToScore = buildPath(follower, patternIntakeEndPose, score);
-            scoreToNonPatternIntake1 = buildPath(follower, score, nonPatternIntake1Pose);
-            nonPatternIntake1ToEnd = buildPath(follower, nonPatternIntake1Pose, nonPatternIntake1EndPose);
-            nonPatternIntake1EndToScore = buildPath(follower, nonPatternIntake1EndPose, score);
-            scoreToNonPatternIntake2 = buildPath(follower, score, nonPatternIntake2Pose);
-            nonPatternIntake2ToEnd = buildPath(follower, nonPatternIntake2Pose, nonPatternIntake2EndPose);
-            nonPatternIntake2EndToScore = buildPath(follower, nonPatternIntake2EndPose, score);
-            scoreToHome = buildPath(follower, score, home);
-        }
-
-        @SuppressWarnings("SameParameterValue") // Suppress warning about mirrorIfNeeded always being true
-        private static Pose buildPose(double x, double y, double heading, boolean mirrorIfNeeded) {
-            Pose pose = new Pose(x, y, Math.toRadians(heading));
-            if (mirrorPoses && mirrorIfNeeded) {
-                pose = pose.mirror();
-            }
-            return pose;
-        }
-
-        private static Pose buildPose(double x, double y, double heading) {
-            return buildPose(x, y, heading, true);
-        }
-
-        private static PathChain buildPath(Follower follower, Pose pose1, Pose pose2) {
-            return follower.pathBuilder()
-                    .addPath(new BezierLine(pose1, pose2))
-                    .setLinearHeadingInterpolation(pose1.getHeading(), pose2.getHeading())
-                    .build();
-        }
-
-        public static Pose getHome(StartPositionSelector.StartPositions startPosition) {
-            if (startPosition == StartPositionSelector.StartPositions.TOUCHING_CENTER_LINE) {
-                return buildPose(64, 7, 90);
-            } else { // TOUCHING_OUTER_CENTER_LINE
-                return buildPose(56, 7, 90);
-            }
-        }
     }
 
     static class StateMachine {
@@ -292,47 +178,47 @@ public class BasicAuto extends LinearOpMode {
                         }
                         break;
                     case HOME_TO_SCORE:
-                        follower.followPath(Paths.homeToScore);
+                        follower.followPath(Constants.Paths.homeToScore);
                         nextState();
                         break;
                     case SCORE_TO_PATTERN_INTAKE:
-                        follower.followPath(Paths.scoreToPatternIntake);
+                        follower.followPath(Constants.Paths.scoreToPatternIntake);
                         nextState();
                         break;
                     case PATTERN_INTAKE_TO_END:
-                        follower.followPath(Paths.patternIntakeToEnd);
+                        follower.followPath(Constants.Paths.patternIntakeToEnd);
                         nextState();
                         break;
                     case PATTERN_INTAKE_END_TO_SCORE:
-                        follower.followPath(Paths.patternIntakeEndToScore);
+                        follower.followPath(Constants.Paths.patternIntakeEndToScore);
                         nextState();
                         break;
                     case SCORE_TO_NON_PATTERN_INTAKE_1:
-                        follower.followPath(Paths.scoreToNonPatternIntake1);
+                        follower.followPath(Constants.Paths.scoreToNonPatternIntake1);
                         nextState();
                         break;
                     case NON_PATTERN_INTAKE_1_TO_END:
-                        follower.followPath(Paths.nonPatternIntake1ToEnd);
+                        follower.followPath(Constants.Paths.nonPatternIntake1ToEnd);
                         nextState();
                         break;
                     case NON_PATTERN_INTAKE_1_END_TO_SCORE:
-                        follower.followPath(Paths.nonPatternIntake1EndToScore);
+                        follower.followPath(Constants.Paths.nonPatternIntake1EndToScore);
                         nextState();
                         break;
                     case SCORE_TO_NON_PATTERN_INTAKE_2:
-                        follower.followPath(Paths.scoreToNonPatternIntake2);
+                        follower.followPath(Constants.Paths.scoreToNonPatternIntake2);
                         nextState();
                         break;
                     case NON_PATTERN_INTAKE_2_TO_END:
-                        follower.followPath(Paths.nonPatternIntake2ToEnd);
+                        follower.followPath(Constants.Paths.nonPatternIntake2ToEnd);
                         nextState();
                         break;
                     case NON_PATTERN_INTAKE_2_END_TO_SCORE:
-                        follower.followPath(Paths.nonPatternIntake2EndToScore);
+                        follower.followPath(Constants.Paths.nonPatternIntake2EndToScore);
                         nextState();
                         break;
                     case SCORE_TO_HOME:
-                        follower.followPath(Paths.scoreToHome);
+                        follower.followPath(Constants.Paths.scoreToHome);
                         nextState();
                         break;
                 }

@@ -7,11 +7,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Pedro Pathing
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
+
+// Local helper files
+import org.firstinspires.ftc.teamcode.utils.Constants;
 
 @Autonomous(name = "Example Auto", group = "Examples")
 @Disabled // REMOVE THI LINE TO SEE ON DRIVER HUB
@@ -53,7 +55,7 @@ public class AutoExample extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Initialize Pedro Pathing follower
-        follower = Constants.createFollower(hardwareMap);
+        follower = Constants.Pedro.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
 
         // Create paths

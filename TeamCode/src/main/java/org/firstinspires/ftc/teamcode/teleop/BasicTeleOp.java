@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Pedro Pathing
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
@@ -16,6 +15,7 @@ import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
 import org.firstinspires.ftc.teamcode.utils.Intake;
+import org.firstinspires.ftc.teamcode.utils.Constants;
 
 /*
 Gamepad Map for TeleOp (FTCPadMap file available in this programs folder)
@@ -84,7 +84,7 @@ public class BasicTeleOp extends LinearOpMode {
         autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(72, 8, Math.toRadians(90)));
 
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
-        follower = Constants.createFollower(hardwareMap);
+        follower = Constants.Pedro.createFollower(hardwareMap);
         follower.setStartingPose(new Pose());
         follower.update();
 

@@ -7,13 +7,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Pedro Pathing
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
+
+// Local helper files
+import org.firstinspires.ftc.teamcode.utils.Constants;
 
 // Java
 import java.util.function.Supplier;
@@ -54,7 +56,7 @@ public class TeleOpExample extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Initialize the follower with the starting position, if it is null, assume 0, 0, 0
-        follower = Constants.createFollower(hardwareMap);
+        follower = Constants.Pedro.createFollower(hardwareMap);
         follower.setStartingPose(startingPose);
         follower.update();
 
