@@ -52,8 +52,9 @@ public class BasicAuto extends LinearOpMode {
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
     private AllianceSelector.Alliance alliance; // Alliance of the robot
-    private StartPositionSelector.StartPositions startPosition; // Start position of the robot (Not Pose)
+    private Pose startPosition; // Start pose of the robot
     private StateMachine stateMachine; // Custom autonomous state machine
+    private Constants.Paths paths; // Custom paths class
     private Launcher launcher; // Custom launcher class
     private Intake intake; // Custom intake class
     private AprilTag aprilTag; // Custom April Tag class
@@ -68,17 +69,17 @@ public class BasicAuto extends LinearOpMode {
         follower = Constants.Pedro.createFollower(hardwareMap);
 
         // Initialize all utilities used in auto
+        paths = new Constants.Paths();
         launcher = new Launcher(hardwareMap);
         intake = new Intake(hardwareMap);
         aprilTag = new AprilTag(hardwareMap);
-        stateMachine = new StateMachine(follower, stateList, launcher, intake);
 
         // Prompt the driver to select an alliance
         alliance = AllianceSelector.run(gamepad1, telemetry);
 
         // Prompt user to select start position and set starting pose
         startPosition = StartPositionSelector.run(gamepad1, telemetry);
-        follower.setStartingPose(Constants.Paths.getHome(startPosition));
+        follower.setStartingPose(startPosition);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -95,7 +96,10 @@ public class BasicAuto extends LinearOpMode {
         we'll need to immediately scan the April Tag and then initialize our poses and paths.
         */
         targetPattern = aprilTag.detectPattern();
-        Constants.Paths.build(follower, targetPattern, alliance, startPosition);
+
+        // Build paths and initialize state machine with those paths
+        paths.build(follower, targetPattern, alliance, startPosition);
+        stateMachine = new StateMachine(follower, stateList, launcher, intake, paths);
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
@@ -114,16 +118,23 @@ public class BasicAuto extends LinearOpMode {
             telemetry.update();
         }
 
+        // OpMode is ending, stop all mechanisms
+        follower.holdPoint(currentPose); // Hold position at the current pose
+        intake.stop(); // Stop intake
+        launcher.stop(); // Stop launcher
+
         // Save values for TeleOp
         blackboard.put("alliance", alliance);
         blackboard.put("autoEndPose", currentPose);
+        blackboard.put("paths", paths);
     }
 
     static class StateMachine {
         private final Follower follower;
-        private final List<State> states;
         private final Launcher launcher;
         private final Intake intake;
+        private final List<State> states;
+        private final Constants.Paths paths;
         private int statesIndex; // Current index in states
         private State currentState; // Current state (only used in update for cleaner code)
 
@@ -148,12 +159,13 @@ public class BasicAuto extends LinearOpMode {
             statesIndex += 1;
         }
 
-        public StateMachine(Follower pedro_follower, List<State> state_list, Launcher launcher_instance, Intake intake_instance) {
-            follower = pedro_follower;
-            launcher = launcher_instance;
-            intake = intake_instance;
-            states = state_list;
-            statesIndex = 0;
+        public StateMachine(Follower follower, List<State> states, Launcher launcher, Intake intake, Constants.Paths paths) {
+            this.follower = follower;
+            this.launcher = launcher;
+            this.intake = intake;
+            this.states = states;
+            this.paths = paths;
+            this.statesIndex = 0;
         }
 
         public State update() {
@@ -178,47 +190,47 @@ public class BasicAuto extends LinearOpMode {
                         }
                         break;
                     case HOME_TO_SCORE:
-                        follower.followPath(Constants.Paths.homeToScore);
+                        follower.followPath(this.paths.homeToScore);
                         nextState();
                         break;
                     case SCORE_TO_PATTERN_INTAKE:
-                        follower.followPath(Constants.Paths.scoreToPatternIntake);
+                        follower.followPath(this.paths.scoreToPatternIntake);
                         nextState();
                         break;
                     case PATTERN_INTAKE_TO_END:
-                        follower.followPath(Constants.Paths.patternIntakeToEnd);
+                        follower.followPath(this.paths.patternIntakeToEnd);
                         nextState();
                         break;
                     case PATTERN_INTAKE_END_TO_SCORE:
-                        follower.followPath(Constants.Paths.patternIntakeEndToScore);
+                        follower.followPath(this.paths.patternIntakeEndToScore);
                         nextState();
                         break;
                     case SCORE_TO_NON_PATTERN_INTAKE_1:
-                        follower.followPath(Constants.Paths.scoreToNonPatternIntake1);
+                        follower.followPath(this.paths.scoreToNonPatternIntake1);
                         nextState();
                         break;
                     case NON_PATTERN_INTAKE_1_TO_END:
-                        follower.followPath(Constants.Paths.nonPatternIntake1ToEnd);
+                        follower.followPath(this.paths.nonPatternIntake1ToEnd);
                         nextState();
                         break;
                     case NON_PATTERN_INTAKE_1_END_TO_SCORE:
-                        follower.followPath(Constants.Paths.nonPatternIntake1EndToScore);
+                        follower.followPath(this.paths.nonPatternIntake1EndToScore);
                         nextState();
                         break;
                     case SCORE_TO_NON_PATTERN_INTAKE_2:
-                        follower.followPath(Constants.Paths.scoreToNonPatternIntake2);
+                        follower.followPath(this.paths.scoreToNonPatternIntake2);
                         nextState();
                         break;
                     case NON_PATTERN_INTAKE_2_TO_END:
-                        follower.followPath(Constants.Paths.nonPatternIntake2ToEnd);
+                        follower.followPath(this.paths.nonPatternIntake2ToEnd);
                         nextState();
                         break;
                     case NON_PATTERN_INTAKE_2_END_TO_SCORE:
-                        follower.followPath(Constants.Paths.nonPatternIntake2EndToScore);
+                        follower.followPath(this.paths.nonPatternIntake2EndToScore);
                         nextState();
                         break;
                     case SCORE_TO_HOME:
-                        follower.followPath(Constants.Paths.scoreToHome);
+                        follower.followPath(this.paths.scoreToHome);
                         nextState();
                         break;
                 }

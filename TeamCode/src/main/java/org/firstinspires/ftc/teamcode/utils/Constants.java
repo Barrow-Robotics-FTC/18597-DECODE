@@ -53,106 +53,125 @@ public class Constants {
         }
     }
 
-    public static class Paths {
-        // Blue alliance if true, red alliance if false
-        private static boolean mirrorPoses;
+    public static class Poses {
+        // Whether to mirror poses (true for blue alliance, false for red alliance)
+        boolean mirrorPoses;
 
-        // Path chains
-        // Cycle 1 (score preloaded)
-        public static PathChain homeToScore; // Poses.home -> Poses.score
+        // Poses (assuming red alliance, last arg determines if the pose should be mirrored on blue alliance)
+        public Pose home; // Centered against the audience wall
+        public Pose score; // Facing goal (close to the white line point)
+        public Pose loadingZone; // In the loading zone (facing outwards)
+        public Pose PPGArtifacts; // In front of upper artifacts
+        public Pose PGPArtifacts; // In front of middle artifacts
+        public Pose GPPArtifacts; // In front of lower artifacts
+        public Pose PPGArtifactsEnd; // 20 inches in front of PPGArtifacts
+        public Pose PGPArtifactsEnd; // 20 inches in front of PGPArtifacts
+        public Pose GPPArtifactsEnd; // 20 inches in front of GPPArtifacts
 
-        // Cycle 2 (intake pattern row and score)
-        public static PathChain scoreToPatternIntake; // score -> XXXArtifacts
-        public static PathChain patternIntakeToEnd; // XXXArtifacts -> XXXArtifactsEnd
-        public static PathChain patternIntakeEndToScore; // XXXArtifactsEnd -> score
+        public Poses(boolean mirrorPoses, Pose startPose) {
+            // Set mirroring flag
+            this.mirrorPoses = mirrorPoses;
 
-        // Cycle 3 (intake first non-pattern row and score
-        public static PathChain scoreToNonPatternIntake1; // score -> XXXArtifacts
-        public static PathChain nonPatternIntake1ToEnd; // XXXArtifacts -> XXXArtifactsEnd
-        public static PathChain nonPatternIntake1EndToScore; // XXXArtifactsEnd -> score
+            // Guild the poses, see descriptions in definitions above
+            this.home = mirrorPoses ? startPose.mirror() : startPose;
+            this.score = buildPose(60, 83.5, 135);
+            this.loadingZone = buildPose(10, 10, 0);
+            this.PPGArtifacts = buildPose(40, 35.75, 180);
+            this.PGPArtifacts = buildPose(40, 59.75, 180);
+            this.GPPArtifacts = buildPose(40, 83.75, 180);
+            this.PPGArtifactsEnd = buildPose(20, 35.75, 180);
+            this.PGPArtifactsEnd = buildPose(20, 59.75, 180);
+            this.GPPArtifactsEnd = buildPose(20, 83.75, 180);
+        }
 
-        // Cycle 4 (intake second non-pattern row and score)
-        public static PathChain scoreToNonPatternIntake2; // score -> XXXArtifacts
-        public static PathChain nonPatternIntake2ToEnd; // XXXArtifacts -> XXXArtifactsEnd
-        public static PathChain nonPatternIntake2EndToScore; // XXXArtifactsEnd -> score
-
-        // Back home
-        public static PathChain scoreToHome; // score -> home
-
-        public static void build(Follower follower, AprilTag.Pattern pattern, AllianceSelector.Alliance alliance, StartPositionSelector.StartPositions startPosition) {
-            // Set if poses should be mirrored based on alliance
-            mirrorPoses = (alliance == AllianceSelector.Alliance.BLUE);
-
-            // Poses (assuming red alliance, last arg determines if the pose should be mirrored on blue alliance)
-            Pose home = getHome(startPosition); // Centered against the audience wall
-            Pose score = buildPose(60, 83.5, 135); // Facing goal (close to the white line point)
-            Pose PPGArtifacts = buildPose(40, 83.75, 180); // In front of upper artifacts
-            Pose PGPArtifacts = buildPose(40, 59.75, 180); // In front of middle artifacts
-            Pose GPPArtifacts = buildPose(40, 35.75, 180); // In front of lower artifacts
-            Pose PPGArtifactsEnd = buildPose(20, 83.75, 180); // 20 inches in front of PPGArtifacts
-            Pose PGPArtifactsEnd = buildPose(20, 59.75, 180); // 20 inches in front of PGPArtifacts
-            Pose GPPArtifactsEnd = buildPose(20, 35.75, 180); // 20 inches in front of GPPArtifacts
-
-            // Select the correct intake poses based on pattern (assume PPG initially)
-            Pose patternIntakePose = PPGArtifacts;
-            Pose nonPatternIntake1Pose = PGPArtifacts;
-            Pose nonPatternIntake2Pose = GPPArtifacts;
-            Pose patternIntakeEndPose = PPGArtifactsEnd;
-            Pose nonPatternIntake1EndPose = PGPArtifactsEnd;
-            Pose nonPatternIntake2EndPose = GPPArtifactsEnd;
-            if (pattern == AprilTag.Pattern.PGP) { // If the pattern is PGP, swap PPG and PGP
-                patternIntakePose = PGPArtifacts;
-                nonPatternIntake1Pose = PPGArtifacts;
-                patternIntakeEndPose = PGPArtifactsEnd;
-                nonPatternIntake1EndPose = PPGArtifactsEnd;
-            } else if (pattern == AprilTag.Pattern.GPP) { // If the pattern is GPP, rotate PPG, PGP, and GPP
-                patternIntakePose = GPPArtifacts;
-                nonPatternIntake1Pose = PPGArtifacts;
-                nonPatternIntake2Pose = PGPArtifacts;
-                patternIntakeEndPose = GPPArtifactsEnd;
-                nonPatternIntake1EndPose = PPGArtifactsEnd;
-                nonPatternIntake2EndPose = PGPArtifactsEnd;
+        public Pose[] getIntakePoses(AprilTag.Pattern pattern) {
+            switch (pattern) {
+                case PPG:
+                    return new Pose[] {PPGArtifacts, PPGArtifactsEnd,
+                            GPPArtifacts, GPPArtifactsEnd,
+                            PGPArtifacts, PGPArtifactsEnd};
+                case PGP:
+                    return new Pose[] {PGPArtifacts, PGPArtifactsEnd,
+                            GPPArtifacts, GPPArtifactsEnd,
+                            PPGArtifacts, PPGArtifactsEnd};
+                default: // GPP or unknown
+                    return new Pose[] {GPPArtifacts, GPPArtifactsEnd,
+                            PPGArtifacts, PPGArtifactsEnd,
+                            PGPArtifacts, PGPArtifactsEnd};
             }
-
-            homeToScore = buildPath(follower, home, score);
-            scoreToPatternIntake = buildPath(follower, score, patternIntakePose);
-            patternIntakeToEnd = buildPath(follower, patternIntakePose, patternIntakeEndPose);
-            patternIntakeEndToScore = buildPath(follower, patternIntakeEndPose, score);
-            scoreToNonPatternIntake1 = buildPath(follower, score, nonPatternIntake1Pose);
-            nonPatternIntake1ToEnd = buildPath(follower, nonPatternIntake1Pose, nonPatternIntake1EndPose);
-            nonPatternIntake1EndToScore = buildPath(follower, nonPatternIntake1EndPose, score);
-            scoreToNonPatternIntake2 = buildPath(follower, score, nonPatternIntake2Pose);
-            nonPatternIntake2ToEnd = buildPath(follower, nonPatternIntake2Pose, nonPatternIntake2EndPose);
-            nonPatternIntake2EndToScore = buildPath(follower, nonPatternIntake2EndPose, score);
-            scoreToHome = buildPath(follower, score, home);
         }
 
         @SuppressWarnings("SameParameterValue") // Suppress warning about mirrorIfNeeded always being true
-        private static Pose buildPose(double x, double y, double heading, boolean mirrorIfNeeded) {
+        private Pose buildPose(double x, double y, double heading, boolean mirrorIfNeeded) {
             Pose pose = new Pose(x, y, Math.toRadians(heading));
-            if (mirrorPoses && mirrorIfNeeded) {
+            if (this.mirrorPoses && mirrorIfNeeded) {
                 pose = pose.mirror();
             }
             return pose;
         }
 
-        private static Pose buildPose(double x, double y, double heading) {
-            return buildPose(x, y, heading, true);
+        private Pose buildPose(double x, double y, double heading) {
+            return this.buildPose(x, y, heading, true);
+        }
+    }
+
+    public static class Paths {
+        // Poses for path building
+        public Poses poses;
+
+        // Cycle 1 (score preloaded)
+        public PathChain homeToScore; // Poses.home -> Poses.score
+
+        // Cycle 2 (intake pattern row and score)
+        public PathChain scoreToPatternIntake; // score -> XXXArtifacts
+        public PathChain patternIntakeToEnd; // XXXArtifacts -> XXXArtifactsEnd
+        public PathChain patternIntakeEndToScore; // XXXArtifactsEnd -> score
+
+        // Cycle 3 (intake first non-pattern row and score
+        public PathChain scoreToNonPatternIntake1; // score -> XXXArtifacts
+        public PathChain nonPatternIntake1ToEnd; // XXXArtifacts -> XXXArtifactsEnd
+        public PathChain nonPatternIntake1EndToScore; // XXXArtifactsEnd -> score
+
+        // Cycle 4 (intake second non-pattern row and score)
+        public PathChain scoreToNonPatternIntake2; // score -> XXXArtifacts
+        public PathChain nonPatternIntake2ToEnd; // XXXArtifacts -> XXXArtifactsEnd
+        public PathChain nonPatternIntake2EndToScore; // XXXArtifactsEnd -> score
+
+        // Back home
+        public PathChain scoreToHome; // score -> home
+
+        public void build(Follower follower, AprilTag.Pattern pattern, AllianceSelector.Alliance alliance, Pose startPosition) {
+            // Build poses, mirror if blue alliance
+            this.poses = new Poses((alliance == AllianceSelector.Alliance.BLUE), startPosition);
+
+            // Select the correct intake poses based on pattern
+            Pose[] intakePoses = poses.getIntakePoses(pattern);
+            Pose patternIntakePose = intakePoses[0];
+            Pose patternIntakeEndPose = intakePoses[1];
+            Pose nonPatternIntake1Pose = intakePoses[2];
+            Pose nonPatternIntake1EndPose = intakePoses[3];
+            Pose nonPatternIntake2Pose = intakePoses[4];
+            Pose nonPatternIntake2EndPose = intakePoses[5];
+
+            // Build paths
+            this.homeToScore = buildPath(follower, poses.home, poses.score);
+            this.scoreToPatternIntake = buildPath(follower, poses.score, patternIntakePose);
+            this.patternIntakeToEnd = buildPath(follower, patternIntakePose, patternIntakeEndPose);
+            this.patternIntakeEndToScore = buildPath(follower, patternIntakeEndPose, poses.score);
+            this.scoreToNonPatternIntake1 = buildPath(follower, poses.score, nonPatternIntake1Pose);
+            this.nonPatternIntake1ToEnd = buildPath(follower, nonPatternIntake1Pose, nonPatternIntake1EndPose);
+            this.nonPatternIntake1EndToScore = buildPath(follower, nonPatternIntake1EndPose, poses.score);
+            this.scoreToNonPatternIntake2 = buildPath(follower, poses.score, nonPatternIntake2Pose);
+            this.nonPatternIntake2ToEnd = buildPath(follower, nonPatternIntake2Pose, nonPatternIntake2EndPose);
+            this.nonPatternIntake2EndToScore = buildPath(follower, nonPatternIntake2EndPose, poses.score);
+            this.scoreToHome = buildPath(follower, poses.score, poses.home);
         }
 
-        private static PathChain buildPath(Follower follower, Pose pose1, Pose pose2) {
+        public PathChain buildPath(Follower follower, Pose pose1, Pose pose2) {
             return follower.pathBuilder()
                     .addPath(new BezierLine(pose1, pose2))
                     .setLinearHeadingInterpolation(pose1.getHeading(), pose2.getHeading())
                     .build();
-        }
-
-        public static Pose getHome(StartPositionSelector.StartPositions startPosition) {
-            if (startPosition == StartPositionSelector.StartPositions.TOUCHING_CENTER_LINE) {
-                return buildPose(64, 7, 90);
-            } else { // TOUCHING_OUTER_CENTER_LINE
-                return buildPose(56, 7, 90);
-            }
         }
     }
 }

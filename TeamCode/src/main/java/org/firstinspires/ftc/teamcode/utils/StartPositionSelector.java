@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -8,18 +9,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 // - More dynamic starting positions
 // - Maybe some fancy logging
 public class StartPositionSelector {
-    public enum StartPositions {
-        TOUCHING_CENTER_LINE,
-        TOUCHING_OUTER_CENTER_LINE
-    }
-
-    public static StartPositions run(Gamepad gamepad1, Telemetry telemetry) {
-        StartPositions selectedStartPosition = null;
+    public static Pose run(Gamepad gamepad1, Telemetry telemetry) {
+        Pose selectedStartPosition = null;
         while (selectedStartPosition == null) {
             if (gamepad1.b) {
-                selectedStartPosition = StartPositions.TOUCHING_CENTER_LINE;
+                selectedStartPosition = new Pose();
             } else if (gamepad1.y) {
-                selectedStartPosition = StartPositions.TOUCHING_OUTER_CENTER_LINE;
+                selectedStartPosition = new Pose();
             }
 
             telemetry.addData("Start Position Selector", "Select Start Position");

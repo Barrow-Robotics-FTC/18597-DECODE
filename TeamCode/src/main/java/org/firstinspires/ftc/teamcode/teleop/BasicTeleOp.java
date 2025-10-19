@@ -50,18 +50,12 @@ public class BasicTeleOp extends LinearOpMode {
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower; // Pedro pathing follower
+    private Constants.Paths paths; // Custom paths class
     private Pose currentPose; // Current pose of the robot
     private boolean automatedDrive = false; // Is Pedro Pathing driving?
     private boolean launcherActive = false; // Is the launcher update loop running?
     private boolean intakeActive = false; // Is the intake running?
     private boolean readyForLaunch = false; // Are we in position to allow the launcher to launch?
-
-    // Class to store poses (access with Poses.poseName)
-    static class Poses {
-        // Poses (assuming red alliance)
-        public static Pose score = new Pose(60, 83.5, Math.toRadians(135)); // Facing goal (close to the white line point)
-        public static Pose humanPlayer = new Pose(10, 10, Math.toRadians(0)); // Facing the field from the human player station
-    }
 
     // Go from the current position to any pose
     private PathChain getPathToPose(Pose pose) {
@@ -82,10 +76,11 @@ public class BasicTeleOp extends LinearOpMode {
         // Get variables from Blackboard
         alliance = (AllianceSelector.Alliance) blackboard.getOrDefault("alliance", AllianceSelector.Alliance.RED);
         autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(72, 8, Math.toRadians(90)));
+        paths = (Constants.Paths) blackboard.getOrDefault("paths", null);
 
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
         follower = Constants.Pedro.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose());
+        follower.setStartingPose(autoEndPose);
         follower.update();
 
         // Initialize all utilities used in TeleOp
@@ -125,12 +120,12 @@ public class BasicTeleOp extends LinearOpMode {
 
             // Gamepad 1 Right Trigger (When Pressed): Go to scoring position
             if (gamepad1.right_trigger > 0.1) {
-                follower.followPath(getPathToPose(Poses.score));
+                follower.followPath(paths.buildPath(follower, follower.getPose(), paths.poses.score));
                 automatedDrive = true; // Start auto drive
             }
             // Gamepad 1 Left Trigger (When Pressed): Go to human player position
             if (gamepad1.left_trigger > 0.1) {
-                follower.followPath(getPathToPose(Poses.humanPlayer));
+                follower.followPath(paths.buildPath(follower, follower.getPose(), paths.poses.loadingZone));
                 automatedDrive = true; // Start auto drive
             }
             // Initialize Intake
@@ -157,7 +152,6 @@ public class BasicTeleOp extends LinearOpMode {
             if (gamepad2.right_trigger > 0.1) {
                 //
             }
-
 
             // Log status
             telemetry.addData("X: ", currentPose.getX());
