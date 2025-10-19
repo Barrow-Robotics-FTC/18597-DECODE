@@ -51,7 +51,7 @@ public class BasicAuto extends LinearOpMode {
 
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
-    private AllianceSelector.Alliance alliance; // Alliance of the robot
+    private Constants.Alliance alliance; // Alliance of the robot
     private Pose startPosition; // Start pose of the robot
     private StateMachine stateMachine; // Custom autonomous state machine
     private Constants.Paths paths; // Custom paths class
@@ -61,7 +61,7 @@ public class BasicAuto extends LinearOpMode {
     private Pose currentPose; // Current pose of the robot
     public Follower follower; // Pedro Pathing follower
     private StateMachine.State pathState; // Current state machine value
-    private AprilTag.Pattern targetPattern; // Target pattern determined by obelisk April Tag
+    private Constants.Pattern targetPattern; // Target pattern determined by obelisk April Tag
 
     @Override
     public void runOpMode() {
@@ -185,7 +185,7 @@ public class BasicAuto extends LinearOpMode {
                         launcher.update() will run the launcher state machine to launch 3 artifacts.
                         The state will become IDLE when all 3 artifacts are launched.
                          */
-                        if (launcher.update(true) == Launcher.State.IDLE) {
+                        if (launcher.update(true) == Constants.LauncherConstants.LauncherState.IDLE) {
                             nextState();
                         }
                         break;

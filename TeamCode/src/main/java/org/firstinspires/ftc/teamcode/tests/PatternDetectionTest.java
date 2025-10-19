@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 // FTC SDK
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
+import org.firstinspires.ftc.teamcode.utils.Constants.Pattern;
 
 /*
 This is a simple test OpMode for April Tag pattern detection. It uses the custom AprilTag helper (imported above).
@@ -17,7 +17,7 @@ To detect the pattern, press the right bumper on gamepad 1. The detected pattern
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class PatternDetectionTest extends LinearOpMode {
     private AprilTag aprilTag; // Custom April Tag class
-    private AprilTag.Pattern detectedPattern = null; // Last detected pattern
+    private Pattern detectedPattern = null; // Last detected pattern
 
     @Override
     public void runOpMode() {

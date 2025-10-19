@@ -18,6 +18,50 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.paths.PathConstraints;
 
 public class Constants {
+    // Global
+    public enum Alliance {
+        RED,
+        BLUE
+    }
+    public enum Pattern {
+        PPG,
+        PGP,
+        GPP
+    }
+
+    // April Tags
+    static class AprilTagConstants {
+        public static final int APRIL_TAG_CAMERA_DECIMATION = 2; // Higher value = farther detection range, lower detection rate
+        public static final int APRIL_TAG_CAMERA_EXPOSURE = 6; // Camera exposure time (milliseconds)
+        public static final int APRIL_TAG_CAMERA_GAIN = 250; // Camera gain
+        public static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
+        public static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
+        public static final int GPP_TAG_ID = 21; // Tag ID for GPP on the obelisk
+    }
+
+    // Intake
+    public static class IntakeConstants {
+        public static final double INTAKE_POWER = 1.0; // Power for intake servos
+    }
+
+    // Launcher
+    public static class LauncherConstants {
+        public static int TARGET_RPM = 1000; // Target RPM for both launcher motors
+        public static final int RPM_TOLERANCE = 100; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
+        public static final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
+        public static final int MIN_TIME_BETWEEN_LAUNCHES = 500; // Minimum time between launches (milliseconds)
+        public static final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
+        public static double TAPPER_PUSHED_POSITION = 0.5; // Position that the tapper goes to when pushing an artifact into the launcher
+        public static final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
+        public static int AMOUNT_OF_LAUNCHES = 3; // Amount of launches to preform in a cycle
+        public static enum LauncherState {
+            IDLE,
+            SPEED_UP,
+            LAUNCH
+        }
+    }
+
+    // Pedro Pathing constants handler
     public static class Pedro {
         public static FollowerConstants followerConstants = new FollowerConstants()
                 .mass(18);
@@ -53,6 +97,7 @@ public class Constants {
         }
     }
 
+    // Pedro Pathing poses
     public static class Poses {
         // Whether to mirror poses (true for blue alliance, false for red alliance)
         boolean mirrorPoses;
@@ -84,7 +129,7 @@ public class Constants {
             this.GPPArtifactsEnd = buildPose(20, 83.75, 180);
         }
 
-        public Pose[] getIntakePoses(AprilTag.Pattern pattern) {
+        public Pose[] getIntakePoses(Constants.Pattern pattern) {
             switch (pattern) {
                 case PPG:
                     return new Pose[] {PPGArtifacts, PPGArtifactsEnd,
@@ -115,6 +160,7 @@ public class Constants {
         }
     }
 
+    // Pedro Pathing paths
     public static class Paths {
         // Poses for path building
         public Poses poses;
@@ -140,9 +186,9 @@ public class Constants {
         // Back home
         public PathChain scoreToHome; // score -> home
 
-        public void build(Follower follower, AprilTag.Pattern pattern, AllianceSelector.Alliance alliance, Pose startPosition) {
+        public void build(Follower follower, Constants.Pattern pattern, Constants.Alliance alliance, Pose startPosition) {
             // Build poses, mirror if blue alliance
-            this.poses = new Poses((alliance == AllianceSelector.Alliance.BLUE), startPosition);
+            this.poses = new Poses((alliance == Constants.Alliance.BLUE), startPosition);
 
             // Select the correct intake poses based on pattern
             Pose[] intakePoses = poses.getIntakePoses(pattern);

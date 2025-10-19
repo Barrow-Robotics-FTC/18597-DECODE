@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+// FTC SDK
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-public class AllianceSelector {
-    public enum Alliance {
-        RED,
-        BLUE
-    }
+// Alliance constants
+import org.firstinspires.ftc.teamcode.utils.Constants.Alliance;
 
+public class AllianceSelector {
     public static Alliance run(Gamepad gamepad1, Telemetry telemetry) {
         Alliance selectedAlliance = null;
         while (selectedAlliance == null) {

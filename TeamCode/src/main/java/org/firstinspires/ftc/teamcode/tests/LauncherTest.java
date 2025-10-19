@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.Launcher;
+import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherState;
 
 /*
 This is a simple test OpMode for the launcher. It uses the custom Launcher helper (imported above).
@@ -19,7 +20,7 @@ To adjust the target RPM of the launcher, use the dpad up and down buttons on ga
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LauncherTest extends LinearOpMode {
     private Launcher launcher; // Custom launcher class
-    private Launcher.State launcherState; // Current launcher state
+    private LauncherState launcherState; // Current launcher state
 
     @Override
     public void runOpMode() {
@@ -34,7 +35,7 @@ public class LauncherTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            if (launcherState == Launcher.State.IDLE) { // If the launcher is not running
+            if (launcherState == LauncherState.IDLE) { // If the launcher is not running
                 if (gamepad1.rightBumperWasPressed()) { // When right bumper is pressed
                     launcherState = launcher.update(true); // Start the launcher (running update will get the launcher out of IDLE)
                 }

@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+// FTC SDK
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -9,15 +9,10 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class ManualLauncher {
-    // Launcher constants
-    int TARGET_RPM = 1000; // Target RPM for both launcher motors
-    final int RPM_TOLERANCE = 100; // Tolerance of RPM required for launch
-    final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
-    final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
-    final double TAPPER_PUSHED_POSITION = 0.5; // How much the tapper servo rotates to push a ball into the shooter
-    final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
+// Launcher constants
+import static org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.*;
 
+public class ManualLauncher {
     // Motors and servos
     private final DcMotorEx leftMotor; // Left flywheel motor (looking from the robots perspective)
     private final DcMotorEx rightMotor; // Right flywheel motor (looking from the robots perspective)

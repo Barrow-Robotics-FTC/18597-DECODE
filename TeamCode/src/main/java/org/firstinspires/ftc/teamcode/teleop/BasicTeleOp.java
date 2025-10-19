@@ -39,7 +39,7 @@ public class BasicTeleOp extends LinearOpMode {
     private final double nonSlowModeMultiplier = 1; // Multiplier for normal driving speed
 
     // Values retrieved from blackboard
-    private AllianceSelector.Alliance alliance; // Alliance of the robot
+    private Constants.Alliance alliance; // Alliance of the robot
     private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
 
     // Driver controller variables
@@ -60,7 +60,7 @@ public class BasicTeleOp extends LinearOpMode {
     // Go from the current position to any pose
     private PathChain getPathToPose(Pose pose) {
         // Flip the pose if the alliance is blue
-        if (alliance == AllianceSelector.Alliance.BLUE) {
+        if (alliance == Constants.Alliance.BLUE) {
             pose = pose.mirror();
         }
 
@@ -74,7 +74,7 @@ public class BasicTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Get variables from Blackboard
-        alliance = (AllianceSelector.Alliance) blackboard.getOrDefault("alliance", AllianceSelector.Alliance.RED);
+        alliance = (Constants.Alliance) blackboard.getOrDefault("alliance", Constants.Alliance.RED);
         autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(72, 8, Math.toRadians(90)));
         paths = (Constants.Paths) blackboard.getOrDefault("paths", null);
 
