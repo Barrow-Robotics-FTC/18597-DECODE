@@ -1,15 +1,19 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.hardware.Gamepad;
+// FTC SDK
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
+// Pedro Pathing
+import com.pedropathing.geometry.Pose;
+
+// Start position selector utility
 import static org.firstinspires.ftc.teamcode.utils.Constants.Poses;
 import static org.firstinspires.ftc.teamcode.utils.Constants.StartPositionConstants.*;
 
 // TODO CALL THIS FROM OTHER FILES TO SELECT STARTING POSITION
 public class StartPositionSelector {
-    public static Pose run(Gamepad gamepad1, Telemetry telemetry, boolean mirrorPose) {
+    public static StartSelection run(Gamepad gamepad1, Telemetry telemetry, boolean mirrorPose) {
         StartPosition selectedStartPosition = null;
         Pose startPose = null;
 
@@ -43,6 +47,17 @@ public class StartPositionSelector {
             telemetry.update();
         }
 
-        return startPose;
+        return new StartSelection(selectedStartPosition, startPose);
+    }
+
+    // Return type for start position selector
+    public static class StartSelection {
+        public final StartPosition startPosition;
+        public final Pose pose;
+
+        public StartSelection(StartPosition startPosition, Pose pose) {
+            this.startPosition = startPosition;
+            this.pose = pose;
+        }
     }
 }

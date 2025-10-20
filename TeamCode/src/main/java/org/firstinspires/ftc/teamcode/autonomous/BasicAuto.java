@@ -52,7 +52,7 @@ public class BasicAuto extends LinearOpMode {
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
     private Constants.Alliance alliance; // Alliance of the robot
-    private Pose startPosition; // Start pose of the robot
+    private StartPositionSelector.StartSelection startPosition; // Start position of the robot
     private StateMachine stateMachine; // Custom autonomous state machine
     private Constants.Paths paths; // Custom paths class
     private Launcher launcher; // Custom launcher class
@@ -78,11 +78,14 @@ public class BasicAuto extends LinearOpMode {
         alliance = AllianceSelector.run(gamepad1, telemetry);
 
         // Prompt user to select start position and set starting pose
-        startPosition = StartPositionSelector.run(gamepad1, telemetry);
-        follower.setStartingPose(startPosition);
+        startPosition = StartPositionSelector.run(gamepad1, telemetry, (alliance == Constants.Alliance.BLUE));
+        follower.setStartingPose(startPosition.pose);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Alliance", alliance);
+        telemetry.addData("Start Position", startPosition.startPosition);
+        telemetry.addData("Start Pose", startPosition.pose);
         telemetry.update();
 
         // Wait for the game to start (driver presses START)
@@ -98,7 +101,7 @@ public class BasicAuto extends LinearOpMode {
         targetPattern = aprilTag.detectPattern();
 
         // Build paths and initialize state machine with those paths
-        paths.build(follower, targetPattern, alliance, startPosition);
+        paths.build(follower, targetPattern, alliance, startPosition.pose);
         stateMachine = new StateMachine(follower, stateList, launcher, intake, paths);
 
         while (opModeIsActive()) {
