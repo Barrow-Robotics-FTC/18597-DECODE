@@ -26,27 +26,27 @@ import java.util.List;
 public class BasicAuto extends LinearOpMode {
     // Editable variables
     final List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
-            StateMachine.State.HOME_TO_SCORE,
-            StateMachine.State.LAUNCH,
-            StateMachine.State.SCORE_TO_PATTERN_INTAKE,
+            StateMachine.State.HOME_TO_SCORE, // Launch preload
+            StateMachine.State.LAUNCH, // Launch preloaded artifacts (1/3 chance of pattern)
+            StateMachine.State.SCORE_TO_PATTERN_INTAKE, // Intake pattern row and score
             StateMachine.State.RUN_INTAKE,
             StateMachine.State.PATTERN_INTAKE_TO_END,
             StateMachine.State.STOP_INTAKE,
             StateMachine.State.PATTERN_INTAKE_END_TO_SCORE,
-            StateMachine.State.LAUNCH,
-            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_1,
+            StateMachine.State.LAUNCH, // Launch pattern row
+            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_1, // Intake first non-pattern rows and score
             StateMachine.State.RUN_INTAKE,
             StateMachine.State.NON_PATTERN_INTAKE_1_TO_END,
             StateMachine.State.STOP_INTAKE,
             StateMachine.State.NON_PATTERN_INTAKE_1_END_TO_SCORE,
-            StateMachine.State.LAUNCH,
-            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_2,
+            StateMachine.State.LAUNCH, // Last non-pattern score
+            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_2, // Intake second non-pattern rows and score
             StateMachine.State.RUN_INTAKE,
             StateMachine.State.NON_PATTERN_INTAKE_2_TO_END,
             StateMachine.State.STOP_INTAKE,
             StateMachine.State.NON_PATTERN_INTAKE_2_END_TO_SCORE,
-            StateMachine.State.LAUNCH,
-            StateMachine.State.SCORE_TO_HOME
+            StateMachine.State.LAUNCH, // Overflow
+            StateMachine.State.SCORE_TO_HOME // Park at home
     );
 
     // Other variables

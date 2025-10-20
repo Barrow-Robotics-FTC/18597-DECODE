@@ -4,26 +4,45 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-// TODO: Revamp this file
-// - Create poses here
-// - More dynamic starting positions
-// - Maybe some fancy logging
+import static org.firstinspires.ftc.teamcode.utils.Constants.Poses;
+import static org.firstinspires.ftc.teamcode.utils.Constants.StartPositionConstants.*;
+
+// TODO CALL THIS FROM OTHER FILES TO SELECT STARTING POSITION
 public class StartPositionSelector {
-    public static Pose run(Gamepad gamepad1, Telemetry telemetry) {
-        Pose selectedStartPosition = null;
+    public static Pose run(Gamepad gamepad1, Telemetry telemetry, boolean mirrorPose) {
+        StartPosition selectedStartPosition = null;
+        Pose startPose = null;
+
         while (selectedStartPosition == null) {
-            if (gamepad1.b) {
-                selectedStartPosition = new Pose();
+            if (gamepad1.a) {
+                selectedStartPosition = StartPosition.RIGHT_LINE_OF_C;
             } else if (gamepad1.y) {
-                selectedStartPosition = new Pose();
+                selectedStartPosition = StartPosition.LEFT_LINE_OF_C;
+            } else if (gamepad1.b) {
+                selectedStartPosition = StartPosition.CENTER_OF_LEFT_LINE_OF_C;
+            }
+
+            if (selectedStartPosition != null) { // Once a position in selected
+                switch (selectedStartPosition) { // Create the Pose based on selection
+                    case RIGHT_LINE_OF_C:
+                        startPose = Poses.externalBuildPose(64, START_POSE_Y, START_POSE_HEADING, mirrorPose);
+                        break;
+                    case LEFT_LINE_OF_C:
+                        startPose = Poses.externalBuildPose(56, START_POSE_Y, START_POSE_HEADING, mirrorPose);
+                        break;
+                    case CENTER_OF_LEFT_LINE_OF_C:
+                        startPose = Poses.externalBuildPose(48, START_POSE_Y, START_POSE_HEADING, mirrorPose);
+                        break;
+                }
             }
 
             telemetry.addData("Start Position Selector", "Select Start Position");
-            telemetry.addData("Touching Center Line", "Press B to select touching center line");
-            telemetry.addData("Touching Outer Center Line", "Press Y to select touching outer center line");
+            telemetry.addData("Press A", "Right edge of robot touching the C tiles right line");
+            telemetry.addData("Press Y", "Left edge of robot touching the C tiles left line");
+            telemetry.addData("Press B", "Center of robot over the C tiles left line");
             telemetry.update();
         }
 
-        return selectedStartPosition;
+        return startPose;
     }
 }

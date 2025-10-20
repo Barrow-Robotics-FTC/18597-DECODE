@@ -29,8 +29,20 @@ public class Constants {
         GPP
     }
 
+    // Start position selector
+    public static class StartPositionConstants {
+        public static final double ROBOT_LENGTH = 14.0; // Robot length in inches
+        public static final double START_POSE_Y = ROBOT_LENGTH / 2; // Y coordinate for start poses
+        public static final double START_POSE_HEADING = 90.0; // Heading for start poses
+        public enum StartPosition {
+            RIGHT_LINE_OF_C, // Right edge of robot touching the C tiles right line
+            LEFT_LINE_OF_C, // Left edge of robot touching the C tiles left line
+            CENTER_OF_LEFT_LINE_OF_C // Center of robot over the C tiles left line
+        }
+    }
+
     // April Tags
-    static class AprilTagConstants {
+    public static class AprilTagConstants {
         public static final int APRIL_TAG_CAMERA_DECIMATION = 2; // Higher value = farther detection range, lower detection rate
         public static final int APRIL_TAG_CAMERA_EXPOSURE = 6; // Camera exposure time (milliseconds)
         public static final int APRIL_TAG_CAMERA_GAIN = 250; // Camera gain
@@ -157,6 +169,14 @@ public class Constants {
 
         private Pose buildPose(double x, double y, double heading) {
             return this.buildPose(x, y, heading, true);
+        }
+
+        static Pose externalBuildPose(double x, double y, double heading, boolean mirror) {
+            Pose pose = new Pose(x, y, Math.toRadians(heading));
+            if (mirror) {
+                pose = pose.mirror();
+            }
+            return pose;
         }
     }
 
