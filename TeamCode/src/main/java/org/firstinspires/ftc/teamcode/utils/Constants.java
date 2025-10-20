@@ -54,7 +54,7 @@ public class Constants {
         public static double TAPPER_PUSHED_POSITION = 0.5; // Position that the tapper goes to when pushing an artifact into the launcher
         public static final double TAPPER_HOME_POSITION = 0.0; // Position of the tapper when retracted
         public static int AMOUNT_OF_LAUNCHES = 3; // Amount of launches to preform in a cycle
-        public static enum LauncherState {
+        public enum LauncherState {
             IDLE,
             SPEED_UP,
             LAUNCH

@@ -25,7 +25,7 @@ import java.util.List;
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class BasicAuto extends LinearOpMode {
     // Editable variables
-    List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
+    final List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
             StateMachine.State.HOME_TO_SCORE,
             StateMachine.State.LAUNCH,
             StateMachine.State.SCORE_TO_PATTERN_INTAKE,

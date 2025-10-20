@@ -12,7 +12,6 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
 
 // Local helper files
-import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
 import org.firstinspires.ftc.teamcode.utils.Intake;
 import org.firstinspires.ftc.teamcode.utils.Constants;
