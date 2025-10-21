@@ -17,11 +17,11 @@ import org.firstinspires.ftc.teamcode.utils.Intake;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 
 /*
-Gamepad Map for TeleOp (FTCPadMap file available in this programs folder)
+Gamepad Map for LM1 TeleOp (FTCPadMap file available in this programs folder)
 Upload the file to https://barrow-robotics-ftc.github.io/FTCPadMap/ for an interactive view
 
 Drive Coach: NAME
-Human player: NAME
+Human Player: NAME
 Gamepad 1 (Driver): NAME
     Right Trigger (When Pressed): Go to scoring position
     Left Trigger (When Pressed): Go to human player position

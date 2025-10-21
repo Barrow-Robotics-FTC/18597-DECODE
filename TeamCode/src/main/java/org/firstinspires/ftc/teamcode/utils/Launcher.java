@@ -43,7 +43,7 @@ public class Launcher {
         java.util.List<DcMotorEx> motors = java.util.Arrays.asList(leftMotor, rightMotor);
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(BRAKE);
-            motor.setMode(com.qualcomm.robotcore.hardware.DcMotorEx.RunMode.RUN_USING_ENCODER);
+            motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             motor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300,0,0,10));
         }
 
