@@ -21,9 +21,9 @@ import org.firstinspires.ftc.teamcode.utils.Constants;
 import java.util.Arrays;
 import java.util.List;
 
-@Autonomous(name = "Basic Autonomous", group = "Autonomous")
+@Autonomous(name = "LM1 Autonomous", group = "Autonomous")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class BasicAuto extends LinearOpMode {
+public class LM1Auto extends LinearOpMode {
     // Editable variables
     final List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
             StateMachine.State.HOME_TO_SCORE, // Launch preload

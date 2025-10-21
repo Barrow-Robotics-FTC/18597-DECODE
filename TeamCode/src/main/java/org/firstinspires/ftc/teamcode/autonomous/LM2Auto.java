@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 // FTC SDK
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Pedro Pathing
@@ -10,43 +10,49 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
 // Local helper files
+import org.firstinspires.ftc.teamcode.utils.Launcher;
+import org.firstinspires.ftc.teamcode.utils.Intake;
 import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
+import org.firstinspires.ftc.teamcode.utils.StartPositionSelector;
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
 import org.firstinspires.ftc.teamcode.utils.Constants;
-import org.firstinspires.ftc.teamcode.utils.Intake;
-import org.firstinspires.ftc.teamcode.utils.Launcher;
-import org.firstinspires.ftc.teamcode.utils.StartPositionSelector;
 
 // Java
 import java.util.Arrays;
 import java.util.List;
 
-@Autonomous(name = "Pathing Only Autonomous", group = "Autonomous")
+@Autonomous(name = "LM2 Autonomous", group = "Autonomous")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class PathingOnlyAuto extends LinearOpMode {
+public class LM2Auto extends LinearOpMode {
     // Editable variables
-    List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
-            StateMachine.State.HOME_TO_SCORE,
-            StateMachine.State.SIMULATE_LAUNCH,
-            StateMachine.State.SCORE_TO_PATTERN_INTAKE,
+    final List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
+            StateMachine.State.HOME_TO_SCORE, // Launch preload
+            StateMachine.State.LAUNCH, // Launch preloaded artifacts (1/3 chance of pattern)
+            StateMachine.State.SCORE_TO_PATTERN_INTAKE, // Intake pattern row and score
+            StateMachine.State.RUN_INTAKE,
             StateMachine.State.PATTERN_INTAKE_TO_END,
+            StateMachine.State.STOP_INTAKE,
             StateMachine.State.PATTERN_INTAKE_END_TO_SCORE,
-            StateMachine.State.SIMULATE_LAUNCH,
-            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_1,
+            StateMachine.State.LAUNCH, // Launch pattern row
+            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_1, // Intake first non-pattern rows and score
+            StateMachine.State.RUN_INTAKE,
             StateMachine.State.NON_PATTERN_INTAKE_1_TO_END,
+            StateMachine.State.STOP_INTAKE,
             StateMachine.State.NON_PATTERN_INTAKE_1_END_TO_SCORE,
-            StateMachine.State.SIMULATE_LAUNCH,
-            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_2,
+            StateMachine.State.LAUNCH, // Last non-pattern score
+            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_2, // Intake second non-pattern rows and score
+            StateMachine.State.RUN_INTAKE,
             StateMachine.State.NON_PATTERN_INTAKE_2_TO_END,
+            StateMachine.State.STOP_INTAKE,
             StateMachine.State.NON_PATTERN_INTAKE_2_END_TO_SCORE,
-            StateMachine.State.SIMULATE_LAUNCH,
-            StateMachine.State.SCORE_TO_HOME
+            StateMachine.State.LAUNCH, // Overflow
+            StateMachine.State.SCORE_TO_HOME // Park at home
     );
 
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
     private Constants.Alliance alliance; // Alliance of the robot
-    private Pose startPosition; // Start pose of the robot
+    private StartPositionSelector.StartSelection startPosition; // Start position of the robot
     private StateMachine stateMachine; // Custom autonomous state machine
     private Constants.Paths paths; // Custom paths class
     private Launcher launcher; // Custom launcher class
@@ -72,11 +78,14 @@ public class PathingOnlyAuto extends LinearOpMode {
         alliance = AllianceSelector.run(gamepad1, telemetry);
 
         // Prompt user to select start position and set starting pose
-        startPosition = StartPositionSelector.run(gamepad1, telemetry);
-        follower.setStartingPose(startPosition);
+        startPosition = StartPositionSelector.run(gamepad1, telemetry, (alliance == Constants.Alliance.BLUE));
+        follower.setStartingPose(startPosition.pose);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Alliance", alliance);
+        telemetry.addData("Start Position", startPosition.startPosition);
+        telemetry.addData("Start Pose", startPosition.pose);
         telemetry.update();
 
         // Wait for the game to start (driver presses START)
@@ -92,7 +101,7 @@ public class PathingOnlyAuto extends LinearOpMode {
         targetPattern = aprilTag.detectPattern();
 
         // Build paths and initialize state machine with those paths
-        paths.build(follower, targetPattern, alliance, startPosition);
+        paths.build(follower, targetPattern, alliance, startPosition.pose);
         stateMachine = new StateMachine(follower, stateList, launcher, intake, paths);
 
         while (opModeIsActive()) {
@@ -131,11 +140,11 @@ public class PathingOnlyAuto extends LinearOpMode {
         private final Constants.Paths paths;
         private int statesIndex; // Current index in states
         private State currentState; // Current state (only used in update for cleaner code)
-        private final ElapsedTime simulatedLaunchTimer = new ElapsedTime(); // Timer for simulating launch duration
-        private boolean isSimulatingLaunch = false; // Flag to indicate if we are simulating a launch
 
         public enum State {
-            SIMULATE_LAUNCH,
+            RUN_INTAKE,
+            STOP_INTAKE,
+            LAUNCH,
             HOME_TO_SCORE,
             SCORE_TO_PATTERN_INTAKE,
             PATTERN_INTAKE_TO_END,
@@ -166,18 +175,21 @@ public class PathingOnlyAuto extends LinearOpMode {
             currentState = states.get(statesIndex);
             if (!follower.isBusy()) { // If the follower is running, don't run the state machine
                 switch (currentState) {
-                    case SIMULATE_LAUNCH:
-                        if (!isSimulatingLaunch) {
-                            // Start simulating launch
-                            isSimulatingLaunch = true;
-                            simulatedLaunchTimer.reset();
-                        } else {
-                            // Check if 2 seconds have passed
-                            if (simulatedLaunchTimer.milliseconds() >= 2000) {
-                                // Stop simulating launch
-                                isSimulatingLaunch = false;
-                                nextState();
-                            }
+                    case RUN_INTAKE:
+                        intake.run();
+                        nextState();
+                        break;
+                    case STOP_INTAKE:
+                        intake.stop();
+                        nextState();
+                        break;
+                    case LAUNCH:
+                        /*
+                        launcher.update() will run the launcher state machine to launch 3 artifacts.
+                        The state will become IDLE when all 3 artifacts are launched.
+                         */
+                        if (launcher.update(true) == Constants.LauncherConstants.LauncherState.IDLE) {
+                            nextState();
                         }
                         break;
                     case HOME_TO_SCORE:

@@ -28,9 +28,9 @@ Gamepad 1 (Driver): NAME
 Gamepad 2 (Operator): NAME
  */
 
-@TeleOp(name = "Basic TeleOp", group = "TeleOp")
+@TeleOp(name = "LM1 TeleOp", group = "TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
-public class BasicTeleOp extends LinearOpMode {
+public class LM1TeleOp extends LinearOpMode {
     // Editable variables
     private final boolean brakeMode = true; // Whether the motors should break on stop (recommended)
     private final boolean robotCentric = true; // True for robot centric driving, false for field centric
