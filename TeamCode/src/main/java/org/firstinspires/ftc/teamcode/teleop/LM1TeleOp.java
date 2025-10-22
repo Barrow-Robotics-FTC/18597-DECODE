@@ -16,6 +16,10 @@ import org.firstinspires.ftc.teamcode.utils.Launcher;
 import org.firstinspires.ftc.teamcode.utils.Intake;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 
+import org.firstinspires.ftc.teamcode.utils.Launcher;
+import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherState;
+import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherReturnProps;
+
 /*
 Gamepad Map for LM1 TeleOp (FTCPadMap file available in this programs folder)
 Upload the file to https://barrow-robotics-ftc.github.io/FTCPadMap/ for an interactive view
@@ -44,7 +48,7 @@ public class LM1TeleOp extends LinearOpMode {
     // Driver controller variables
     private boolean slowMode = false;
     private boolean launching = false;
-    private boolean intaking = false;
+    // private boolean intaking = false;
 
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime();
@@ -53,10 +57,16 @@ public class LM1TeleOp extends LinearOpMode {
     private Pose currentPose; // Current pose of the robot
     private boolean automatedDrive = false; // Is Pedro Pathing driving?
     private boolean launcherActive = false; // Is the launcher update loop running?
-    private boolean intakeActive = false; // Is the intake running?
+    // private boolean intakeActive = false; // Is the intake running?
     private boolean readyForLaunch = false; // Are we in position to allow the launcher to launch?
-
+    private Intake intake; // Custom intake class
+    // private boolean intakeRunning = false; // True when intake is running
     // Go from the current position to any pose
+    private Launcher launcher; // Custom launcher class
+    private LauncherReturnProps launcherStatus; // Current launcher state
+    private ElapsedTime launchCycleTimer = new ElapsedTime(); // Keeps track of the time since the last completed launch cycle
+
+
     private PathChain getPathToPose(Pose pose) {
         // Flip the pose if the alliance is blue
         if (alliance == Constants.Alliance.BLUE) {
@@ -117,39 +127,64 @@ public class LM1TeleOp extends LinearOpMode {
                 automatedDrive = false;
             }
 
-            // Gamepad 1 Right Trigger (When Pressed): Go to scoring position
-            if (gamepad1.right_trigger > 0.1) {
+            // Gamepad 1 when Y (When Pressed): Go to scoring position
+            if (gamepad1.yWasPressed()) {
                 follower.followPath(paths.buildPath(follower, follower.getPose(), paths.poses.score));
                 automatedDrive = true; // Start auto drive
             }
-            // Gamepad 1 Left Trigger (When Pressed): Go to human player position
-            if (gamepad1.left_trigger > 0.1) {
+            // Gamepad 1 when A (When Pressed): Go to human player position
+            if (gamepad1.aWasPressed()) {
                 follower.followPath(paths.buildPath(follower, follower.getPose(), paths.poses.loadingZone));
                 automatedDrive = true; // Start auto drive
             }
-            // Initialize Intake
-            if (gamepad2.leftBumperWasPressed()) {
-            //
+            // No intake for meet one, so this code may be referenced in LM2
+            /*
+            // When Left trigger is pressed: Initialize / Disable Intake
+            if (gamepad2.left_trigger > 0.1) { // When right bumper is pressed
+                intakeRunning = !intakeRunning; // Toggle intake state
+                if (intakeRunning) {
+                    intake.run(); // Start the intake
+                }
+                else {
+                    intake.stop(); // Stop the intake
+                }
             }
-            // Disable Intake
+            */
+            // When d-pad Up is pressed: enable / disable slow mode
+            if (gamepad1.dpadRightWasPressed()) {
+                if (slowMode) {
+                    slowMode = true;
+                }
+                else {
+                    slowMode = false;
+                }
+            }
+            // When right trigger is pressed: Enable / Disable Launcher
             if (gamepad2.rightBumperWasPressed()) {
-                //
-            }
-            // Enable Slow Mode
-            if (gamepad1.leftStickButtonWasPressed()) {
-                //
-            }
-            // Disable Slow Mode
-            if (gamepad1.rightStickButtonWasPressed()) {
-                //
-            }
-            // Disable Launcher
-            if (gamepad2.left_trigger < 0.1) {
-                //
-            }
-            // Enable Launcher
-            if (gamepad2.right_trigger > 0.1) {
-                //
+                if (gamepad1.leftBumperWasPressed() && launcherStatus.state == LauncherState.IDLE) {
+                    launcher.speedUp(); // Speed up the launcher
+                }
+
+                // If the right bumper is pressed
+                if (gamepad2.right_trigger > 0.1) {
+                    launcher.launch(1); // Launch an artifact
+                }
+
+                // Use DPad buttons to control launcher speed
+                if (gamepad2.dpadUpWasPressed()) {
+                    launcher.setTargetRPM(launcher.getTargetRPM() + 25); // Increase target RPM by 25
+                }
+                else if (gamepad2.dpadDownWasPressed()) {
+                    launcher.setTargetRPM(launcher.getTargetRPM() - 25); // Decrease target RPM by 25
+                }
+
+                // Update launcher
+                launcherStatus = launcher.update();
+
+                // Check if a launch cycle was completed
+                if (launcherStatus.cycleCompleted) {
+                    launchCycleTimer.reset();
+                }
             }
 
             // Log status
