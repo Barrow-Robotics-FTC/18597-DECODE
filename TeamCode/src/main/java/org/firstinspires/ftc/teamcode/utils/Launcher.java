@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.utils;
 
 // FTC SDK
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -22,12 +21,18 @@ public class Launcher {
     private final ElapsedTime timeSinceLastLaunch = new ElapsedTime();
     private final ElapsedTime tapperRaisedTimer = new ElapsedTime();
 
+    // Initialize local target RPM from global RPM
+    private int targetRPM = TARGET_RPM;
+
     // Other variables
     private final double motorTicksPerRev; // How many encoder ticks per revolution the motors have
     private LauncherState state = LauncherState.IDLE; // Current state of the launcher
+    private int launchesToPerform; // How many launches to perform in this launch cycle
     private int launches; // How many artifacts have been launched in the current launch cycle
-    private boolean tapperCommanded = false; // Whether the tapper has been commanded to the push position
-    private boolean tapperPositioned = false; // Whether the tapper is in the pushed position
+    private boolean launchWhenReady = false; // Has the launcher been commanded to launch
+    private boolean tapperCommanded = false; // Has the tapper been commanded to the push position
+    private boolean tapperPositioned = false; // Has the tapper reached the pushed position
+    private boolean returnToIdleAfterLaunch = true; // Whether to return to idle state after launching
 
     // Constructor
     public Launcher(HardwareMap hardwareMap) {
@@ -44,7 +49,7 @@ public class Launcher {
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(BRAKE);
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            motor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300,0,0,10));
+            motor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, LAUNCHER_PIDF_COEFFICIENTS);
         }
 
         // Reverse left launcher motor
@@ -61,19 +66,11 @@ public class Launcher {
         tapperServo.setPosition(TAPPER_HOME_POSITION);
     }
 
-    // Stop the launcher and return to idle state
-    public LauncherState stop() {
-        // When the state is set to idle, whatever ran this state machine will know that artifacts have been launched
-        // With the state being idle, the next time update is called, the launch cycle will start over again.
-        state = LauncherState.IDLE;
-
-        // Stop the launcher motors and reset tapper
-        resetMotorsAndServos();
-
-        // Reset launch count
-        launches = 0;
-
-        return state;
+    // Called after each cycle to reset variables
+    private void resetCycleVariables() {
+        launchesToPerform = 0; // Reset launches to perform
+        launches = 0; // Reset launch amount
+        launchWhenReady = false; // Reset launch when ready
     }
 
     // Convert RPM to TPS
@@ -101,53 +98,73 @@ public class Launcher {
         return tapperServo.getPosition();
     }
 
-    // Get the amount of launches in this cycle
+    // Get the amount of launches performed in this cycle
     public int getLaunches() {
         return launches;
     }
 
     // Get the target RPM of the launcher motors
     public int getTargetRPM() {
-        return TARGET_RPM;
+        return targetRPM;
     }
 
     // Set the target RPM of the launcher motors
     public void setTargetRPM(int rpm) {
-        TARGET_RPM = rpm;
+        targetRPM = rpm;
     }
 
-    // Set the amount of launches to perform in a cycle, default is 3
-    public void setAmountOfLaunches(int launches) {
-        AMOUNT_OF_LAUNCHES = launches;
+    // Command the launcher to speed up to target RPM
+    public void speedUp() {
+        state = LauncherState.SPEED_UP; // Move to speed up state
+        inToleranceTimer.reset(); // Reset in tolerance timer
+    }
+
+    // Command the launcher to launch a certain amount of artifacts
+    public void launch(int artifacts) {
+        if (state == LauncherState.IDLE) {
+            speedUp(); // If the launcher hasn't sped up, start the speed up now
+            returnToIdleAfterLaunch = true; // After launching, return to idle
+        } else if (state == LauncherState.SPEED_UP) {
+            returnToIdleAfterLaunch = false; // If we are already speeding up, don't return to idle after launch
+        }
+
+        launchesToPerform = artifacts; // Set the amount of launches to perform
+        launchWhenReady = true; // Command the launcher to launch when ready
+    }
+
+    // Stop the launcher and return to idle state
+    public LauncherState stop() {
+        state = LauncherState.IDLE; // Set the launcher to an idle state
+        resetMotorsAndServos(); // Stop the launcher motors and reset tapper
+        resetCycleVariables(); // Reset cycle variables
+
+        return state;
     }
 
     // Update function, runs the launcher state machine
-    // If launchIfReady is true, the launcher will launch as soon as it is ready
-    // If launchIfReady is false, the launcher will spin up to speed and wait in the SPEED_UP state until launchIfReady is true
-    public LauncherState update(boolean launchIfReady) {
+    // Returns true if a launch cycle was completed in the frame
+    public boolean update() {
+        // Return flag for update
+        boolean launchCycleCompleted = false; // Reset return flag
         switch(state) {
             case IDLE:
-                // If this rums, we are starting a new launch cycle, so we'll move to the speed up state
-                state = LauncherState.SPEED_UP;
-                launches = 0; // Reset launch amount
-                inToleranceTimer.reset(); // Reset in tolerance timer
-                resetMotorsAndServos(); // Ensure motors and servos are reset
+                // Do nothing while idle
                 break;
             case SPEED_UP:
                 // Set motor powers to reach target RPM
-                leftMotor.setVelocity(rpmToTps(TARGET_RPM));
-                rightMotor.setVelocity(rpmToTps(TARGET_RPM));
+                leftMotor.setVelocity(rpmToTps(getTargetRPM()));
+                rightMotor.setVelocity(rpmToTps(getTargetRPM()));
 
                 // Create variables to check if each motor is within the RPM tolerance
-                boolean leftInTol = Math.abs(TARGET_RPM - getLeftRPM()) <= RPM_TOLERANCE;
-                boolean rightInTol = Math.abs(TARGET_RPM - getRightRPM()) <= RPM_TOLERANCE;
+                boolean leftInTol = Math.abs(getTargetRPM() - getLeftRPM()) <= RPM_TOLERANCE;
+                boolean rightInTol = Math.abs(getTargetRPM() - getRightRPM()) <= RPM_TOLERANCE;
 
                 // Check if we are within the tolerance
                 if (leftInTol && rightInTol) {
                     // Check if we have been within tolerance for the required amount of time (eliminates inconsistency due to oscillation)
                     if (inToleranceTimer.milliseconds() >= RPM_IN_RANGE_TIME) {
                         // We have reached all prerequisites for launch
-                        if (!launchIfReady) {
+                        if (!launchWhenReady) {
                             // If we are not supposed to launch yet, stay in this state
                             break;
                         }
@@ -183,8 +200,14 @@ public class Launcher {
                 // At this point, the tapper should be in the pushed position
                 // This means an artifact should have been launched
                 launches += 1; // Increment launch count
-                if (launches >= AMOUNT_OF_LAUNCHES) { // If we have launched the target amount of artifacts
-                    stop(); // Stop the launcher
+                if (launches >= launchesToPerform) { // If we have launched the target amount of artifacts
+                    resetCycleVariables(); // Reset cycle variables
+                    launchCycleCompleted = true; // Mark that a launch cycle was completed
+                    if (!returnToIdleAfterLaunch) { // If the launcher shouldn't return to idle after the launch cycle
+                        speedUp(); // Return to speed up state
+                    } else { // If the launcher should return to idle after the launch cycle
+                        stop(); // Stop the launcher
+                    }
                 } else {
                     state = LauncherState.SPEED_UP; // Recover motor speed for the next launch
                     inToleranceTimer.reset(); // Reset in tolerance timer
@@ -192,12 +215,12 @@ public class Launcher {
 
                 // Reset variables for next launch (if any)
                 tapperServo.setPosition(TAPPER_HOME_POSITION); // Retract the tapper
-                tapperCommanded = false; // Mark that the tapper is no longer commanded
-                tapperPositioned = false; // Mark that the tapper is no longer positioned
+                tapperCommanded = false; // Reset tapper commanded
+                tapperPositioned = false; // Reset tapper positioned
                 timeSinceLastLaunch.reset(); // Reset the time since last launch timer
 
                 break;
         }
-        return state;
+        return launchCycleCompleted;
     }
 }
