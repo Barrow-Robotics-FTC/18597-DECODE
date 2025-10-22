@@ -40,6 +40,15 @@ public class Constants {
             LEFT_LINE_OF_C, // Left edge of robot touching the C tiles left line
             CENTER_OF_LEFT_LINE_OF_C // Center of robot over the C tiles left line
         }
+        public static class StartSelection { // Return type for start position selector
+            public final StartPosition startPosition;
+            public final Pose pose;
+
+            public StartSelection(StartPosition startPosition, Pose pose) {
+                this.startPosition = startPosition;
+                this.pose = pose;
+            }
+        }
     }
 
     // April Tags

@@ -49,15 +49,4 @@ public class StartPositionSelector {
 
         return new StartSelection(selectedStartPosition, startPose);
     }
-
-    // Return type for start position selector
-    public static class StartSelection {
-        public final StartPosition startPosition;
-        public final Pose pose;
-
-        public StartSelection(StartPosition startPosition, Pose pose) {
-            this.startPosition = startPosition;
-            this.pose = pose;
-        }
-    }
 }

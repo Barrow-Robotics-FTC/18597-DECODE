@@ -11,7 +11,6 @@ import com.pedropathing.geometry.Pose;
 
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.Launcher;
-import org.firstinspires.ftc.teamcode.utils.Intake;
 import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
 import org.firstinspires.ftc.teamcode.utils.StartPositionSelector;
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
@@ -26,37 +25,18 @@ import java.util.List;
 public class LM1Auto extends LinearOpMode {
     // Editable variables
     final List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
-            StateMachine.State.HOME_TO_SCORE, // Launch preload
-            StateMachine.State.LAUNCH, // Launch preloaded artifacts (1/3 chance of pattern)
-            StateMachine.State.SCORE_TO_PATTERN_INTAKE, // Intake pattern row and score
-            StateMachine.State.RUN_INTAKE,
-            StateMachine.State.PATTERN_INTAKE_TO_END,
-            StateMachine.State.STOP_INTAKE,
-            StateMachine.State.PATTERN_INTAKE_END_TO_SCORE,
-            StateMachine.State.LAUNCH, // Launch pattern row
-            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_1, // Intake first non-pattern rows and score
-            StateMachine.State.RUN_INTAKE,
-            StateMachine.State.NON_PATTERN_INTAKE_1_TO_END,
-            StateMachine.State.STOP_INTAKE,
-            StateMachine.State.NON_PATTERN_INTAKE_1_END_TO_SCORE,
-            StateMachine.State.LAUNCH, // Last non-pattern score
-            StateMachine.State.SCORE_TO_NON_PATTERN_INTAKE_2, // Intake second non-pattern rows and score
-            StateMachine.State.RUN_INTAKE,
-            StateMachine.State.NON_PATTERN_INTAKE_2_TO_END,
-            StateMachine.State.STOP_INTAKE,
-            StateMachine.State.NON_PATTERN_INTAKE_2_END_TO_SCORE,
-            StateMachine.State.LAUNCH, // Overflow
+            StateMachine.State.HOME_TO_SCORE, // Go to scoring pose
+            StateMachine.State.LAUNCH, // Launch preloaded artifacts
             StateMachine.State.SCORE_TO_HOME // Park at home
     );
 
     // Other variables
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
     private Constants.Alliance alliance; // Alliance of the robot
-    private StartPositionSelector.StartSelection startPosition; // Start position of the robot
+    private Constants.StartPositionConstants.StartSelection startPosition; // Start position of the robot
     private StateMachine stateMachine; // Custom autonomous state machine
     private Constants.Paths paths; // Custom paths class
     private Launcher launcher; // Custom launcher class
-    private Intake intake; // Custom intake class
     private AprilTag aprilTag; // Custom April Tag class
     private Pose currentPose; // Current pose of the robot
     public Follower follower; // Pedro Pathing follower
@@ -71,7 +51,6 @@ public class LM1Auto extends LinearOpMode {
         // Initialize all utilities used in auto
         paths = new Constants.Paths();
         launcher = new Launcher(hardwareMap);
-        intake = new Intake(hardwareMap);
         aprilTag = new AprilTag(hardwareMap);
 
         // Prompt the driver to select an alliance
@@ -102,7 +81,7 @@ public class LM1Auto extends LinearOpMode {
 
         // Build paths and initialize state machine with those paths
         paths.build(follower, targetPattern, alliance, startPosition.pose);
-        stateMachine = new StateMachine(follower, stateList, launcher, intake, paths);
+        stateMachine = new StateMachine(follower, stateList, launcher, paths);
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
@@ -115,6 +94,7 @@ public class LM1Auto extends LinearOpMode {
             // Log status
             telemetry.addData("Elapsed", runtime.toString());
             telemetry.addData("Path State", pathState);
+            telemetry.addData("Path Index", stateMachine.statesIndex);
             telemetry.addData("X", currentPose.getX());
             telemetry.addData("Y", currentPose.getY());
             telemetry.addData("Heading", currentPose.getHeading());
@@ -123,7 +103,6 @@ public class LM1Auto extends LinearOpMode {
 
         // OpMode is ending, stop all mechanisms
         follower.holdPoint(currentPose); // Hold position at the current pose
-        intake.stop(); // Stop intake
         launcher.stop(); // Stop launcher
 
         // Save values for TeleOp
@@ -135,26 +114,15 @@ public class LM1Auto extends LinearOpMode {
     static class StateMachine {
         private final Follower follower;
         private final Launcher launcher;
-        private final Intake intake;
         private final List<State> states;
         private final Constants.Paths paths;
         private int statesIndex; // Current index in states
         private State currentState; // Current state (only used in update for cleaner code)
+        private boolean launchCommanded; // Has the launch been commanded by the LAUNCH state
 
         public enum State {
-            RUN_INTAKE,
-            STOP_INTAKE,
             LAUNCH,
             HOME_TO_SCORE,
-            SCORE_TO_PATTERN_INTAKE,
-            PATTERN_INTAKE_TO_END,
-            PATTERN_INTAKE_END_TO_SCORE,
-            SCORE_TO_NON_PATTERN_INTAKE_1,
-            NON_PATTERN_INTAKE_1_TO_END,
-            NON_PATTERN_INTAKE_1_END_TO_SCORE,
-            SCORE_TO_NON_PATTERN_INTAKE_2,
-            NON_PATTERN_INTAKE_2_TO_END,
-            NON_PATTERN_INTAKE_2_END_TO_SCORE,
             SCORE_TO_HOME
         }
 
@@ -162,74 +130,33 @@ public class LM1Auto extends LinearOpMode {
             statesIndex += 1;
         }
 
-        public StateMachine(Follower follower, List<State> states, Launcher launcher, Intake intake, Constants.Paths paths) {
+        public StateMachine(Follower follower, List<State> states, Launcher launcher, Constants.Paths paths) {
             this.follower = follower;
             this.launcher = launcher;
-            this.intake = intake;
             this.states = states;
             this.paths = paths;
             this.statesIndex = 0;
+
+            // Start launcher speed up
+            this.launcher.speedUp();
         }
 
         public State update() {
             currentState = states.get(statesIndex);
             if (!follower.isBusy()) { // If the follower is running, don't run the state machine
                 switch (currentState) {
-                    case RUN_INTAKE:
-                        intake.run();
-                        nextState();
-                        break;
-                    case STOP_INTAKE:
-                        intake.stop();
-                        nextState();
-                        break;
                     case LAUNCH:
-                        /*
-                        launcher.update() will run the launcher state machine to launch 3 artifacts.
-                        The state will become IDLE when all 3 artifacts are launched.
-                         */
-                        if (launcher.update(true) == Constants.LauncherConstants.LauncherState.IDLE) {
+                        if (!this.launchCommanded) { // Command the launcher to launch 3 artifacts
+                            this.launchCommanded = true; // Launch has been commanded
+                            launcher.launch(3); // Command launcher
+                        }
+                        if (launcher.update().cycleCompleted) {
+                            this.launchCommanded = false; // Reset launch commanded flag
                             nextState();
                         }
                         break;
                     case HOME_TO_SCORE:
                         follower.followPath(this.paths.homeToScore);
-                        nextState();
-                        break;
-                    case SCORE_TO_PATTERN_INTAKE:
-                        follower.followPath(this.paths.scoreToPatternIntake);
-                        nextState();
-                        break;
-                    case PATTERN_INTAKE_TO_END:
-                        follower.followPath(this.paths.patternIntakeToEnd);
-                        nextState();
-                        break;
-                    case PATTERN_INTAKE_END_TO_SCORE:
-                        follower.followPath(this.paths.patternIntakeEndToScore);
-                        nextState();
-                        break;
-                    case SCORE_TO_NON_PATTERN_INTAKE_1:
-                        follower.followPath(this.paths.scoreToNonPatternIntake1);
-                        nextState();
-                        break;
-                    case NON_PATTERN_INTAKE_1_TO_END:
-                        follower.followPath(this.paths.nonPatternIntake1ToEnd);
-                        nextState();
-                        break;
-                    case NON_PATTERN_INTAKE_1_END_TO_SCORE:
-                        follower.followPath(this.paths.nonPatternIntake1EndToScore);
-                        nextState();
-                        break;
-                    case SCORE_TO_NON_PATTERN_INTAKE_2:
-                        follower.followPath(this.paths.scoreToNonPatternIntake2);
-                        nextState();
-                        break;
-                    case NON_PATTERN_INTAKE_2_TO_END:
-                        follower.followPath(this.paths.nonPatternIntake2ToEnd);
-                        nextState();
-                        break;
-                    case NON_PATTERN_INTAKE_2_END_TO_SCORE:
-                        follower.followPath(this.paths.nonPatternIntake2EndToScore);
                         nextState();
                         break;
                     case SCORE_TO_HOME:
