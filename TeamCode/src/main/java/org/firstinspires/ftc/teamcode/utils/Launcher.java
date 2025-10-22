@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.utils;
 
 // FTC SDK
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -143,7 +145,7 @@ public class Launcher {
 
     // Update function, runs the launcher state machine
     // Returns true if a launch cycle was completed in the frame
-    public boolean update() {
+    public LauncherReturnProps update() {
         // Return flag for update
         boolean launchCycleCompleted = false; // Reset return flag
         switch(state) {
@@ -221,6 +223,6 @@ public class Launcher {
 
                 break;
         }
-        return launchCycleCompleted;
+        return new LauncherReturnProps(state, launchCycleCompleted);
     }
 }
