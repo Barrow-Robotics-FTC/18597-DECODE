@@ -92,6 +92,13 @@ public class Constants {
         }
     }
 
+    public static class TeleOp {
+        public static final boolean BRAKE_MODE = true; // Whether the motors should break on stop (recommended)
+        public static final boolean ROBOT_CENTRIC = true; // True for robot centric driving, false for field centric
+        public static final double SLOW_MODE_MULTIPLIER = 0.5; // Multiplier for slow mode speed
+        public static final double NORMAL_SPEED_MULTIPLIER = 1; // Multiplier for normal driving speed
+    }
+
     // Pedro Pathing constants handler
     public static class Pedro {
         public static FollowerConstants followerConstants = new FollowerConstants()
@@ -136,7 +143,8 @@ public class Constants {
         // Poses (assuming red alliance, last arg determines if the pose should be mirrored on blue alliance)
         public Pose home; // Centered against the audience wall
         public Pose score; // Facing goal (close to the white line point)
-        public Pose loadingZone; // In the loading zone (facing outwards)
+        public Pose loadingZone; // In the loading zone (facing away from the human player))
+        public Pose baseZone; // In the endgame zone (facing away from audience)
         public Pose PPGArtifacts; // In front of upper artifacts
         public Pose PGPArtifacts; // In front of middle artifacts
         public Pose GPPArtifacts; // In front of lower artifacts
@@ -152,6 +160,7 @@ public class Constants {
             this.home = mirrorPoses ? startPose.mirror() : startPose;
             this.score = buildPose(60, 83.5, 135);
             this.loadingZone = buildPose(10, 10, 0);
+            this.baseZone = buildPose(38, 33.5, 90);
             this.PPGArtifacts = buildPose(40, 35.75, 180);
             this.PGPArtifacts = buildPose(40, 59.75, 180);
             this.GPPArtifacts = buildPose(40, 83.75, 180);
