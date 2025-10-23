@@ -14,7 +14,7 @@ To move the tapper, press the right bumper on gamepad 1. This will toggle the ta
 To adjust the pushed tapper position, use the dpad up and down buttons on gamepad 1.
 */
 
-@TeleOp(name = "Launcher Test", group = "Tests")
+@TeleOp(name = "Tapper Test", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class TapperTest extends LinearOpMode {
     // Other variables

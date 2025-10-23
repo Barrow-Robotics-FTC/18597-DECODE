@@ -42,7 +42,7 @@ Gamepad 1 (Driver): NAME
  */
 
 @TeleOp(name = "LM1 TeleOp", group = "TeleOp")
-@SuppressWarnings("FieldCanBeLocal") // Stop Android Studio from bugging about variables being predefined
+@SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM1TeleOp extends LinearOpMode {
     // Values retrieved from blackboard
     private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp

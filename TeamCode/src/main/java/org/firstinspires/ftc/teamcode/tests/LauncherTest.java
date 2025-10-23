@@ -23,7 +23,8 @@ To adjust the target RPM of the launcher, use the dpad up and down buttons on ga
 public class LauncherTest extends LinearOpMode {
     private Launcher launcher; // Custom launcher class
     private LauncherReturnProps launcherStatus; // Current launcher state
-    private ElapsedTime launchCycleTimer = new ElapsedTime(); // Keeps track of the time since the last completed launch cycle
+    private boolean launcherIsLaunching = false; // True when launcher is launching
+    private final ElapsedTime launchCycleTimer = new ElapsedTime(); // Keeps track of the time since the last completed launch cycle
 
     @Override
     public void runOpMode() {
@@ -43,9 +44,19 @@ public class LauncherTest extends LinearOpMode {
                 launcher.speedUp(); // Speed up the launcher
             }
 
-            // If the right bumper is pressed
-            if (gamepad1.rightBumperWasPressed()) {
-                launcher.launch(1); // Launch an artifact
+            // If the launcher is running, we don't want to command more
+            if (!launcherIsLaunching) {
+                // If the left trigger is pressed, launch an artifact
+                if (gamepad1.left_trigger > 0.5) {
+                    launcher.launch(1); // Command the launcher to launch 1 artifact
+                    launcherIsLaunching = true; // Set launching flag to true
+                }
+
+                // If the right trigger is pressed, launch 3 artifacts
+                if (gamepad1.right_trigger > 0.5) {
+                    launcher.launch(3); // Command the launcher to launch 3 artifacts
+                    launcherIsLaunching = true; // Set launching flag to true
+                }
             }
 
             // Use DPad buttons to control launcher speed
@@ -60,7 +71,8 @@ public class LauncherTest extends LinearOpMode {
 
             // Check if a launch cycle was completed
             if (launcherStatus.cycleCompleted) {
-                launchCycleTimer.reset();
+                launchCycleTimer.reset(); // Reset launch cycle timer
+                launcherIsLaunching = false; // Reset launching flag
             }
 
             // Log status

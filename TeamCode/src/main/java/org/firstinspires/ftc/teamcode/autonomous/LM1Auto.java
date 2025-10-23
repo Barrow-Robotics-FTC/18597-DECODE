@@ -24,10 +24,10 @@ import java.util.List;
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM1Auto extends LinearOpMode {
     // Editable variables
-    final List<StateMachine.State> stateList = Arrays.asList( // Add autonomous states for the state machine here
-            StateMachine.State.HOME_TO_SCORE, // Go to scoring pose
-            StateMachine.State.LAUNCH, // Launch preloaded artifacts
-            StateMachine.State.SCORE_TO_HOME // Park at home
+    final List<State> stateList = Arrays.asList( // Add autonomous states for the state machine here
+            State.HOME_TO_SCORE, // Go to scoring pose
+            State.LAUNCH, // Launch preloaded artifacts
+            State.SCORE_TO_HOME // Park at home
     );
 
     // Other variables
@@ -40,8 +40,9 @@ public class LM1Auto extends LinearOpMode {
     private AprilTag aprilTag; // Custom April Tag class
     private Pose currentPose; // Current pose of the robot
     public Follower follower; // Pedro Pathing follower
-    private StateMachine.State pathState; // Current state machine value
+    private State pathState; // Current state machine value
     private Constants.Pattern targetPattern; // Target pattern determined by obelisk April Tag
+    private boolean holdingEndPoint = false; // Is the robot holding its end point?
 
     @Override
     public void runOpMode() {
@@ -81,7 +82,7 @@ public class LM1Auto extends LinearOpMode {
 
         // Build paths and initialize state machine with those paths
         paths.build(follower, targetPattern, alliance, startPosition.pose);
-        stateMachine = new StateMachine(follower, stateList, launcher, paths);
+        stateMachine = new StateMachine();
 
         while (opModeIsActive()) {
             // Update Pedro Pathing and Panels every iteration
@@ -90,6 +91,14 @@ public class LM1Auto extends LinearOpMode {
 
             // Run the state machine update loop
             pathState = stateMachine.update();
+
+            // If the state machine is complete or time is almost up, hold position to avoid penalties
+            if (pathState == State.COMPLETED || runtime.milliseconds() > 28000) {
+                if (!holdingEndPoint) { // If we aren't already holding the end point
+                    follower.holdPoint(currentPose); // Hold position at the current pose
+                    holdingEndPoint = true; // We are holding the end point
+                }
+            }
 
             // Log status
             telemetry.addData("Elapsed", runtime.toString());
@@ -102,48 +111,56 @@ public class LM1Auto extends LinearOpMode {
         }
 
         // OpMode is ending, stop all mechanisms
-        follower.holdPoint(currentPose); // Hold position at the current pose
-        launcher.stop(); // Stop launcher
+        stateMachine.stop(); // Stop the state machine
+        follower.breakFollowing(); // Stop the position holding
 
         // Save values for TeleOp
-        blackboard.put("alliance", alliance);
         blackboard.put("autoEndPose", currentPose);
         blackboard.put("paths", paths);
     }
 
-    static class StateMachine {
-        private final Follower follower;
-        private final Launcher launcher;
-        private final List<State> states;
-        private final Constants.Paths paths;
+    public enum State {
+        LAUNCH,
+        HOME_TO_SCORE,
+        SCORE_TO_HOME,
+        COMPLETED
+    }
+
+    class StateMachine {
         private int statesIndex; // Current index in states
         private State currentState; // Current state (only used in update for cleaner code)
         private boolean launchCommanded; // Has the launch been commanded by the LAUNCH state
-
-        public enum State {
-            LAUNCH,
-            HOME_TO_SCORE,
-            SCORE_TO_HOME
-        }
+        private boolean launcherActive; // Is the launcher currently active
 
         private void nextState() {
             statesIndex += 1;
         }
 
-        public StateMachine(Follower follower, List<State> states, Launcher launcher, Constants.Paths paths) {
-            this.follower = follower;
-            this.launcher = launcher;
-            this.states = states;
-            this.paths = paths;
+        public StateMachine() {
             this.statesIndex = 0;
 
             // Start launcher speed up
-            this.launcher.speedUp();
+            launcher.speedUp();
+            this.launcherActive = true; // Launcher is now active
+        }
+
+        public void stop() {
+            if (currentState != State.COMPLETED) { // If not already completed
+                statesIndex = stateList.size(); // Set index to end (COMPLETED state)
+                update(); // Run update to stop mechanisms
+            }
         }
 
         public State update() {
-            currentState = states.get(statesIndex);
             if (!follower.isBusy()) { // If the follower is running, don't run the state machine
+                // Handle out of bounds index
+                if (statesIndex >= stateList.size()) {
+                    currentState = State.COMPLETED;
+                } else {
+                    currentState = stateList.get(statesIndex);
+                }
+
+                // State machine switch
                 switch (currentState) {
                     case LAUNCH:
                         if (!this.launchCommanded) { // Command the launcher to launch 3 artifacts
@@ -156,12 +173,19 @@ public class LM1Auto extends LinearOpMode {
                         }
                         break;
                     case HOME_TO_SCORE:
-                        follower.followPath(this.paths.homeToScore);
+                        follower.followPath(paths.homeToScore);
                         nextState();
                         break;
                     case SCORE_TO_HOME:
-                        follower.followPath(this.paths.scoreToHome);
+                        follower.followPath(paths.scoreToHome);
                         nextState();
+                        break;
+                    case COMPLETED:
+                        // If the launcher is currently active, stop it
+                        if (this.launcherActive) {
+                            launcher.stop();
+                            this.launcherActive = false; // Launcher is no longer active
+                        }
                         break;
                 }
             }

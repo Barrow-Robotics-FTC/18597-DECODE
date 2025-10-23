@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * So single handedly, this program will earn both of us a ranking point!
 */
 
-@Autonomous(name="simple forward auto", group="Autonomous")
+@Autonomous(name="18597 Omni Auto Handout", group="Autonomous")
 public class AutonomousHandoutOmni extends LinearOpMode {
     // Timer to track how long the robot has been moving
     private final ElapsedTime robotMovingFor = new ElapsedTime();

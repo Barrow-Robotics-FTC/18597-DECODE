@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  * So single handedly, this program will earn both of us a ranking point!
 */
 
-@Autonomous(name="simple forward auto", group="Autonomous")
+@Autonomous(name="18597 Tank Auto Handout", group="Autonomous")
 public class AutonomousHandoutTank extends LinearOpMode {
     // Timer to track how long the robot has been moving
     private final ElapsedTime robotMovingFor = new ElapsedTime();
