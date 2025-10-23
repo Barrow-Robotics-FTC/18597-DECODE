@@ -17,7 +17,9 @@ import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.Launcher
 import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherReturnProps;
 
 /*
-Gamepad Map for LM1 TeleOp (FTCPadMap file available in this programs folder)
+Gamepad Map for LM1 TeleOp
+The FTCPadMap file and image available in /TeamCode/src/main/gamepadMaps/lm1.ftcpadmap and /TeamCode/src/main/gamepadMaps/lm1.png
+You can't view in Android Studio unless you switch from "Android" to "Project" view in the left side file viewer, then navigate to the file
 Upload the file to https://barrow-robotics-ftc.github.io/FTCPadMap/ for an interactive view
 
 Drive Coach: NAME
@@ -30,9 +32,9 @@ Gamepad 1 (Driver): NAME
     Right Stick X: Robot rotational movement
         - Can be used to disable automated driving or position holding
     DPad Right: Toggle slow mode
-    Y: Go to scoring position
-    A: Go to human player position
-    X: Go to base zone (endgame parking) position
+    A: Go to scoring position
+    Y: Go to human player position
+    B: Go to base zone (endgame parking) position
     Left Bumper: Hold current position (lock robot movement and correct error with Pedro Pathing)
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact (position will be held automatically until launch completes)

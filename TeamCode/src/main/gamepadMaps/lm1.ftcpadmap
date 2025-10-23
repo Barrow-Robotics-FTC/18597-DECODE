@@ -1,0 +1,121 @@
+{
+  "name": "Logitech F310",
+  "items": [
+    {
+      "id": 0,
+      "map": "Go to scoring position (Pedro)",
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 1,
+      "map": "Go to endgame parking position (Pedro)",
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 2,
+      "map": null,
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 3,
+      "map": "Go to human player position (Pedro)",
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 4,
+      "map": "Hold position (lock movement) (Pedro)",
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 5,
+      "map": "Toggle launcher speed up",
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 6,
+      "map": "Launch 1 artifact (position held)",
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 7,
+      "map": "Launch 3 artifacts (position held)",
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 8,
+      "map": null,
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 9,
+      "map": null,
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 10,
+      "map": null,
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 11,
+      "map": null,
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 12,
+      "map": null,
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 13,
+      "map": null,
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 14,
+      "map": null,
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 15,
+      "map": "Slow mode toggle",
+      "press_type": null,
+      "type": "Button"
+    },
+    {
+      "id": 0,
+      "map": "Translational (side to side) movement",
+      "type": "Axis"
+    },
+    {
+      "id": 1,
+      "map": "Axial (forward and backward movement",
+      "type": "Axis"
+    },
+    {
+      "id": 2,
+      "map": "Rotational movement",
+      "type": "Axis"
+    },
+    {
+      "id": 3,
+      "map": null,
+      "type": "Axis"
+    }
+  ]
+}
