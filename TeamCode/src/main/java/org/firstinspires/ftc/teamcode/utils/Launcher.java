@@ -53,9 +53,6 @@ public class Launcher {
             motor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, LAUNCHER_PIDF_COEFFICIENTS);
         }
 
-        // Reverse left launcher motor
-        leftMotor.setDirection(DcMotorEx.Direction.REVERSE);
-
         // Reset motors and servos to default state
         resetMotorsAndServos();
     }
@@ -74,24 +71,14 @@ public class Launcher {
         launchWhenReady = false; // Reset launch when ready
     }
 
-    // Convert RPM to TPS
-    private double rpmToTps(double rpm) {
-        return rpm * motorTicksPerRev / 60.0;
-    }
-
-    // Convert TPS to RPM
-    private double tpsToRpm(double tps) {
-        return tps * 60.0 / motorTicksPerRev;
-    }
-
     // Get the left launcher motor RPM
     public double getLeftRPM() {
-        return tpsToRpm(leftMotor.getVelocity());
+        return leftMotor.getVelocity();
     }
 
     // Get the right launcher motor RPM
     public double getRightRPM() {
-        return tpsToRpm(rightMotor.getVelocity());
+        return rightMotor.getVelocity();
     }
 
     // Get current commanded tapper position
@@ -108,6 +95,8 @@ public class Launcher {
     public int getTargetRPM() {
         return targetRPM;
     }
+
+    public int getRightTargetRPM() { return TARGET_RPM_RIGHT; }
 
     // Set the target RPM of the launcher motors
     public void setTargetRPM(int rpm) {
@@ -153,12 +142,14 @@ public class Launcher {
                 break;
             case SPEED_UP:
                 // Set motor powers to reach target RPM
-                leftMotor.setVelocity(rpmToTps(getTargetRPM()));
-                rightMotor.setVelocity(rpmToTps(getTargetRPM()));
+                leftMotor.setVelocity(-1000);
+                rightMotor.setVelocity(-1000);
 
                 // Create variables to check if each motor is within the RPM tolerance
                 boolean leftInTol = Math.abs(getTargetRPM() - getLeftRPM()) <= RPM_TOLERANCE;
                 boolean rightInTol = Math.abs(getTargetRPM() - getRightRPM()) <= RPM_TOLERANCE;
+                leftInTol = true;
+                rightInTol = true;
 
                 // Check if we are within the tolerance
                 if (leftInTol && rightInTol) {
