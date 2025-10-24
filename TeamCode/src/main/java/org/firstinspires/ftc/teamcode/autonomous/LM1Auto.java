@@ -28,6 +28,7 @@ public class LM1Auto extends LinearOpMode {
             State.HOME_TO_SCORE, // Go to scoring pose
             State.LAUNCH, // Launch preloaded artifacts
             State.SCORE_TO_HOME // Park at home
+            // TODO: DON'T GO BACK HOME, LOSS OF LEAVE POINTS
     );
 
     // Other variables

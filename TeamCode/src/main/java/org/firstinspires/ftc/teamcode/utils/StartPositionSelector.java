@@ -11,7 +11,6 @@ import com.pedropathing.geometry.Pose;
 import static org.firstinspires.ftc.teamcode.utils.Constants.Poses;
 import static org.firstinspires.ftc.teamcode.utils.Constants.StartPositionConstants.*;
 
-// TODO CALL THIS FROM OTHER FILES TO SELECT STARTING POSITION
 public class StartPositionSelector {
     public static StartSelection run(Gamepad gamepad1, Telemetry telemetry, boolean mirrorPose) {
         StartPosition selectedStartPosition = null;
