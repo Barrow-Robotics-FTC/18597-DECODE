@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils;
 
 // FTC SDK
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -22,11 +23,7 @@ public class Launcher {
     private final ElapsedTime timeSinceLastLaunch = new ElapsedTime();
     private final ElapsedTime tapperRaisedTimer = new ElapsedTime();
 
-    // Initialize local target RPM from global RPM
-    private int targetRPM = TARGET_RPM;
-
     // Other variables
-    private final double motorTicksPerRev; // How many encoder ticks per revolution the motors have
     private LauncherState state = LauncherState.IDLE; // Current state of the launcher
     private int launchesToPerform; // How many launches to perform in this launch cycle
     private int launches; // How many artifacts have been launched in the current launch cycle
@@ -37,21 +34,19 @@ public class Launcher {
 
     // Constructor
     public Launcher(HardwareMap hardwareMap) {
-        // initialize hardware (drivetrain is initialized by Pedro Pathing)
+        // initialize hardware
         leftMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
         rightMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
         tapperServo = hardwareMap.get(Servo.class, "tapper");
 
-        // Set ticks per revolution variable
-        motorTicksPerRev = leftMotor.getMotorType().getTicksPerRev();
-
-        // Set launcher motor characteristics with a list and a for loop to reduce redundant code
-        java.util.List<DcMotorEx> motors = java.util.Arrays.asList(leftMotor, rightMotor);
-        for (DcMotorEx motor : motors) {
-            motor.setZeroPowerBehavior(BRAKE);
-            motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            motor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, LAUNCHER_PIDF_COEFFICIENTS);
-        }
+        // Set motor directions and characteristics
+        rightMotor.setDirection(REVERSE); // Reverse right motor
+        rightMotor.setZeroPowerBehavior(BRAKE);
+        rightMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        rightMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, LAUNCHER_PIDF_COEFFICIENTS);
+        leftMotor.setZeroPowerBehavior(BRAKE);
+        leftMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        leftMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, LAUNCHER_PIDF_COEFFICIENTS);
 
         // Reset motors and servos to default state
         resetMotorsAndServos();
@@ -59,8 +54,8 @@ public class Launcher {
 
     // Helper function to stop motors and reset servos
     private void resetMotorsAndServos() {
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
+        leftMotor.setVelocity(0);
+        rightMotor.setVelocity(0);
         tapperServo.setPosition(TAPPER_HOME_POSITION);
     }
 
@@ -93,14 +88,7 @@ public class Launcher {
 
     // Get the target RPM of the launcher motors
     public int getTargetRPM() {
-        return targetRPM;
-    }
-
-    public int getRightTargetRPM() { return TARGET_RPM_RIGHT; }
-
-    // Set the target RPM of the launcher motors
-    public void setTargetRPM(int rpm) {
-        targetRPM = rpm;
+        return TARGET_RPM;
     }
 
     // Command the launcher to speed up to target RPM
@@ -141,15 +129,13 @@ public class Launcher {
                 // Do nothing while idle
                 break;
             case SPEED_UP:
-                // Set motor powers to reach target RPM
-                leftMotor.setVelocity(-1000);
-                rightMotor.setVelocity(-1000);
+                // Set motor velocity to reach target RPM
+                leftMotor.setVelocity(getTargetRPM());
+                rightMotor.setVelocity(getTargetRPM());
 
                 // Create variables to check if each motor is within the RPM tolerance
                 boolean leftInTol = Math.abs(getTargetRPM() - getLeftRPM()) <= RPM_TOLERANCE;
                 boolean rightInTol = Math.abs(getTargetRPM() - getRightRPM()) <= RPM_TOLERANCE;
-                leftInTol = true;
-                rightInTol = true;
 
                 // Check if we are within the tolerance
                 if (leftInTol && rightInTol) {
