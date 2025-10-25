@@ -9,6 +9,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 // AprilTag constants
 import static org.firstinspires.ftc.teamcode.utils.Constants.Pattern;
@@ -22,7 +23,9 @@ import java.util.concurrent.TimeUnit;
 public class AprilTag {
     private final VisionPortal visionPortal; // Manages webcam
     private final AprilTagProcessor aprilTagProcessor; // Manages April tag detection
+    private boolean cameraStreaming = true; // Is the camera currently streaming?
 
+    // Used to wait for camera operations
     private void sleep(int timeMS) {
         ElapsedTime timer = new ElapsedTime();
         while (timer.milliseconds() < timeMS) {
@@ -70,9 +73,90 @@ public class AprilTag {
         sleep(20);
     }
 
+    private List<AprilTagDetection> getDetections() {
+        return aprilTagProcessor.getDetections();
+    }
+
+    private void ensureCameraStreaming() {
+        if (!cameraStreaming) {
+            startCamera();
+        }
+    }
+
+    /**
+     * Restarts the camera streaming for April Tag detection if it was previously stopped.
+     */
+    public void startCamera() {
+        visionPortal.resumeStreaming();
+        cameraStreaming = true;
+    }
+
+    /**
+     * Stops the camera streaming for April Tag detection to save resources.
+     */
+    public void stopCamera() {
+        visionPortal.stopStreaming();
+        cameraStreaming = false;
+    }
+
+    /**
+     * Returns the first April Tag detection which has an ID in the provided targetIds list.
+     *
+     * @param targetIds list of tag IDs to match
+     * @return the first matching detection if found, otherwise null
+     */
+    public AprilTagDetection getTag(List<Integer> targetIds) {
+        ensureCameraStreaming(); // Ensure the camera is streaming
+        for (AprilTagDetection detection : getDetections()) {
+            if (targetIds.contains(detection.id)) {
+                return detection; // Return the first matching tag
+            }
+        }
+        return null; // No target tag found
+    }
+
+    /**
+     * Returns the first April Tag detection which has an ID in the provided targetIDs list.
+     *
+     * @param targetId The ID of the April Tag to match
+     * @return the matching detection if found, otherwise null
+     */
+    public AprilTagDetection getTag(Integer targetId) {
+        // Create a single index list and pass it to the other getTag method
+        return this.getTag(List.of(targetId));
+    }
+
+    /**
+     * Calculates movement vectors to drive towards the provided April Tag detection, holding the specified distance from it.
+     * Call this in a loop to continuously correct until .moveCompleted is true.
+     *
+     * @param tag The April Tag detection to drive to
+     * @param distance The target distance to hold from the tag (in inches)
+     * @return MovementVectors which moves towards the April Tag (see the return type for more details)
+     */
+    public Constants.MovementVectors driveToAprilTag(AprilTagDetection tag, double distance) {
+        double rangeError = tag.ftcPose.range - distance; // Forward/backward related
+        double yawError = tag.ftcPose.yaw; // Strafe related
+        double headingError = tag.ftcPose.bearing; // Turn related
+
+        // TODO: Add moveCompleted calculations
+
+        return new Constants.MovementVectors(
+                Range.clip(rangeError * SPEED_GAIN, -MAX_FORWARD_SPEED, MAX_FORWARD_SPEED),
+                Range.clip(yawError * STRAFE_GAIN, -MAX_STRAFE_SPEED, MAX_STRAFE_SPEED),
+                Range.clip(headingError * TURN_GAIN, -MAX_TURN_SPEED, MAX_TURN_SPEED),
+                false
+        );
+    }
+
+    /**
+     * Returns the artifact scoring pattern by scanning for one of the 3 pattern April Tags on the obelisk
+     *
+     * @return the detected pattern if found, otherwise null
+     */
     public Pattern detectPattern() {
-        List<AprilTagDetection> currentDetections = aprilTagProcessor.getDetections();
-        for (AprilTagDetection detection : currentDetections) {
+        ensureCameraStreaming(); // Ensure the camera is streaming
+        for (AprilTagDetection detection : this.getDetections()) {
             if (detection.metadata != null) {
                 // Check for pattern tags
                 if (detection.id == PPG_TAG_ID) {
