@@ -84,6 +84,9 @@ public class Constants {
         public static final double MAX_FORWARD_SPEED = 0.5; // Max forward vector speed (for driving to April Tag)
         public static final double MAX_STRAFE_SPEED = 0.5; // Max strafe vector speed (for driving to April Tag)
         public static final double MAX_TURN_SPEED = 0.3; // Max turn vector speed (for driving to April Tag)
+        public static final double RANGE_ERROR_TOL = 1.0; // Inches
+        public static final double YAW_ERROR_TOL = 1.5; // Degrees
+        public static final double HEADING_ERROR_TOL = 2.0; // Degrees
     }
 
     // Intake

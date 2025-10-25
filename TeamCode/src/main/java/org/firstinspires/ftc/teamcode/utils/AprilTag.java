@@ -126,27 +126,25 @@ public class AprilTag {
         return this.getTag(List.of(targetId));
     }
 
-    /**
-     * Calculates movement vectors to drive towards the provided April Tag detection, holding the specified distance from it.
-     * Call this in a loop to continuously correct until .moveCompleted is true.
-     *
-     * @param tag The April Tag detection to drive to
-     * @param distance The target distance to hold from the tag (in inches)
-     * @return MovementVectors which moves towards the April Tag (see the return type for more details)
-     */
     public Constants.MovementVectors driveToAprilTag(AprilTagDetection tag, double distance) {
-        double rangeError = tag.ftcPose.range - distance; // Forward/backward related
-        double yawError = tag.ftcPose.yaw; // Strafe related
-        double headingError = tag.ftcPose.bearing; // Turn related
+        // Positional errors: forward/back, strafe, turn
+        double rangeError = tag.ftcPose.range - distance; // Inches
+        double yawError = tag.ftcPose.yaw; // Degrees (left/right)
+        double headingError = tag.ftcPose.bearing; // Degrees (turn)
 
-        // TODO: Add moveCompleted calculations
+        // Check if position is within tolerances
+        boolean rangeOk = Math.abs(rangeError) <= RANGE_ERROR_TOL;
+        boolean yawOk = Math.abs(yawError) <= YAW_ERROR_TOL;
+        boolean headingOk = Math.abs(headingError) <= HEADING_ERROR_TOL;
+        boolean moveCompleted = rangeOk && yawOk && headingOk;
 
-        return new Constants.MovementVectors(
-                Range.clip(rangeError * SPEED_GAIN, -MAX_FORWARD_SPEED, MAX_FORWARD_SPEED),
-                Range.clip(yawError * STRAFE_GAIN, -MAX_STRAFE_SPEED, MAX_STRAFE_SPEED),
-                Range.clip(headingError * TURN_GAIN, -MAX_TURN_SPEED, MAX_TURN_SPEED),
-                false
-        );
+        // Calculate drive vectors
+        double forward = Range.clip(rangeError * SPEED_GAIN, -MAX_FORWARD_SPEED, MAX_FORWARD_SPEED);
+        double strafe = Range.clip(yawError * STRAFE_GAIN, -MAX_STRAFE_SPEED, MAX_STRAFE_SPEED);
+        double turn = Range.clip(headingError * TURN_GAIN, -MAX_TURN_SPEED, MAX_TURN_SPEED);
+
+        // Return movement vectors and completion status
+        return new Constants.MovementVectors(forward, strafe, turn, moveCompleted);
     }
 
     /**
