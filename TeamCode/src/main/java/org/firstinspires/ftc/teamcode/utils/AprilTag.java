@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 // AprilTag constants
@@ -16,7 +15,8 @@ import static org.firstinspires.ftc.teamcode.utils.Constants.Pattern;
 import static org.firstinspires.ftc.teamcode.utils.Constants.AprilTagConstants.*;
 
 // Java
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
@@ -27,9 +27,10 @@ public class AprilTag {
 
     // Used to wait for camera operations
     private void sleep(int timeMS) {
-        ElapsedTime timer = new ElapsedTime();
-        while (timer.milliseconds() < timeMS) {
-            assert true; // Do nothing
+        try {
+            Thread.sleep(timeMS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -44,16 +45,9 @@ public class AprilTag {
                 .addProcessor(aprilTagProcessor)
                 .build();
 
-        // Wait for the camera to be open, then use the controls
-        if (visionPortal == null) {
-            return;
-        }
-
         // Make sure camera is streaming before we try to set the exposure controls
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            while ((visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
-                sleep(20);
-            }
+        while ((visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
+            sleep(20);
         }
 
         // Enable manual exposure
@@ -73,7 +67,7 @@ public class AprilTag {
         sleep(20);
     }
 
-    private List<AprilTagDetection> getDetections() {
+    private Collection<AprilTagDetection> getDetections() {
         return aprilTagProcessor.getDetections();
     }
 
@@ -105,7 +99,7 @@ public class AprilTag {
      * @param targetIds list of tag IDs to match
      * @return the first matching detection if found, otherwise null
      */
-    public AprilTagDetection getTag(List<Integer> targetIds) {
+    public AprilTagDetection getTag(Collection<Integer> targetIds) {
         ensureCameraStreaming(); // Ensure the camera is streaming
         for (AprilTagDetection detection : getDetections()) {
             if (targetIds.contains(detection.id)) {
@@ -123,9 +117,17 @@ public class AprilTag {
      */
     public AprilTagDetection getTag(Integer targetId) {
         // Create a single index list and pass it to the other getTag method
-        return this.getTag(List.of(targetId));
+        return this.getTag(Collections.singletonList(targetId));
     }
 
+    /**
+     * Returns the first April Tag detection which has an ID in the provided targetIDs list.
+     *
+     *
+     * @param tag The detected tag to drive to
+     * @param distance The desired distance from the tag in inches
+     * @return movement vectors to drive to the tag
+     */
     public Constants.MovementVectors driveToAprilTag(AprilTagDetection tag, double distance) {
         // Positional errors: forward/back, strafe, turn
         double rangeError = tag.ftcPose.range - distance; // Inches

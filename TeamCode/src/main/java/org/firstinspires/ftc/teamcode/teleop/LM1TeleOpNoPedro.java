@@ -11,10 +11,14 @@ import com.pedropathing.geometry.Pose;
 
 // Local helper files
 import static org.firstinspires.ftc.teamcode.utils.Constants.TeleOp.*;
-import org.firstinspires.ftc.teamcode.utils.Constants;
+import static org.firstinspires.ftc.teamcode.utils.Constants.Alliance;
+import static org.firstinspires.ftc.teamcode.utils.Constants.AprilTagConstants.BLUE_GOAL_TAG_ID;
+import static org.firstinspires.ftc.teamcode.utils.Constants.AprilTagConstants.RED_GOAL_TAG_ID;
 import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherReturnProps;
-import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherState;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.teamcode.utils.AprilTag;
+import org.firstinspires.ftc.teamcode.utils.Constants;
 
 /*
 Gamepad Map for LM1 TeleOp
@@ -35,27 +39,26 @@ Gamepad 1 (Driver): NAME
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM1TeleOpNoPedro extends LinearOpMode {
     // Values retrieved from blackboard
+    private Alliance alliance; // Alliance of the robot
     private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
 
     // Driver controller variables
     private boolean slowMode = false;
 
-    // Launcher commanded state machine variables (runs when a launch is requested)
-    private LaunchCommandedState launchCommandedState = LaunchCommandedState.DETECT_GOAL_APRIL_TAG;
-    private boolean launchCommanded = false;
+    // Utilities
+    private final ElapsedTime runtime = new ElapsedTime();
+    private Follower follower; // Pedro pathing follower
+    private Launcher launcher; // Custom launcher class
+    private LauncherReturnProps launcherStatus; // Current launcher state
+    private Constants.MovementVectors movementVectors; // Movement vectors for robot drive
+    private AprilTag aprilTag; // Custom April Tag class
 
     // Other variables
-    private final ElapsedTime runtime = new ElapsedTime();
-    private final Constants.MovementVectors movementVectors = new Constants.MovementVectors(0, 0, 0); // Movement vectors for robot drive
-    private Follower follower; // Pedro pathing follower
     private Pose currentPose; // Current pose of the robot
-    private LauncherReturnProps launcherStatus; // Current launcher state
-    private Launcher launcher; // Custom launcher class
     private int artifactsToLaunch = 0; // Number of artifacts to launch
+    private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
     private boolean launcherIsActive = false; // Is the launcher currently active (sped up)?
     private boolean launcherIsLaunching = false; // Is the launcher currently launching?
-
-    // Gamepad trigger states
     private boolean prevLeftTriggerPressed = false;
     private boolean prevRightTriggerPressed = false;
 
@@ -71,9 +74,15 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
         return currState;
     }
 
+    private void startLaunch(int numArtifacts) {
+        artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
+        liningUpWithGoal = true; // Start by lining up with the goal
+    }
+
     @Override
     public void runOpMode() {
         // Get variables from Blackboard
+        alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE);
         autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(72, 8, Math.toRadians(90)));
 
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
@@ -82,7 +91,12 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
         follower.update();
 
         // Initialize all utilities used in TeleOp
+        movementVectors = new Constants.MovementVectors(0, 0, 0);
         launcher = new Launcher(hardwareMap);
+        aprilTag = new AprilTag(hardwareMap);
+
+        // Initialize launcher status (.update() will do nothing since launcher is idle)
+        launcherStatus = launcher.update();
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -111,7 +125,7 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
             }
 
             // Gamepad 1 Right Bumper: Toggle launcher speed up
-            if (gamepad1.rightBumperWasPressed() && launcherStatus.state == LauncherState.IDLE) {
+            if (gamepad1.rightBumperWasPressed()) {
                 if (launcherIsActive) {
                     launcher.stop(); // Stop the launcher
                     launcherIsActive = false; // Set active flag to false
@@ -123,20 +137,36 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
 
             // Gamepad 1 Left Trigger: Launch 1 artifact
             if (leftTriggerPressed() && !launcherIsLaunching) {
-                artifactsToLaunch = 1; // Indicate that we want to launch 1 artifact
+                startLaunch(1); // Indicate that we want to launch 1 artifact
             }
 
             // Gamepad 1 Right Trigger: Launch 3 artifacts
             if (rightTriggerPressed() && !launcherIsLaunching) {
-                artifactsToLaunch = 3; // Indicate that we want to launch 3 artifacts
+                startLaunch(3); // Indicate that we want to launch 3 artifacts
             }
 
-            // Start launch if requested (we have already confirmed that the launcher isn't already launching)
+            // If we are in the process of launching artifacts
             if (artifactsToLaunch > 0) {
-                // Note: The launch command will call speedUp() if the launcher is idle, so no need to check here
-                launcher.launch(artifactsToLaunch); // Start the launch of artifacts
-                launcherIsLaunching = true; // Indicate that the launcher is launching
-                artifactsToLaunch = 0; // Reset the launch request
+                // Check if we need to line up with the goal first
+                if (liningUpWithGoal) {
+                    AprilTagDetection goalTag = aprilTag.getTag(alliance == Alliance.RED ? RED_GOAL_TAG_ID : BLUE_GOAL_TAG_ID);
+                    if (goalTag != null) { // If the goal tag was detected
+                        // Set movement vectors to drive to the April Tag
+                        Constants.MovementVectors alignmentVectors = aprilTag.driveToAprilTag(goalTag, DISTANCE_FROM_APRIL_TAG);
+                        if (alignmentVectors.moveCompleted) { // If alignment is complete
+                            liningUpWithGoal = false; // No longer lining up with the goal
+                        }
+                        movementVectors.forward = alignmentVectors.forward;
+                        movementVectors.strafe = alignmentVectors.strafe;
+                        movementVectors.turn = alignmentVectors.turn;
+                    }
+                } else {
+                    // We are lined up with the goal, proceed to launch
+                    // Note: The launch command will call speedUp() if the launcher is idle, so no need to check here
+                    launcher.launch(artifactsToLaunch); // Start the launch of artifacts
+                    launcherIsLaunching = true; // Indicate that the launcher is launching
+                    artifactsToLaunch = 0; // Reset the launch request
+                }
             }
 
             // Update launcher (nothing will happen when launcher is idle)
@@ -151,17 +181,18 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
             // Log status
             telemetry.addData("Run Time: ", runtime.seconds());
             telemetry.addData("Launcher State: ", launcherStatus.state);
+            telemetry.addData("Lining up with goal: ", liningUpWithGoal);
             telemetry.addData("", "");
             telemetry.addData("X: ", currentPose.getX());
             telemetry.addData("Y: ", currentPose.getY());
             telemetry.addData("Heading: ", currentPose.getHeading());
             telemetry.update();
         }
-    }
 
-    private enum LaunchCommandedState {
-        DETECT_GOAL_APRIL_TAG,
-        LINE_UP_WITH_GOAL,
-        LAUNCH_ARTIFACTS,
+        // Stop everything at the end of TeleOp
+        follower.setTeleOpDrive(0, 0, 0); // Stop robot movement
+        follower.update();
+        launcher.stop(); // Stop the launcher
+        aprilTag.stopCamera(); // Stop camera streaming
     }
 }

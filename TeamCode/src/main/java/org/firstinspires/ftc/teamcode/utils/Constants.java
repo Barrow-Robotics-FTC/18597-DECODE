@@ -75,9 +75,11 @@ public class Constants {
         public static final int APRIL_TAG_CAMERA_DECIMATION = 2; // Higher value = farther detection range, lower detection rate
         public static final int APRIL_TAG_CAMERA_EXPOSURE = 6; // Camera exposure time (milliseconds)
         public static final int APRIL_TAG_CAMERA_GAIN = 250; // Camera gain
-        public static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
-        public static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
+        public static final int BLUE_GOAL_TAG_ID = 20; // Tag ID for blue goal
         public static final int GPP_TAG_ID = 21; // Tag ID for GPP on the obelisk
+        public static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
+        public static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
+        public static final int RED_GOAL_TAG_ID = 24; // Tag ID for red goal
         public static final double SPEED_GAIN = 0.02; // Forward speed gain (for driving to April Tag)
         public static final double STRAFE_GAIN = 0.015; // Strafe speed gain (for driving to April Tag)
         public static final double TURN_GAIN = 0.01; // Turn speed gain (for driving to April Tag)
@@ -121,7 +123,7 @@ public class Constants {
     }
 
     public static class TeleOp {
-        public static final boolean BRAKE_MODE = true; // Whether the motors should break on stop (recommended)
+        public static final boolean BRAKE_MODE = true; // Whether the motors should brake on stop (recommended)
         public static final boolean ROBOT_CENTRIC = true; // True for robot centric driving, false for field centric
         public static final double SLOW_MODE_MULTIPLIER = 0.5; // Multiplier for slow mode speed
         public static final double NORMAL_SPEED_MULTIPLIER = 1; // Multiplier for normal driving speed
@@ -166,10 +168,10 @@ public class Constants {
 
     // Pedro Pathing poses
     public static class Poses {
-        // Whether to mirror poses (true for blue alliance, false for red alliance)
+        // Whether to mirror poses (true for red alliance, false for blue alliance)
         boolean mirrorPoses;
 
-        // Poses (assuming red alliance, last arg determines if the pose should be mirrored on blue alliance)
+        // Poses (assuming blue alliance
         public Pose home; // Centered against the audience wall
         public Pose score; // Facing goal (close to the white line point)
         public Pose loadingZone; // In the loading zone (facing away from the human player))
@@ -185,11 +187,12 @@ public class Constants {
             // Set mirroring flag
             this.mirrorPoses = mirrorPoses;
 
-            // Guild the poses, see descriptions in definitions above
+            // Build the poses, see descriptions in definitions above
+            // Optional last arg determines if the pose should be mirrored on red alliance)
             this.home = mirrorPoses ? startPose.mirror() : startPose;
             this.score = buildPose(60, 83.5, 135);
-            this.loadingZone = buildPose(10, 10, 0);
-            this.baseZone = buildPose(38, 33.5, 90);
+            this.loadingZone = buildPose(134, 10, 180);
+            this.baseZone = buildPose(106, 33, 90);
             this.PPGArtifacts = buildPose(40, 35.75, 180);
             this.PGPArtifacts = buildPose(40, 59.75, 180);
             this.GPPArtifacts = buildPose(40, 83.75, 180);
@@ -228,6 +231,7 @@ public class Constants {
             return this.buildPose(x, y, heading, true);
         }
 
+        @SuppressWarnings("SameParameterValue") // Suppress warning about heading always being a specific value
         static Pose externalBuildPose(double x, double y, double heading, boolean mirror) {
             Pose pose = new Pose(x, y, Math.toRadians(heading));
             if (mirror) {
@@ -264,8 +268,8 @@ public class Constants {
         public PathChain scoreToHome; // score -> home
 
         public void build(Follower follower, Constants.Pattern pattern, Constants.Alliance alliance, Pose startPosition) {
-            // Build poses, mirror if blue alliance
-            this.poses = new Poses((alliance == Constants.Alliance.BLUE), startPosition);
+            // Build poses, mirror if red alliance
+            this.poses = new Poses((alliance == Constants.Alliance.RED), startPosition);
 
             // Select the correct intake poses based on pattern
             Pose[] intakePoses = poses.getIntakePoses(pattern);

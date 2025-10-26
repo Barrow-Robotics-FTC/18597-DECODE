@@ -13,7 +13,6 @@ import com.pedropathing.geometry.Pose;
 import static org.firstinspires.ftc.teamcode.utils.Constants.TeleOp.*;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherReturnProps;
-import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherState;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
 
 /*
@@ -51,13 +50,17 @@ public class LM1TeleOp extends LinearOpMode {
     // Driver controller variables
     private boolean slowMode = false;
 
-    // Other variables
+    // Utilities
     private final ElapsedTime runtime = new ElapsedTime();
     private Follower follower; // Pedro pathing follower
+    private Launcher launcher; // Custom launcher class
+
+    // Variables
     private Pose currentPose; // Current pose of the robot
+    private int artifactsToLaunch = 0; // Number of artifacts to launch
+    private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
     private boolean automatedDrive = false; // Is Pedro Pathing driving?
     private LauncherReturnProps launcherStatus; // Current launcher state
-    private Launcher launcher; // Custom launcher class
     private boolean launcherIsActive = false; // Is the launcher currently active (sped up)?
     private boolean launcherIsLaunching = false; // Is the launcher currently launching?
     private boolean holdingPoint = false; // Is Pedro Pathing holding a point?
@@ -84,6 +87,13 @@ public class LM1TeleOp extends LinearOpMode {
         follower.startTeleopDrive(BRAKE_MODE); // Restart manual control
     }
 
+    private void startLaunch(int numArtifacts) {
+        artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
+        liningUpWithGoal = true; // Start by lining up with the goal
+        follower.followPath(paths.buildPath(follower, follower.getPose(), paths.poses.score)); // Follow path to score pose
+        automatedDrive = true; // Start automated driving
+    }
+
     @Override
     public void runOpMode() {
         // Get variables from Blackboard
@@ -97,6 +107,9 @@ public class LM1TeleOp extends LinearOpMode {
 
         // Initialize all utilities used in TeleOp
         launcher = new Launcher(hardwareMap);
+
+        // Initialize launcher status (.update() will do nothing since launcher is idle)
+        launcherStatus = launcher.update();
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -165,7 +178,7 @@ public class LM1TeleOp extends LinearOpMode {
             }
 
             // Gamepad 1 Right Bumper: Toggle launcher speed up
-            if (gamepad1.rightBumperWasPressed() && launcherStatus.state == LauncherState.IDLE) {
+            if (gamepad1.rightBumperWasPressed()) {
                 if (launcherIsActive) {
                     launcher.stop(); // Stop the launcher
                     launcherIsActive = false; // Set active flag to false
@@ -176,22 +189,35 @@ public class LM1TeleOp extends LinearOpMode {
             }
 
             // Gamepad 1 Left Trigger: Launch 1 artifact
-            if (gamepad1.right_trigger > 0.5 && !launcherIsLaunching) {
-                // Note: If the launch command will call speedUp() if the launcher is idle, so no need to check here
-                launcher.launch(1); // Start the launch of 1 artifact
-                launcherIsLaunching = true; // Indicate that the launcher is launching
+            if (leftTriggerPressed() && !launcherIsLaunching) {
+                startLaunch(1); // Indicate that we want to launch 1 artifact
             }
 
             // Gamepad 1 Right Trigger: Launch 3 artifacts
-            if (gamepad1.right_trigger > 0.5 && !launcherIsLaunching) {
-                // Note: If the launch command will call speedUp() if the launcher is idle, so no need to check here
-                launcher.launch(3); // Start the launch of 3 artifacts
-                launcherIsLaunching = true; // Indicate that the launcher is launching
+            if (rightTriggerPressed() && !launcherIsLaunching) {
+                startLaunch(3); // Indicate that we want to launch 3 artifacts
+            }
+
+            // If we are in the process of launching artifacts
+            if (artifactsToLaunch > 0) {
+                // Check if we need to line up with the goal first
+                if (liningUpWithGoal) {
+                    if (!automatedDrive) { // If the robot is lined up (path following to score pose is complete)
+                        liningUpWithGoal = false; // No longer lining up with the goal
+                    }
+                } else {
+                    // We are lined up with the goal, proceed to launch
+                    // Note: The launch command will call speedUp() if the launcher is idle, so no need to check here
+                    launcher.launch(artifactsToLaunch); // Start the launch of artifacts
+                    launcherIsLaunching = true; // Indicate that the launcher is launching
+                    artifactsToLaunch = 0; // Reset the launch request
+                }
             }
 
             // Update launcher (nothing will happen when launcher is idle)
             launcherStatus = launcher.update();
             if (launcherStatus.cycleCompleted) { // If a launch cycle has completed
+                // Note: If the launch command will call speedUp() if the launcher is idle, so no need to check here
                 stopAutoDrive(); // Stop holding the position once the launch is complete
                 launcherIsLaunching = false; // Indicate that the launcher is no longer launching
             }
@@ -221,5 +247,13 @@ public class LM1TeleOp extends LinearOpMode {
             }
             */
         }
+
+        // Stop everything at the end of TeleOp
+        if (automatedDrive) { // If in automated drive, stop it
+            stopAutoDrive();
+        }
+        follower.setTeleOpDrive(0, 0, 0); // Stop robot movement
+        follower.update();
+        launcher.stop(); // Stop the launcher
     }
 }

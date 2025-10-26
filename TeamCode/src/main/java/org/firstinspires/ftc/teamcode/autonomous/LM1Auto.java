@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.utils.Constants;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO: Add preselectTeleOp="LM1TeleOp" depending on which TeleOp we use
 @Autonomous(name = "LM1 Autonomous", group = "Autonomous")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM1Auto extends LinearOpMode {
@@ -31,18 +32,20 @@ public class LM1Auto extends LinearOpMode {
             // TODO: DON'T GO BACK HOME, LOSS OF LEAVE POINTS
     );
 
-    // Other variables
+    // Utilities
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
-    private Constants.Alliance alliance; // Alliance of the robot
-    private Constants.StartPositionConstants.StartSelection startPosition; // Start position of the robot
+    private Follower follower; // Pedro Pathing follower
     private StateMachine stateMachine; // Custom autonomous state machine
     private Constants.Paths paths; // Custom paths class
     private Launcher launcher; // Custom launcher class
     private AprilTag aprilTag; // Custom April Tag class
-    private Pose currentPose; // Current pose of the robot
-    public Follower follower; // Pedro Pathing follower
-    private State pathState; // Current state machine value
+
+    // Other variables
+    private Constants.Alliance alliance; // Alliance of the robot
+    private Constants.StartPositionConstants.StartSelection startPosition; // Start position of the robot
     private Constants.Pattern targetPattern; // Target pattern determined by obelisk April Tag
+    private Pose currentPose; // Current pose of the robot
+    private State pathState; // Current state machine value
     private boolean holdingEndPoint = false; // Is the robot holding its end point?
 
     @Override
