@@ -65,6 +65,10 @@ public class Launcher {
         launchWhenReady = false; // Reset launch when ready
     }
 
+    public LauncherState getState() {
+        return state;
+    }
+
     // Get the left launcher motor RPM
     public double getLeftRPM() {
         return leftMotor.getVelocity();

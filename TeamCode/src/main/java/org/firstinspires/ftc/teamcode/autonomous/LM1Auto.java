@@ -108,6 +108,7 @@ public class LM1Auto extends LinearOpMode {
             // Log status
             telemetry.addData("Elapsed", runtime.toString());
             telemetry.addData("Path State", pathState);
+            telemetry.addData("Launcher State", launcher.getState());
             telemetry.addData("Path Index", stateMachine.statesIndex);
             telemetry.addData("X", currentPose.getX());
             telemetry.addData("Y", currentPose.getY());
