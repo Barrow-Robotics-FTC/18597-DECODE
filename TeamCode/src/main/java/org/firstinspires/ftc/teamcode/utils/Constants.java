@@ -174,7 +174,8 @@ public class Constants {
         // Poses (assuming blue alliance
         public Pose home; // Centered against the audience wall
         public Pose score; // Facing goal (close to the white line point)
-        public Pose loadingZone; // In the loading zone (facing away from the human player))
+        public Pose loadingZone; // In the loading zone (facing away from the human player)
+        public Pose loadingZoneReverse; // In the loading zone (facing toward the human player))
         public Pose baseZone; // In the endgame zone (facing away from audience)
         public Pose PPGArtifacts; // In front of upper artifacts
         public Pose PGPArtifacts; // In front of middle artifacts
@@ -192,13 +193,14 @@ public class Constants {
             this.home = mirrorPoses ? startPose.mirror() : startPose;
             this.score = buildPose(60, 83.5, 135);
             this.loadingZone = buildPose(134, 10, 180);
+            this.loadingZoneReverse = buildPose(134, 10, 0);
             this.baseZone = buildPose(106, 33, 90);
-            this.PPGArtifacts = buildPose(40, 35.75, 180);
-            this.PGPArtifacts = buildPose(40, 59.75, 180);
-            this.GPPArtifacts = buildPose(40, 83.75, 180);
-            this.PPGArtifactsEnd = buildPose(20, 35.75, 180);
-            this.PGPArtifactsEnd = buildPose(20, 59.75, 180);
-            this.GPPArtifactsEnd = buildPose(20, 83.75, 180);
+            this.PPGArtifacts = buildPose(104, 35.75, 0);
+            this.PGPArtifacts = buildPose(104, 59.75, 0);
+            this.GPPArtifacts = buildPose(104, 83.75, 0);
+            this.PPGArtifactsEnd = buildPose(124, 35.75, 0);
+            this.PGPArtifactsEnd = buildPose(124, 59.75, 0);
+            this.GPPArtifactsEnd = buildPose(124, 83.75, 0);
         }
 
         public Pose[] getIntakePoses(Constants.Pattern pattern) {
@@ -264,8 +266,10 @@ public class Constants {
         public PathChain nonPatternIntake2ToEnd; // XXXArtifacts -> XXXArtifactsEnd
         public PathChain nonPatternIntake2EndToScore; // XXXArtifactsEnd -> score
 
-        // Back home
-        public PathChain scoreToHome; // score -> home
+        // Temporary for LM1
+        public PathChain scoreToPPGIntake; // score -> PPGArtifacts
+        public PathChain PPGIntakeToEnd; // PPGArtifacts -> PPGArtifactsEnd
+        public PathChain PPGIntakeEndToLoadingZoneReverse; // PPGArtifactsEnd -> loadingZoneReverse
 
         public void build(Follower follower, Constants.Pattern pattern, Constants.Alliance alliance, Pose startPosition) {
             // Build poses, mirror if red alliance
@@ -291,7 +295,11 @@ public class Constants {
             this.scoreToNonPatternIntake2 = buildPath(follower, poses.score, nonPatternIntake2Pose);
             this.nonPatternIntake2ToEnd = buildPath(follower, nonPatternIntake2Pose, nonPatternIntake2EndPose);
             this.nonPatternIntake2EndToScore = buildPath(follower, nonPatternIntake2EndPose, poses.score);
-            this.scoreToHome = buildPath(follower, poses.score, poses.home);
+
+            // Temporary paths for LM1
+            this.scoreToPPGIntake = buildPath(follower, poses.score, poses.PPGArtifacts);
+            this.PPGIntakeToEnd = buildPath(follower, poses.PPGArtifacts, poses.PPGArtifactsEnd);
+            this.PPGIntakeEndToLoadingZoneReverse = buildPath(follower, poses.PPGArtifactsEnd, poses.loadingZoneReverse);
         }
 
         public PathChain buildPath(Follower follower, Pose pose1, Pose pose2) {

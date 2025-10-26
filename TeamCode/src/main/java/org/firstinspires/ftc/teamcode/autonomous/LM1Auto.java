@@ -28,8 +28,9 @@ public class LM1Auto extends LinearOpMode {
     final List<State> stateList = Arrays.asList( // Add autonomous states for the state machine here
             State.HOME_TO_SCORE, // Go to scoring pose
             State.LAUNCH, // Launch preloaded artifacts
-            State.SCORE_TO_HOME // Park at home
-            // TODO: DON'T GO BACK HOME, LOSS OF LEAVE POINTS
+            State.SCORE_TO_PPG_INTAKE, // Move to the front of PPG artifacts
+            State.PPG_INTAKE_TO_PPG_INTAKE_END, // Get PPG artifacts inside of chassis
+            State.PPG_INTAKE_END_TO_LOADING_ZONE // Move to loading zone to prepare for TeleOp
     );
 
     // Utilities
@@ -127,7 +128,9 @@ public class LM1Auto extends LinearOpMode {
     public enum State {
         LAUNCH,
         HOME_TO_SCORE,
-        SCORE_TO_HOME,
+        SCORE_TO_PPG_INTAKE,
+        PPG_INTAKE_TO_PPG_INTAKE_END,
+        PPG_INTAKE_END_TO_LOADING_ZONE,
         COMPLETED
     }
 
@@ -181,8 +184,16 @@ public class LM1Auto extends LinearOpMode {
                         follower.followPath(paths.homeToScore);
                         nextState();
                         break;
-                    case SCORE_TO_HOME:
-                        follower.followPath(paths.scoreToHome);
+                    case SCORE_TO_PPG_INTAKE:
+                        follower.followPath(paths.scoreToPPGIntake);
+                        nextState();
+                        break;
+                    case PPG_INTAKE_TO_PPG_INTAKE_END:
+                        follower.followPath(paths.PPGIntakeToEnd);
+                        nextState();
+                        break;
+                    case PPG_INTAKE_END_TO_LOADING_ZONE:
+                        follower.followPath(paths.PPGIntakeEndToLoadingZoneReverse);
                         nextState();
                         break;
                     case COMPLETED:
