@@ -116,6 +116,7 @@ public class LM1Auto extends LinearOpMode {
         follower.breakFollowing(); // Stop the position holding
 
         // Save values for TeleOp
+        blackboard.put("alliance", alliance);
         blackboard.put("autoEndPose", currentPose);
         blackboard.put("paths", paths);
     }

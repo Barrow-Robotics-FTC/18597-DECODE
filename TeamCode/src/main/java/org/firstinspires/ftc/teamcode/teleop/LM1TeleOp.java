@@ -62,6 +62,22 @@ public class LM1TeleOp extends LinearOpMode {
     private boolean launcherIsLaunching = false; // Is the launcher currently launching?
     private boolean holdingPoint = false; // Is Pedro Pathing holding a point?
 
+    // Gamepad trigger states
+    private boolean prevLeftTriggerPressed = false;
+    private boolean prevRightTriggerPressed = false;
+
+    private boolean leftTriggerPressed() {
+        boolean currState = gamepad1.left_trigger > 0.5 && !prevLeftTriggerPressed; // Current state
+        prevLeftTriggerPressed = gamepad1.left_trigger > 0.5; // Update previous state
+        return currState;
+    }
+
+    private boolean rightTriggerPressed() {
+        boolean currState = gamepad1.right_trigger > 0.5 && !prevRightTriggerPressed; // Current state
+        prevRightTriggerPressed = gamepad1.right_trigger > 0.5; // Update previous state
+        return currState;
+    }
+
     private void stopAutoDrive() {
         automatedDrive = false; // No longer in automated drive
         holdingPoint = false; // No longer holding point
