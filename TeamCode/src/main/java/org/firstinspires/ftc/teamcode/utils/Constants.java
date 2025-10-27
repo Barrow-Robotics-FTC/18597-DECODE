@@ -134,7 +134,7 @@ public class Constants {
     // Pedro Pathing constants handler
     public static class Pedro {
         public static FollowerConstants followerConstants = new FollowerConstants()
-                .mass(18);
+                .mass(16);
 
         public static MecanumConstants driveConstants = new MecanumConstants()
                 .maxPower(1)
