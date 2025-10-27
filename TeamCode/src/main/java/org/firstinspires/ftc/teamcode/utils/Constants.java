@@ -49,6 +49,8 @@ public class Constants {
         }
     }
 
+    public static final double DISTANCE_FROM_APRIL_TAG = 64.7; // Distance to stop from April Tag when driving to it (inches)
+
     // Start position selector
     public static class StartPositionConstants {
         public static final double ROBOT_LENGTH = 14.0; // Robot length in inches
@@ -127,7 +129,6 @@ public class Constants {
         public static final boolean ROBOT_CENTRIC = true; // True for robot centric driving, false for field centric
         public static final double SLOW_MODE_MULTIPLIER = 0.5; // Multiplier for slow mode speed
         public static final double NORMAL_SPEED_MULTIPLIER = 1; // Multiplier for normal driving speed
-        public static final double DISTANCE_FROM_APRIL_TAG = 64.7; // Distance to stop from April Tag when driving to it (inches) (non pedro TeleOp)
     }
 
     // Pedro Pathing constants handler

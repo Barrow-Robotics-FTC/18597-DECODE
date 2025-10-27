@@ -152,7 +152,7 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
                     AprilTagDetection goalTag = aprilTag.getTag(alliance == Alliance.RED ? RED_GOAL_TAG_ID : BLUE_GOAL_TAG_ID);
                     if (goalTag != null) { // If the goal tag was detected
                         // Set movement vectors to drive to the April Tag
-                        Constants.MovementVectors alignmentVectors = aprilTag.driveToAprilTag(goalTag, DISTANCE_FROM_APRIL_TAG);
+                        Constants.MovementVectors alignmentVectors = aprilTag.driveToAprilTag(goalTag, Constants.DISTANCE_FROM_APRIL_TAG);
                         if (alignmentVectors.moveCompleted) { // If alignment is complete
                             liningUpWithGoal = false; // No longer lining up with the goal
                         }

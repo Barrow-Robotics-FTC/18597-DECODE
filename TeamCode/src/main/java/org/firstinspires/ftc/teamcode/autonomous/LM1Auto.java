@@ -20,8 +20,7 @@ import org.firstinspires.ftc.teamcode.utils.Constants;
 import java.util.Arrays;
 import java.util.List;
 
-// TODO: Add preselectTeleOp="LM1TeleOp" depending on which TeleOp we use
-@Autonomous(name = "LM1 Autonomous", group = "Autonomous")
+@Autonomous(name = "LM1 Autonomous", group = "Autonomous", preselectTeleOp="LM1TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM1Auto extends LinearOpMode {
     // Editable variables
@@ -58,6 +57,7 @@ public class LM1Auto extends LinearOpMode {
         paths = new Constants.Paths();
         launcher = new Launcher(hardwareMap);
         aprilTag = new AprilTag(hardwareMap);
+        stateMachine = new StateMachine();
 
         // Prompt the driver to select an alliance
         alliance = AllianceSelector.run(gamepad1, telemetry);
@@ -79,18 +79,20 @@ public class LM1Auto extends LinearOpMode {
         // Reset runtime timer
         runtime.reset();
 
+        // Start launcher speed up
+        stateMachine.speedUpLauncher();
+
         /*
         The April tag obelisk is randomized after the OpMode is initialized, so right after we run the OpMode
         we'll need to immediately scan the April Tag and then initialize our poses and paths.
         */
         targetPattern = aprilTag.detectPattern();
 
-        // Build paths and initialize state machine with those paths
+        // Build paths based on detected pattern
         paths.build(follower, targetPattern, alliance, startPosition.pose);
-        stateMachine = new StateMachine();
 
         while (opModeIsActive()) {
-            // Update Pedro Pathing and Panels every iteration
+            // Update Pedro Pathing
             follower.update();
             currentPose = follower.getPose(); // Update the current pose
 
@@ -98,7 +100,7 @@ public class LM1Auto extends LinearOpMode {
             pathState = stateMachine.update();
 
             // If the state machine is complete or time is almost up, hold position to avoid penalties
-            if (pathState == State.COMPLETED || runtime.milliseconds() > 28000) {
+            if (pathState == State.COMPLETED || runtime.milliseconds() > 29000) {
                 if (!holdingEndPoint) { // If we aren't already holding the end point
                     follower.holdPoint(currentPose); // Hold position at the current pose
                     holdingEndPoint = true; // We are holding the end point
@@ -147,8 +149,9 @@ public class LM1Auto extends LinearOpMode {
 
         public StateMachine() {
             this.statesIndex = 0;
+        }
 
-            // Start launcher speed up
+        public void speedUpLauncher() {
             launcher.speedUp();
             this.launcherActive = true; // Launcher is now active
         }
