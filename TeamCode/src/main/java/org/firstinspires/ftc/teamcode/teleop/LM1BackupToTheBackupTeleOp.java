@@ -32,7 +32,7 @@ Gamepad 1 (Driver): NAME
     Right Trigger: Launch 3 artifacts
  */
 
-@TeleOp(name = "LM1 TeleOp (No Pedro)", group = "TeleOp")
+@TeleOp(name = "LM1 TeleOp (Backup To the Backup)", group = "TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM1BackupToTheBackupTeleOp extends LinearOpMode {
     // Values retrieved from blackboard

@@ -17,11 +17,11 @@ public class StartPositionSelector {
         Pose startPose = null;
 
         while (selectedStartPosition == null) {
-            if (gamepad1.a) {
+            if (gamepad1.aWasPressed()) {
                 selectedStartPosition = StartPosition.RIGHT_LINE_OF_C;
-            } else if (gamepad1.y) {
+            } else if (gamepad1.yWasPressed()) {
                 selectedStartPosition = StartPosition.LEFT_LINE_OF_C;
-            } else if (gamepad1.b) {
+            } else if (gamepad1.bWasPressed()) {
                 selectedStartPosition = StartPosition.CENTER_OF_LEFT_LINE_OF_C;
             }
 

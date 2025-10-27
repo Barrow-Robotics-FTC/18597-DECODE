@@ -11,9 +11,9 @@ public class AllianceSelector {
     public static Alliance run(Gamepad gamepad1, Telemetry telemetry) {
         Alliance selectedAlliance = null;
         while (selectedAlliance == null) {
-            if (gamepad1.b) {
+            if (gamepad1.bWasPressed()) {
                 selectedAlliance = Alliance.RED;
-            } else if (gamepad1.y) {
+            } else if (gamepad1.yWasPressed()) {
                 selectedAlliance = Alliance.BLUE;
             }
 

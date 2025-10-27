@@ -185,6 +185,7 @@ public class LM1AutoNoPedro extends LinearOpMode {
             telemetry.addData("X", currentPose.getX());
             telemetry.addData("Y", currentPose.getY());
             telemetry.addData("Heading", currentPose.getHeading());
+            telemetry.addData("Movement Vectors", movementVectors);
             telemetry.update();
         }
 
@@ -266,11 +267,11 @@ public class LM1AutoNoPedro extends LinearOpMode {
                     }
 
                     if (!inTolX) { // X is out of tolerance
-                        double moveSpeed = 72 - currentPose.getX() > 0 ? 0.25 : -0.25; // Determine forward/backward speed
-                        movementVectors = new MovementVectors(moveSpeed, 0, 0); // Move forward
+                        //double moveSpeed = 72 - currentPose.getX() > 0 ? -0.25 : 0.25; // Determine forward/backward speed
+                        movementVectors = new MovementVectors(0.25, 0, 0); // Move forward
                     } else { // Y is out of tolerance
-                        double moveSpeed = 72 - currentPose.getY() > 0 ? 0.25 : -0.25; // Determine left/right speed
-                        movementVectors = new MovementVectors(0, moveSpeed, 0); // Strafe right
+                        //double moveSpeed = 72 - currentPose.getY() > 0 ? -0.25 : 0.25; // Determine left/right speed
+                        movementVectors = new MovementVectors(0, 0.25, 0); // Strafe right
                     }
                     break;
                 case LINE_UP_WITH_GOAL:

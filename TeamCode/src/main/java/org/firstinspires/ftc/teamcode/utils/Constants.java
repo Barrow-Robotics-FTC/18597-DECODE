@@ -101,12 +101,12 @@ public class Constants {
     // Launcher
     public static class LauncherConstants {
         public static PIDFCoefficients LAUNCHER_PIDF_COEFFICIENTS = new PIDFCoefficients(300,0,0,10); // PIDF coefficients for launcher motors
-        public static int TARGET_RPM = 1000; // Target RPM for both launcher motors
-        public static final int RPM_TOLERANCE = 150; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
+        public static int TARGET_RPM = 900; // Target RPM for both launcher motors
+        public static final int RPM_TOLERANCE = 100; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
         public static final int MIN_TIME_BETWEEN_LAUNCHES = 500; // Minimum time between launches (milliseconds)
         public static final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
-        public static double TAPPER_PUSHED_POSITION = 0.7; // Position that the tapper goes to when pushing an artifact into the launcher
+        public static double TAPPER_PUSHED_POSITION = 0.65; // Position that the tapper goes to when pushing an artifact into the launcher
         public static final double TAPPER_HOME_POSITION = 0.1; // Position of the tapper when retracted
         public enum LauncherState {
             IDLE,
