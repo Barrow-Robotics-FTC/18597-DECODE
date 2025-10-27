@@ -12,11 +12,8 @@ import com.pedropathing.geometry.Pose;
 // Local helper files
 import static org.firstinspires.ftc.teamcode.utils.Constants.TeleOp.*;
 import static org.firstinspires.ftc.teamcode.utils.Constants.Alliance;
-import static org.firstinspires.ftc.teamcode.utils.Constants.AprilTagConstants.BLUE_GOAL_TAG_ID;
-import static org.firstinspires.ftc.teamcode.utils.Constants.AprilTagConstants.RED_GOAL_TAG_ID;
 import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.LauncherReturnProps;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 
@@ -37,7 +34,7 @@ Gamepad 1 (Driver): NAME
 
 @TeleOp(name = "LM1 TeleOp (No Pedro)", group = "TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class LM1TeleOpNoPedro extends LinearOpMode {
+public class LM1BackupToTheBackupTeleOp extends LinearOpMode {
     // Values retrieved from blackboard
     private Alliance alliance; // Alliance of the robot
     private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
@@ -56,7 +53,6 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
     // Other variables
     private Pose currentPose; // Current pose of the robot
     private int artifactsToLaunch = 0; // Number of artifacts to launch
-    private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
     private boolean launcherIsActive = false; // Is the launcher currently active (sped up)?
     private boolean launcherIsLaunching = false; // Is the launcher currently launching?
     private boolean prevLeftTriggerPressed = false;
@@ -76,7 +72,6 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
 
     private void startLaunch(int numArtifacts) {
         artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
-        liningUpWithGoal = true; // Start by lining up with the goal
     }
 
     @Override
@@ -147,26 +142,11 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
 
             // If we are in the process of launching artifacts
             if (artifactsToLaunch > 0) {
-                // Check if we need to line up with the goal first
-                if (liningUpWithGoal) {
-                    AprilTagDetection goalTag = aprilTag.getTag(alliance == Alliance.RED ? RED_GOAL_TAG_ID : BLUE_GOAL_TAG_ID);
-                    if (goalTag != null) { // If the goal tag was detected
-                        // Set movement vectors to drive to the April Tag
-                        Constants.MovementVectors alignmentVectors = aprilTag.driveToAprilTag(goalTag, Constants.DISTANCE_FROM_APRIL_TAG);
-                        if (alignmentVectors.moveCompleted) { // If alignment is complete
-                            liningUpWithGoal = false; // No longer lining up with the goal
-                        }
-                        movementVectors.forward = alignmentVectors.forward;
-                        movementVectors.strafe = alignmentVectors.strafe;
-                        movementVectors.turn = alignmentVectors.turn;
-                    }
-                } else {
-                    // We are lined up with the goal, proceed to launch
-                    // Note: The launch command will call speedUp() if the launcher is idle, so no need to check here
-                    launcher.launch(artifactsToLaunch); // Start the launch of artifacts
-                    launcherIsLaunching = true; // Indicate that the launcher is launching
-                    artifactsToLaunch = 0; // Reset the launch request
-                }
+                // Assume we are lined up with the goal, proceed to launch
+                // Note: The launch command will call speedUp() if the launcher is idle, so no need to check here
+                launcher.launch(artifactsToLaunch); // Start the launch of artifacts
+                launcherIsLaunching = true; // Indicate that the launcher is launching
+                artifactsToLaunch = 0; // Reset the launch request
             }
 
             // Update launcher (nothing will happen when launcher is idle)
@@ -182,7 +162,6 @@ public class LM1TeleOpNoPedro extends LinearOpMode {
             telemetry.addData("Run Time: ", runtime.seconds());
             telemetry.addData("Launcher State: ", launcherStatus.state);
             telemetry.addData("Artifacts to launch", artifactsToLaunch);
-            telemetry.addData("Lining up with goal: ", liningUpWithGoal);
             telemetry.addData("", "");
             telemetry.addData("X: ", currentPose.getX());
             telemetry.addData("Y: ", currentPose.getY());

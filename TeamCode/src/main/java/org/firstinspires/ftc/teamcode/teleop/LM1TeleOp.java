@@ -227,6 +227,7 @@ public class LM1TeleOp extends LinearOpMode {
             telemetry.addData("Automated Drive: ", automatedDrive);
             telemetry.addData("Holding Point: ", holdingPoint);
             telemetry.addData("Launcher State: ", launcherStatus.state);
+            telemetry.addData("Artifacts to launch", artifactsToLaunch);
             telemetry.addData("", "");
             telemetry.addData("X: ", currentPose.getX());
             telemetry.addData("Y: ", currentPose.getY());
