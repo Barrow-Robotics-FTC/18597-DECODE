@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.handouts; // TODO: CHANGE THIS TO YOUR CODE FOLDER
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -35,6 +37,10 @@ public class AutonomousHandoutTank extends LinearOpMode {
         leftDrive.setDirection(DcMotor.Direction.REVERSE);
         rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        // Set motors to brake mode
+        leftDrive.setZeroPowerBehavior(BRAKE);
+        rightDrive.setZeroPowerBehavior(BRAKE);
+
         // Tell the driver that initialization is complete
         telemetry.addData("Status", "Ready to run");
         telemetry.update();
@@ -44,8 +50,8 @@ public class AutonomousHandoutTank extends LinearOpMode {
         robotMovingFor.reset(); // Reset the robot move timer to zero
 
         while (opModeIsActive()) {
-            // Drive forward at half power
-            leftDrive.setPower(.5);
+            // Move in a curved path forward and left to get off the launch line
+            leftDrive.setPower(.25);
             rightDrive.setPower(.5);
 
             // If the robot has been moving for 2 seconds, stop the robot

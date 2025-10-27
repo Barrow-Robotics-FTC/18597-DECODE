@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.utils.StartPositionSelector;
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-
 import static org.firstinspires.ftc.teamcode.utils.Constants.MovementVectors;
 
 // Java

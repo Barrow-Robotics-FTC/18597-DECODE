@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.handouts; // TODO: CHANGE THIS TO YOUR CODE FOLDER
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -39,6 +40,12 @@ public class AutonomousHandoutOmni extends LinearOpMode {
         backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        // Set motors to brake mode
+        frontLeftDrive.setZeroPowerBehavior(BRAKE);
+        frontRightDrive.setZeroPowerBehavior(BRAKE);
+        backLeftDrive.setZeroPowerBehavior(BRAKE);
+        backRightDrive.setZeroPowerBehavior(BRAKE);
+
         // Tell the driver that initialization is complete
         telemetry.addData("Status", "Ready to run");
         telemetry.update();
@@ -48,14 +55,14 @@ public class AutonomousHandoutOmni extends LinearOpMode {
         robotMovingFor.reset(); // Reset the robot move timer to zero
 
         while (opModeIsActive()) {
-            // Drive forward at half power
-            frontLeftDrive.setPower(.5);
+            // Move diagonally forward and to the left
+            frontLeftDrive.setPower(-.5);
             frontRightDrive.setPower(.5);
             backLeftDrive.setPower(.5);
-            backRightDrive.setPower(.5);
+            backRightDrive.setPower(-.5);
 
-            // If the robot has been moving for 2 seconds, stop the robot
-            if (robotMovingFor.seconds() >= 2.0) {
+            // If the robot has been moving for 1.5 seconds, stop the robot
+            if (robotMovingFor.seconds() >= 1.5) {
                 frontLeftDrive.setPower(0);
                 frontRightDrive.setPower(0);
                 backLeftDrive.setPower(0);
