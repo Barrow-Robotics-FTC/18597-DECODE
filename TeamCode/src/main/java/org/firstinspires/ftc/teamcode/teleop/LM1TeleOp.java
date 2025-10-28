@@ -29,7 +29,7 @@ Gamepad 1 (Driver): Dylan OR Jozy
     Left Stick X: Robot translation movement
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
-    DPad Right: Toggle slow mode
+    Left Trigger: Toggle slow mode
     LED:
         Red: Lining up with April Tag
         Blue: Slow mode
@@ -144,8 +144,8 @@ public class LM1TeleOp extends LinearOpMode {
             movementVectors.strafe = -gamepad1.left_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER);
             movementVectors.turn = -gamepad1.right_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER);
 
-            // Gamepad 1 DPad Right: Toggle slow mode
-            if (gamepad1.dpadRightWasPressed()) {
+            // Gamepad 1 Left Bumper: Toggle slow mode
+            if (gamepad1.leftBumperWasPressed()) {
                 slowMode = !slowMode;
             }
 
