@@ -23,13 +23,14 @@ import org.firstinspires.ftc.teamcode.utils.Constants;
 /*
 Gamepad Map for LM1 TeleOp
 
-Drive Coach: NAME
-Human Player: NAME
-Gamepad 1 (Driver): NAME
+Drive Coach: Parley
+Human Player: Cedar
+Gamepad 1 (Driver): Dylan OR Jozy
     Left Stick X: Robot translation movement
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
     DPad Right: Toggle slow mode
+Gamepad 2 (Operator): Dylan OR Jozy
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact
     Right Trigger: Launch 3 artifacts
@@ -114,17 +115,17 @@ public class LM1TeleOp extends LinearOpMode {
             follower.update();
             currentPose = follower.getPose();
 
-            // Set default movement vectors (controller joysticks)
+            // Gamepad 1 Joysticks): Movement
             movementVectors.forward = -gamepad1.left_stick_y * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER);
             movementVectors.strafe = -gamepad1.left_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER);
             movementVectors.turn = -gamepad1.right_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER);
 
-            // Gamepad 1 DPad Right: toggle slow mode
+            // Gamepad 1 DPad Right: Toggle slow mode
             if (gamepad1.dpadRightWasPressed()) {
                 slowMode = !slowMode;
             }
 
-            // Gamepad 1 Right Bumper: Toggle launcher speed up
+            // Gamepad 2 Right Bumper: Toggle launcher speed up
             if (gamepad1.rightBumperWasPressed()) {
                 if (launcherIsActive) {
                     launcher.stop(); // Stop the launcher
@@ -135,12 +136,12 @@ public class LM1TeleOp extends LinearOpMode {
                 }
             }
 
-            // Gamepad 1 Left Trigger: Launch 1 artifact
+            // Gamepad 2 Left Trigger: Launch 1 artifact
             if (leftTriggerPressed() && !launcherIsLaunching) {
                 startLaunch(1); // Indicate that we want to launch 1 artifact
             }
 
-            // Gamepad 1 Right Trigger: Launch 3 artifacts
+            // Gamepad 2 Right Trigger: Launch 3 artifacts
             if (rightTriggerPressed() && !launcherIsLaunching) {
                 startLaunch(3); // Indicate that we want to launch 3 artifacts
             }
