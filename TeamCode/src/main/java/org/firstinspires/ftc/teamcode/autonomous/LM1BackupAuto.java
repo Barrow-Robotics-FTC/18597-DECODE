@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.Constants;
 
-@Autonomous(name="LM1 Backup To the Backup Autonomous", group="Autonomous")
-public class LM1BackupToTheBackupAuto extends LinearOpMode {
+@Autonomous(name="LM1 Backup Autonomous", group="Autonomous")
+public class LM1BackupAuto extends LinearOpMode {
     // Timer to track how long the robot has been moving
     private final ElapsedTime robotMovingFor = new ElapsedTime();
 

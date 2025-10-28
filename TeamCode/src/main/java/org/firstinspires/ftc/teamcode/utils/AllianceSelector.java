@@ -13,13 +13,13 @@ public class AllianceSelector {
         while (selectedAlliance == null) {
             if (gamepad1.bWasPressed()) {
                 selectedAlliance = Alliance.RED;
-            } else if (gamepad1.yWasPressed()) {
+            } else if (gamepad1.xWasPressed()) {
                 selectedAlliance = Alliance.BLUE;
             }
 
             telemetry.addData("Alliance Selector", "Select Alliance");
             telemetry.addData("Red Alliance", "Press B to select red alliance");
-            telemetry.addData("Blue Alliance", "Press Y to select blue alliance");
+            telemetry.addData("Blue Alliance", "Press X to select blue alliance");
             telemetry.update();
         }
 
