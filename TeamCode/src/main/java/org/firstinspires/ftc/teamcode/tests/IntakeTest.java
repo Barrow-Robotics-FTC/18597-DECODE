@@ -10,8 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.Intake;
 /*
 This is a simple test OpMode for the intake. It uses the custom Intake helper (imported above).
 
-Start the intake with the right bumper on gamepad 1. This will run the intake until the right bumper is pressed again.
-If at any point, the intake needs to be stopped, press the right bumper on gamepad 1 again.
+Start the intake with the left bumper on gamepad 1. This will run the intake until the left bumper is pressed again.
 */
 
 @TeleOp(name = "Intake Test", group = "Tests")
@@ -33,7 +32,7 @@ public class IntakeTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            if (gamepad1.rightBumperWasPressed()) { // When right bumper is pressed
+            if (gamepad1.leftBumperWasPressed()) { // When right bumper is pressed
                 intakeRunning = !intakeRunning; // Toggle intake state
                 if (intakeRunning) {
                     intake.run(); // Start the intake

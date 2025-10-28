@@ -40,9 +40,9 @@ public class StartPositionSelector {
             }
 
             telemetry.addData("Start Position Selector", "Select Start Position");
-            telemetry.addData("Press A", "Right edge of robot touching the C tiles right line");
-            telemetry.addData("Press Y", "Left edge of robot touching the C tiles left line");
-            telemetry.addData("Press B", "Center of robot over the C tiles left line");
+            telemetry.addData("Press Cross (A)", "Right edge of robot touching the C tiles right line");
+            telemetry.addData("Press Triangle (Y)", "Left edge of robot touching the C tiles left line");
+            telemetry.addData("Press Circle (B)", "Center of robot over the C tiles left line");
             telemetry.update();
         }
 

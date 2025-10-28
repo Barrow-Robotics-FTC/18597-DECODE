@@ -13,8 +13,8 @@ import static org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.*
 /*
 This is a simple test OpMode to debug the launcher motor RPM.
 
-To start the launcher, press the left bumper on gamepad 1. This will speed up the motors to the target RPM.
-Press the left bumper again to stop the launcher.
+To start the launcher, press the right bumper on gamepad 1. This will speed up the motors to the target RPM.
+Press the right bumper again to stop the launcher.
 */
 
 @TeleOp(name = "Launcher RPM Test", group = "Tests")
@@ -57,7 +57,7 @@ public class LauncherRPMTest extends LinearOpMode {
 
         while (opModeIsActive()) {
             // If the left bumper is pressed
-            if (gamepad1.leftBumperWasPressed()) {
+            if (gamepad1.rightBumperWasPressed()) {
                 if (!launcherRunning) {
                     // Start launcher
                     leftMotor.setVelocity(TARGET_RPM);

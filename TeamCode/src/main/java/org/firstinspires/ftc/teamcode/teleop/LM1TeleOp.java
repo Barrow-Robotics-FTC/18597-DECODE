@@ -30,10 +30,17 @@ Gamepad 1 (Driver): Dylan OR Jozy
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
     DPad Right: Toggle slow mode
+    LED:
+        Red: Lining up with April Tag
+        Blue: Slow mode
 Gamepad 2 (Operator): Dylan OR Jozy
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact
     Right Trigger: Launch 3 artifacts
+    LED:
+        Red: Lining up with April Tag
+        Blue: Launcher is active
+        Green: Ready for launch
  */
 
 @TeleOp(name = "LM1 TeleOp", group = "TeleOp")
@@ -60,6 +67,8 @@ public class LM1TeleOp extends LinearOpMode {
     private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
     private boolean launcherIsActive = false; // Is the launcher currently active (sped up)?
     private boolean launcherIsLaunching = false; // Is the launcher currently launching?
+    private boolean gamepad1LEDSet = false; // Has the gamepad 1 LED been set during the current iteration?
+    private boolean gamepad2LEDSet = false; // Has the gamepad 2 LED been set during the current iteration?
     private boolean prevLeftTriggerPressed = false;
     private boolean prevRightTriggerPressed = false;
 
@@ -78,6 +87,21 @@ public class LM1TeleOp extends LinearOpMode {
     private void startLaunch(int numArtifacts) {
         artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
         liningUpWithGoal = true; // Start by lining up with the goal
+    }
+
+    private void setGamepad1Color(int r, int g, int b) {
+        gamepad1.setLedColor(r, g, b, 100);
+        gamepad1LEDSet = true;
+    }
+
+    private void setGamepad2Color(int r, int g, int b) {
+        gamepad2.setLedColor(r, g, b, 100);
+        gamepad2LEDSet = true;
+    }
+
+    private void setBothGamepadsColor(int r, int g, int b) {
+        setGamepad1Color(r, g, b);
+        setGamepad2Color(r, g, b);
     }
 
     @Override
@@ -157,9 +181,14 @@ public class LM1TeleOp extends LinearOpMode {
                         if (alignmentVectors.moveCompleted) { // If alignment is complete
                             liningUpWithGoal = false; // No longer lining up with the goal
                         }
+
+                        // Set movement vectors to alignment vectors
                         movementVectors.forward = alignmentVectors.forward;
                         movementVectors.strafe = alignmentVectors.strafe;
                         movementVectors.turn = alignmentVectors.turn;
+
+                        // Show red on both controllers to indicate tha drivers shouldn't touch anything
+                        setBothGamepadsColor(255, 0, 0);
                     }
                 } else {
                     // We are lined up with the goal, proceed to launch
@@ -178,6 +207,18 @@ public class LM1TeleOp extends LinearOpMode {
 
             // Set robot movement based on movement vectors
             follower.setTeleOpDrive(movementVectors.forward, movementVectors.strafe, movementVectors.turn, ROBOT_CENTRIC);
+
+            // If the gamepad LEDs weren't set this iteration, turn them off
+            if (!gamepad1LEDSet) {
+                gamepad1.setLedColor(0, 0, 0, 100);
+            }
+            if (!gamepad2LEDSet) {
+                gamepad2.setLedColor(0, 0, 0, 100);
+            }
+
+            // Reset for next iteration
+            gamepad1LEDSet = false;
+            gamepad2LEDSet = false;
 
             // Log status
             telemetry.addData("Run Time: ", runtime.seconds());

@@ -18,8 +18,8 @@ public class AllianceSelector {
             }
 
             telemetry.addData("Alliance Selector", "Select Alliance");
-            telemetry.addData("Red Alliance", "Press B to select red alliance");
-            telemetry.addData("Blue Alliance", "Press X to select blue alliance");
+            telemetry.addData("Red Alliance", "Press Circle (B) to select red alliance");
+            telemetry.addData("Blue Alliance", "Press Square (X) to select blue alliance");
             telemetry.update();
         }
 

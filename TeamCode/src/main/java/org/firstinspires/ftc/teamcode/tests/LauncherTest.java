@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.utils.Constants.LauncherConstants.Launcher
 /*
 This is a simple test OpMode for the launcher. It uses the custom Launcher helper (imported above).
 
-To start the launcher, press the left bumper on gamepad 1. This will get the launcher up to the target RPM..
-Press the left bumper again to stop the launcher.
+To start the launcher, press the right bumper on gamepad 1. This will get the launcher up to the target RPM.
+Press the right bumper again to stop the launcher.
 To launch artifacts, press the left trigger to launch 1 artifact, or the right trigger to launch 3 artifacts.
 NOTE: You can launch without speeding up, it will be sped up automatically and then it will shut back down.
 */
@@ -41,8 +41,8 @@ public class LauncherTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            // If the left bumper is pressed and the launcher is idle
-            if (gamepad1.leftBumperWasPressed()) {
+            // If the right bumper is pressed and the launcher is idle
+            if (gamepad1.rightBumperWasPressed()) {
                 if (launcherIsActive) {
                     launcher.stop(); // Stop the launcher
                     launcherIsActive = false; // Set active flag to false
