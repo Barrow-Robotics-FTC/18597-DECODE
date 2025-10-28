@@ -29,15 +29,15 @@ Gamepad 1 (Driver): Dylan OR Jozy
     Left Stick X: Robot translation movement
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
-    Left Trigger: Toggle slow mode
-    LED:
+    Left Bumper: Toggle slow mode
+    Light:
         Red: Lining up with April Tag
         Blue: Slow mode
 Gamepad 2 (Operator): Dylan OR Jozy
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact
     Right Trigger: Launch 3 artifacts
-    LED:
+    Light:
         Red: Lining up with April Tag
         Blue: Launcher is active
         Green: Ready for launch
@@ -67,20 +67,18 @@ public class LM1TeleOp extends LinearOpMode {
     private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
     private boolean launcherIsActive = false; // Is the launcher currently active (sped up)?
     private boolean launcherIsLaunching = false; // Is the launcher currently launching?
-    private boolean gamepad1LEDSet = false; // Has the gamepad 1 LED been set during the current iteration?
-    private boolean gamepad2LEDSet = false; // Has the gamepad 2 LED been set during the current iteration?
+    
+    // Gamepad 2 trigger edge detection
     private boolean prevLeftTriggerPressed = false;
     private boolean prevRightTriggerPressed = false;
-
     private boolean leftTriggerPressed() {
-        boolean currState = gamepad1.left_trigger > 0.5 && !prevLeftTriggerPressed; // Current state
-        prevLeftTriggerPressed = gamepad1.left_trigger > 0.5; // Update previous state
+        boolean currState = gamepad2.left_trigger > 0.5 && !prevLeftTriggerPressed; // Current state
+        prevLeftTriggerPressed = gamepad2.left_trigger > 0.5; // Update previous state
         return currState;
     }
-
     private boolean rightTriggerPressed() {
-        boolean currState = gamepad1.right_trigger > 0.5 && !prevRightTriggerPressed; // Current state
-        prevRightTriggerPressed = gamepad1.right_trigger > 0.5; // Update previous state
+        boolean currState = gamepad2.right_trigger > 0.5 && !prevRightTriggerPressed; // Current state
+        prevRightTriggerPressed = gamepad2.right_trigger > 0.5; // Update previous state
         return currState;
     }
 
@@ -89,19 +87,12 @@ public class LM1TeleOp extends LinearOpMode {
         liningUpWithGoal = true; // Start by lining up with the goal
     }
 
-    private void setGamepad1Color(int r, int g, int b) {
+    // Gamepad light helpers
+    private void setGamepad1Light(int r, int g, int b) {
         gamepad1.setLedColor(r, g, b, 100);
-        gamepad1LEDSet = true;
     }
-
-    private void setGamepad2Color(int r, int g, int b) {
+    private void setGamepad2Light(int r, int g, int b) {
         gamepad2.setLedColor(r, g, b, 100);
-        gamepad2LEDSet = true;
-    }
-
-    private void setBothGamepadsColor(int r, int g, int b) {
-        setGamepad1Color(r, g, b);
-        setGamepad2Color(r, g, b);
     }
 
     @Override
@@ -186,9 +177,6 @@ public class LM1TeleOp extends LinearOpMode {
                         movementVectors.forward = alignmentVectors.forward;
                         movementVectors.strafe = alignmentVectors.strafe;
                         movementVectors.turn = alignmentVectors.turn;
-
-                        // Show red on both controllers to indicate tha drivers shouldn't touch anything
-                        setBothGamepadsColor(255, 0, 0);
                     }
                 } else {
                     // We are lined up with the goal, proceed to launch
@@ -208,17 +196,25 @@ public class LM1TeleOp extends LinearOpMode {
             // Set robot movement based on movement vectors
             follower.setTeleOpDrive(movementVectors.forward, movementVectors.strafe, movementVectors.turn, ROBOT_CENTRIC);
 
-            // If the gamepad LEDs weren't set this iteration, turn them off
-            if (!gamepad1LEDSet) {
-                gamepad1.setLedColor(0, 0, 0, 100);
+            // Set Gamepad 1 lights (priority goes first to last)
+            if (liningUpWithGoal) { // Lining up with goal: red
+                setGamepad1Light(255, 0, 0);
+            } else if (slowMode) { // Slow mode: blue
+                setGamepad1Light(0, 0, 255);
+            } else { // None of the above conditions: off
+                setGamepad1Light(0, 0, 0);
             }
-            if (!gamepad2LEDSet) {
-                gamepad2.setLedColor(0, 0, 0, 100);
+            
+            // Set Gamepad 1 lights (priority goes first to last)
+            if (liningUpWithGoal) { // Lining up with goal: red
+                setGamepad2Light(255, 0, 0);
+            } else if (launcherIsLaunching) { // Launcher is launching: green
+                setGamepad2Light(0, 255, 0);
+            } else if (launcherIsActive) { // Launcher is active: blue
+                setGamepad2Light(0, 0, 255);
+            } else { // None of the above conditions: off
+                setGamepad2Light(0, 0, 0);
             }
-
-            // Reset for next iteration
-            gamepad1LEDSet = false;
-            gamepad2LEDSet = false;
 
             // Log status
             telemetry.addData("Run Time: ", runtime.seconds());
