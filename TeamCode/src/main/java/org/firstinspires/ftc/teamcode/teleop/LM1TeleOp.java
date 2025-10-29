@@ -62,7 +62,6 @@ public class LM1TeleOp extends LinearOpMode {
     private AprilTag aprilTag; // Custom April Tag class
 
     // Other variables
-    private Pose currentPose; // Current pose of the robot
     private int artifactsToLaunch = 0; // Number of artifacts to launch
     private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
     private boolean launcherIsActive = false; // Is the launcher currently active (sped up)?
@@ -88,6 +87,7 @@ public class LM1TeleOp extends LinearOpMode {
     }
 
     // Gamepad light helpers
+    @SuppressWarnings("SameParameterValue")
     private void setGamepad1Light(int r, int g, int b) {
         gamepad1.setLedColor(r, g, b, 100);
     }
@@ -128,7 +128,6 @@ public class LM1TeleOp extends LinearOpMode {
         while (opModeIsActive()) {
             // Update Pedro Pathing every iteration
             follower.update();
-            currentPose = follower.getPose();
 
             // Gamepad 1 Joysticks): Movement
             movementVectors.forward = -gamepad1.left_stick_y * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER);
@@ -221,10 +220,6 @@ public class LM1TeleOp extends LinearOpMode {
             telemetry.addData("Launcher State: ", launcherStatus.state);
             telemetry.addData("Artifacts to launch", artifactsToLaunch);
             telemetry.addData("Lining up with goal: ", liningUpWithGoal);
-            telemetry.addData("", "");
-            telemetry.addData("X: ", currentPose.getX());
-            telemetry.addData("Y: ", currentPose.getY());
-            telemetry.addData("Heading: ", currentPose.getHeading());
             telemetry.update();
         }
 

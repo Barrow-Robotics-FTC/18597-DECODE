@@ -93,6 +93,23 @@ public class Constants {
         public static final double HEADING_ERROR_TOL = 2.0; // Degrees
     }
 
+    // Pinpoint
+    public static class PinpointUtilConstants {
+        public static final double FORWARD_GAIN = 0.04; // Forward speed gain (for driving with pinpoint)
+        public static final double STRAFE_GAIN = 0.04; // Strafe speed gain (for driving with Pinpoint)
+        public static final double TURN_GAIN = 0.02; // Turn speed gain (for driving with Pinpoint)
+        // Original values
+        //public static final double FORWARD_GAIN = 0.02; // Forward speed gain (for driving with pinpoint)
+        //public static final double STRAFE_GAIN = 0.015; // Strafe speed gain (for driving with Pinpoint)
+        //public static final double TURN_GAIN = 0.01; // Turn speed gain (for driving with Pinpoint)
+        public static final double MAX_FORWARD_SPEED = 0.5; // Max forward vector speed (for driving with Pinpoint)
+        public static final double MAX_STRAFE_SPEED = 0.5; // Max strafe vector speed (for driving with Pinpoint)
+        public static final double MAX_TURN_SPEED = 0.3; // Max turn vector speed (for driving with pinpoint)
+        public static final double FORWARD_ERROR_TOL = 1.5; // Inches
+        public static final double STRAFE_ERROR_TOL = 1.5; // Degrees
+        public static final double TURN_ERROR_TOL = Math.toRadians(2); // Degrees
+    }
+
     // Intake
     public static class IntakeConstants {
         public static final double INTAKE_POWER = 1.0; // Power for intake servos

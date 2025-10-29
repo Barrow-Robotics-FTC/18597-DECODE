@@ -15,19 +15,20 @@ import org.firstinspires.ftc.teamcode.utils.Launcher;
 import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
 import org.firstinspires.ftc.teamcode.utils.StartPositionSelector;
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
-import org.firstinspires.ftc.teamcode.utils.Pinpoint;
 import org.firstinspires.ftc.teamcode.utils.Constants;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import static org.firstinspires.ftc.teamcode.utils.Constants.MovementVectors;
 
 // Java
 import java.util.Arrays;
 import java.util.List;
 
-@Autonomous(name = "LM1 Autonomous", group = "Autonomous", preselectTeleOp="LM1TeleOp")
+@Autonomous(name = "LM1 Autonomous April Tag", group = "Autonomous", preselectTeleOp="LM1TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class LM1Auto extends LinearOpMode {
+public class LM1AutoAprilTag extends LinearOpMode {
     // Editable variables
     final List<State> stateList = Arrays.asList( // Add autonomous states for the state machine here
+            State.DRIVE_FORWARD,
             State.LINE_UP_WITH_GOAL,
             State.LAUNCH,
             State.STRAFE_OFF_LAUNCH_LINE
@@ -46,7 +47,6 @@ public class LM1Auto extends LinearOpMode {
     private Constants.Paths paths; // Custom paths class
     private Launcher launcher; // Custom launcher class
     private AprilTag aprilTag; // Custom April Tag class
-    private Pinpoint pinpoint; // Custom Pinpoint class
 
     // Other variables
     private MovementVectors movementVectors; // Movement vectors for robot drive
@@ -82,7 +82,6 @@ public class LM1Auto extends LinearOpMode {
         paths = new Constants.Paths();
         launcher = new Launcher(hardwareMap);
         aprilTag = new AprilTag(hardwareMap);
-        pinpoint = new Pinpoint(hardwareMap);
         stateMachine = new StateMachine();
 
         // Prompt the driver to select an alliance
@@ -90,7 +89,6 @@ public class LM1Auto extends LinearOpMode {
 
         // Prompt user to select start position and set starting pose
         startPosition = StartPositionSelector.run(gamepad1, telemetry, (alliance == Constants.Alliance.BLUE));
-        pinpoint.setPosition(startPosition.pose);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -118,9 +116,6 @@ public class LM1Auto extends LinearOpMode {
         paths.build(follower, targetPattern, alliance, startPosition.pose);
 
         while (opModeIsActive()) {
-            // Update Pinpoint
-            pinpoint.update();
-
             // If the state machine is complete or time is almost up, hold position to avoid penalties
             if (pathState == State.COMPLETED || runtime.milliseconds() > 28000) {
                 movementVectors = new MovementVectors(0, 0, 0); // No movement
@@ -175,6 +170,7 @@ public class LM1Auto extends LinearOpMode {
 
     public enum State {
         LAUNCH,
+        DRIVE_FORWARD,
         LINE_UP_WITH_GOAL,
         STRAFE_OFF_LAUNCH_LINE,
         COMPLETED
@@ -185,7 +181,9 @@ public class LM1Auto extends LinearOpMode {
         private State currentState; // Current state (only used in update for cleaner code)
         private boolean launchCommanded; // Has the launch been commanded by the LAUNCH state
         private boolean launcherActive; // Is the launcher currently active
+        private boolean movingForward; // Is the robot currently driving forward from the start position
         private boolean strafingOffLaunchLine; // Is the robot currently strafing off the launch line
+        private final ElapsedTime moveForwardTimer = new ElapsedTime(); // Timer for driving off the start line
         private final ElapsedTime strafeOffLaunchLineTimer = new ElapsedTime(); // Timer for the strafe off launch line state
 
         private void nextState() {
@@ -230,17 +228,36 @@ public class LM1Auto extends LinearOpMode {
 
                     movementVectors = new MovementVectors(0, 0, 0); // No movement while launching
                     break;
-                case LINE_UP_WITH_GOAL:
-                    // Get movement vectors from Pinpoint utility
-                    MovementVectors alignmentVectors = pinpoint.driveTo(paths.poses.score);
-                    if (alignmentVectors.moveCompleted) {
-                        movementVectors = new MovementVectors(0, 0, 0); // Stop movement
+                case DRIVE_FORWARD:
+                    if (!movingForward) { // If we haven't started driving forward yet
+                        moveForwardTimer.reset(); // Reset the strafe timer
+                        movingForward = true; // Set moving forward flag
+                    }
+
+                    // Move forward for 1 second then stop and move on
+                    if (moveForwardTimer.milliseconds() > 1000) { // Move forward for 1 second
+                        movementVectors = new MovementVectors(0, 0, 0); // No movement
+                        strafingOffLaunchLine = false; // Reset strafing flag
                         nextState();
                     } else {
-                        // Set movement vectors to vectors for goal alignment
-                        movementVectors.forward = alignmentVectors.forward;
-                        movementVectors.strafe = alignmentVectors.strafe;
-                        movementVectors.turn = alignmentVectors.turn;
+                        movementVectors = new MovementVectors(0.4, 0, 0.05); // Move forward (slight heading correction)
+                    }
+                    break;
+                case LINE_UP_WITH_GOAL:
+                    // Attempt to detect the goal April tag
+                    AprilTagDetection goalTag = aprilTag.getTag(alliance == Constants.Alliance.BLUE ? Constants.AprilTagConstants.BLUE_GOAL_TAG_ID : Constants.AprilTagConstants.RED_GOAL_TAG_ID);
+                    if (goalTag != null) { // If the goal tag was detected
+                        // Set movement vectors to drive to the April Tag
+                        Constants.MovementVectors alignmentVectors = aprilTag.driveToAprilTag(goalTag, Constants.DISTANCE_FROM_APRIL_TAG);
+                        if (alignmentVectors.moveCompleted) { // If alignment is complete
+                            movementVectors = new MovementVectors(0, 0, 0); // No movement
+                            nextState();
+                        } else {
+                            movementVectors = alignmentVectors; // Apply alignment movement vectors
+                        }
+                    } else {
+                        // Rotate until the tag is found
+                        movementVectors = new MovementVectors(0, 0, alliance == Constants.Alliance.BLUE ? -0.3 : 0.3);
                     }
                     break;
                 case STRAFE_OFF_LAUNCH_LINE:
