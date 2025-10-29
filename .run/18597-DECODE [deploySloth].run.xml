@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run With Sloth" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="18597-DECODE [deploySloth]" type="GradleRunConfiguration" factoryName="Gradle" nameIsGenerated="true">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="TeamCode:deploySloth" />
+          <option value="deploySloth" />
         </list>
       </option>
       <option name="vmOptions" />
