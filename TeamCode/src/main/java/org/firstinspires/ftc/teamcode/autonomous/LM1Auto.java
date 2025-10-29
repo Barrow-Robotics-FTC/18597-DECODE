@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.utils.AprilTag;
 import org.firstinspires.ftc.teamcode.utils.Pinpoint;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import static org.firstinspires.ftc.teamcode.utils.Constants.MovementVectors;
+import static org.firstinspires.ftc.teamcode.utils.Constants.WheelPowers;
 
 // Java
 import java.util.Arrays;
@@ -129,30 +130,12 @@ public class LM1Auto extends LinearOpMode {
                 pathState = stateMachine.update();
             }
 
-            // Apply movement vectors to motors
-            double frontLeftPower = movementVectors.forward + movementVectors.strafe + movementVectors.turn;
-            double frontRightPower = movementVectors.forward - movementVectors.strafe - movementVectors.turn;
-            double backLeftPower = movementVectors.forward - movementVectors.strafe + movementVectors.turn;
-            double backRightPower = movementVectors.forward + movementVectors.strafe - movementVectors.turn;
-
-            // Normalize the values so no wheel power exceeds 100%
-            // This ensures that the robot maintains the desired motion.
-            double max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
-            max = Math.max(max, Math.abs(backLeftPower));
-            max = Math.max(max, Math.abs(backRightPower));
-
-            if (max > 1.0) {
-                frontLeftPower /= max;
-                frontRightPower /= max;
-                backLeftPower /= max;
-                backRightPower /= max;
-            }
-
             // Set motor powers
-            frontLeftDrive.setPower(frontLeftPower);
-            frontRightDrive.setPower(frontRightPower);
-            backLeftDrive.setPower(backLeftPower);
-            backRightDrive.setPower(backRightPower);
+            WheelPowers powers = movementVectors.getWheelPowers();
+            frontLeftDrive.setPower(powers.frontLeft);
+            frontRightDrive.setPower(powers.frontRight);
+            backLeftDrive.setPower(powers.backLeft);
+            backRightDrive.setPower(powers.backRight);
 
             // Log status
             telemetry.addData("Elapsed", runtime.toString());

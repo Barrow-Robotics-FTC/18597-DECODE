@@ -24,10 +24,26 @@ public class Constants {
         RED,
         BLUE
     }
+
     public enum Pattern {
         PPG,
         PGP,
         GPP
+    }
+
+    // Omni wheel power class
+    public static class WheelPowers {
+        public double frontLeft;
+        public double frontRight;
+        public double backLeft;
+        public double backRight;
+
+        public WheelPowers(double frontLeft, double frontRight, double backLeft, double backRight) {
+            this.frontLeft = frontLeft;
+            this.frontRight = frontRight;
+            this.backLeft = backLeft;
+            this.backRight = backRight;
+        }
     }
 
     // Omni movement vector class
@@ -47,6 +63,29 @@ public class Constants {
         public MovementVectors(double forward, double strafe, double turn) {
             this(forward, strafe, turn, null);
         }
+
+        public WheelPowers getWheelPowers() {
+            // Apply movement vectors to motors
+            double frontLeftPower = forward + strafe + turn;
+            double frontRightPower = forward - strafe - turn;
+            double backLeftPower = forward - strafe + turn;
+            double backRightPower = forward + strafe - turn;
+
+            // Normalize the values so no wheel power exceeds 100%
+            // This ensures that the robot maintains the desired motion.
+            double max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
+            max = Math.max(max, Math.abs(backLeftPower));
+            max = Math.max(max, Math.abs(backRightPower));
+            if (max > 1.0) {
+                frontLeftPower /= max;
+                frontRightPower /= max;
+                backLeftPower /= max;
+                backRightPower /= max;
+            }
+
+            // Return wheel powers
+            return new WheelPowers(frontLeftPower, frontRightPower, backLeftPower, backRightPower);
+        }
     }
 
     public static final double DISTANCE_FROM_APRIL_TAG = 64.7; // Distance to stop from April Tag when driving to it (inches)
@@ -56,11 +95,13 @@ public class Constants {
         public static final double ROBOT_LENGTH = 14.0; // Robot length in inches
         public static final double START_POSE_Y = ROBOT_LENGTH / 2; // Y coordinate for start poses
         public static final double START_POSE_HEADING = 90.0; // Heading for start poses
+
         public enum StartPosition {
             RIGHT_LINE_OF_C, // Right edge of robot touching the C tiles right line
             LEFT_LINE_OF_C, // Left edge of robot touching the C tiles left line
             CENTER_OF_LEFT_LINE_OF_C // Center of robot over the C tiles left line
         }
+
         public static class StartSelection { // Return type for start position selector
             public final StartPosition startPosition;
             public final Pose pose;
@@ -126,11 +167,13 @@ public class Constants {
         public static final int TAPPER_POSITIONING_TIME = 500; // Time to wait for the tapper to reach the pushed position (milliseconds)
         public static double TAPPER_PUSHED_POSITION = 0.65; // Position that the tapper goes to when pushing an artifact into the launcher
         public static final double TAPPER_HOME_POSITION = 0.1; // Position of the tapper when retracted
+
         public enum LauncherState {
             IDLE,
             SPEED_UP,
             LAUNCH
         }
+
         public static class LauncherReturnProps { // Props returned by Launcher.update()
             public final LauncherState state;
             public final boolean cycleCompleted;
@@ -225,21 +268,22 @@ public class Constants {
         public Pose[] getIntakePoses(Constants.Pattern pattern) {
             switch (pattern) {
                 case PPG:
-                    return new Pose[] {PPGArtifacts, PPGArtifactsEnd,
+                    return new Pose[]{PPGArtifacts, PPGArtifactsEnd,
                             GPPArtifacts, GPPArtifactsEnd,
                             PGPArtifacts, PGPArtifactsEnd};
                 case PGP:
-                    return new Pose[] {PGPArtifacts, PGPArtifactsEnd,
+                    return new Pose[]{PGPArtifacts, PGPArtifactsEnd,
                             GPPArtifacts, GPPArtifactsEnd,
                             PPGArtifacts, PPGArtifactsEnd};
                 default: // GPP or unknown
-                    return new Pose[] {GPPArtifacts, GPPArtifactsEnd,
+                    return new Pose[]{GPPArtifacts, GPPArtifactsEnd,
                             PPGArtifacts, PPGArtifactsEnd,
                             PGPArtifacts, PGPArtifactsEnd};
             }
         }
 
-        @SuppressWarnings("SameParameterValue") // Suppress warning about mirrorIfNeeded always being true
+        @SuppressWarnings("SameParameterValue")
+        // Suppress warning about mirrorIfNeeded always being true
         private Pose buildPose(double x, double y, double heading, boolean mirrorIfNeeded) {
             Pose pose = new Pose(x, y, Math.toRadians(heading));
             if (this.mirrorPoses && mirrorIfNeeded) {
@@ -252,7 +296,8 @@ public class Constants {
             return this.buildPose(x, y, heading, true);
         }
 
-        @SuppressWarnings("SameParameterValue") // Suppress warning about heading always being a specific value
+        @SuppressWarnings("SameParameterValue")
+        // Suppress warning about heading always being a specific value
         static Pose externalBuildPose(double x, double y, double heading, boolean mirror) {
             Pose pose = new Pose(x, y, Math.toRadians(heading));
             if (mirror) {

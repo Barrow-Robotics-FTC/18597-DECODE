@@ -36,7 +36,7 @@ public class AprilTag {
 
     public AprilTag(HardwareMap hardwareMap) {
         // Create the AprilTag processor and set decimation
-        aprilTagProcessor = new AprilTagProcessor.Builder().build();
+        aprilTagProcessor = new AprilTagProcessor.Builder().setDrawTagOutline(true).build();
         aprilTagProcessor.setDecimation(APRIL_TAG_CAMERA_DECIMATION);
 
         // Create the webcam handler (vision portal), attach the April tag processor
