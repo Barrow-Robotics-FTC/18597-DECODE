@@ -129,10 +129,10 @@ public class AprilTag {
      * @return movement vectors to drive to the tag
      */
     public Constants.MovementVectors driveToAprilTag(AprilTagDetection tag, double distance) {
-        // Positional errors: forward/back, strafe, turn
-        double rangeError = tag.ftcPose.range - distance; // Inches
-        double yawError = tag.ftcPose.yaw; // Degrees (left/right)
-        double headingError = tag.ftcPose.bearing; // Degrees (turn)
+        // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
+        double rangeError  = (tag.ftcPose.range - distance);
+        double headingError = tag.ftcPose.bearing - 5;
+        double yawError = tag.ftcPose.yaw;
 
         // Check if position is within tolerances
         boolean rangeOk = Math.abs(rangeError) <= RANGE_ERROR_TOL;
@@ -142,7 +142,7 @@ public class AprilTag {
 
         // Calculate drive vectors
         double forward = Range.clip(rangeError * SPEED_GAIN, -MAX_FORWARD_SPEED, MAX_FORWARD_SPEED);
-        double strafe = Range.clip(yawError * STRAFE_GAIN, -MAX_STRAFE_SPEED, MAX_STRAFE_SPEED);
+        double strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_STRAFE_SPEED, MAX_STRAFE_SPEED);
         double turn = Range.clip(headingError * TURN_GAIN, -MAX_TURN_SPEED, MAX_TURN_SPEED);
 
         // Return movement vectors and completion status

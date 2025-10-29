@@ -99,7 +99,7 @@ public class LM1TeleOp extends LinearOpMode {
     public void runOpMode() {
         // Get variables from Blackboard
         alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE);
-        autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(72, 8, Math.toRadians(90)));
+        autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(80, 8.25, Math.toRadians(90)));
 
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
         follower = Constants.Pedro.createFollower(hardwareMap);
@@ -140,7 +140,7 @@ public class LM1TeleOp extends LinearOpMode {
             }
 
             // Gamepad 2 Right Bumper: Toggle launcher speed up
-            if (gamepad1.rightBumperWasPressed()) {
+            if (gamepad2.rightBumperWasPressed()) {
                 if (launcherIsActive) {
                     launcher.stop(); // Stop the launcher
                     launcherIsActive = false; // Set active flag to false
@@ -162,6 +162,7 @@ public class LM1TeleOp extends LinearOpMode {
 
             // If we are in the process of launching artifacts
             if (artifactsToLaunch > 0) {
+
                 // Check if we need to line up with the goal first
                 if (liningUpWithGoal) {
                     AprilTagDetection goalTag = aprilTag.getTag(alliance == Alliance.RED ? RED_GOAL_TAG_ID : BLUE_GOAL_TAG_ID);

@@ -88,7 +88,7 @@ public class Constants {
         }
     }
 
-    public static final double DISTANCE_FROM_APRIL_TAG = 64.7; // Distance to stop from April Tag when driving to it (inches)
+    public static final double DISTANCE_FROM_APRIL_TAG = 55; // Distance to stop from April Tag when driving to it (inches)
 
     // Start position selector
     public static class StartPositionConstants {
@@ -116,22 +116,22 @@ public class Constants {
     // April Tags
     public static class AprilTagConstants {
         public static final int APRIL_TAG_CAMERA_DECIMATION = 2; // Higher value = farther detection range, lower detection rate
-        public static final int APRIL_TAG_CAMERA_EXPOSURE = 6; // Camera exposure time (milliseconds)
-        public static final int APRIL_TAG_CAMERA_GAIN = 250; // Camera gain
+        public static final int APRIL_TAG_CAMERA_EXPOSURE = 1; // Camera exposure time (milliseconds)
+        public static final int APRIL_TAG_CAMERA_GAIN = 200; // Camera gain
         public static final int BLUE_GOAL_TAG_ID = 20; // Tag ID for blue goal
         public static final int GPP_TAG_ID = 21; // Tag ID for GPP on the obelisk
         public static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
         public static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
         public static final int RED_GOAL_TAG_ID = 24; // Tag ID for red goal
-        public static final double SPEED_GAIN = 0.02; // Forward speed gain (for driving to April Tag)
-        public static final double STRAFE_GAIN = 0.015; // Strafe speed gain (for driving to April Tag)
-        public static final double TURN_GAIN = 0.01; // Turn speed gain (for driving to April Tag)
-        public static final double MAX_FORWARD_SPEED = 0.5; // Max forward vector speed (for driving to April Tag)
-        public static final double MAX_STRAFE_SPEED = 0.5; // Max strafe vector speed (for driving to April Tag)
-        public static final double MAX_TURN_SPEED = 0.3; // Max turn vector speed (for driving to April Tag)
-        public static final double RANGE_ERROR_TOL = 1.0; // Inches
-        public static final double YAW_ERROR_TOL = 1.5; // Degrees
-        public static final double HEADING_ERROR_TOL = 2.0; // Degrees
+        public static final double SPEED_GAIN = 0.03; // Forward speed gain (for driving to April Tag)
+        public static final double STRAFE_GAIN = 0.02; // Strafe speed gain (for driving to April Tag)
+        public static final double TURN_GAIN = 0.015; // Turn speed gain (for driving to April Tag)
+        public static final double MAX_FORWARD_SPEED = 0.3; // Max forward vector speed (for driving to April Tag)
+        public static final double MAX_STRAFE_SPEED = 0.3; // Max strafe vector speed (for driving to April Tag)
+        public static final double MAX_TURN_SPEED = 0.2; // Max turn vector speed (for driving to April Tag)
+        public static final double RANGE_ERROR_TOL = 3; // Inches
+        public static final double YAW_ERROR_TOL = 3; // Degrees
+        public static final double HEADING_ERROR_TOL = 3; // Degrees
     }
 
     // Pinpoint
@@ -188,8 +188,8 @@ public class Constants {
     public static class TeleOp {
         public static final boolean BRAKE_MODE = true; // Whether the motors should brake on stop (recommended)
         public static final boolean ROBOT_CENTRIC = true; // True for robot centric driving, false for field centric
-        public static final double SLOW_MODE_MULTIPLIER = 0.5; // Multiplier for slow mode speed
-        public static final double NORMAL_SPEED_MULTIPLIER = 1; // Multiplier for normal driving speed
+        public static final double SLOW_MODE_MULTIPLIER = 0.2; // Multiplier for slow mode speed
+        public static final double NORMAL_SPEED_MULTIPLIER = 0.6; // Multiplier for normal driving speed
     }
 
     // Pedro Pathing constants handler
