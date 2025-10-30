@@ -2,70 +2,49 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 // FTC SDK
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Pedro Pathing
-import com.pedropathing.follower.Follower;
+// Pedro Pathing (follower is not actually used)
+import com.pedropathing.geometry.Pose;
 
 // Local helper files
 import org.firstinspires.ftc.teamcode.utils.Launcher;
-import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
-import org.firstinspires.ftc.teamcode.utils.StartPositionSelector;
-import org.firstinspires.ftc.teamcode.utils.AprilTag;
 import org.firstinspires.ftc.teamcode.utils.Pinpoint;
 import org.firstinspires.ftc.teamcode.utils.Constants;
-import static org.firstinspires.ftc.teamcode.utils.Constants.MovementVectors;
-import static org.firstinspires.ftc.teamcode.utils.Constants.WheelPowers;
 
-// Java
-import java.util.Arrays;
-import java.util.List;
-
-@Autonomous(name = "LM1 Autonomous", group = "Autonomous", preselectTeleOp="LM1TeleOp")
+@Autonomous(name="LM1 Autonomous", group="Autonomous", preselectTeleOp="LM1TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM1Auto extends LinearOpMode {
-    // Editable variables
-    final List<State> stateList = Arrays.asList( // Add autonomous states for the state machine here
-            State.LINE_UP_WITH_GOAL,
-            State.LAUNCH,
-            State.STRAFE_OFF_LAUNCH_LINE
-    );
-
-    // Hardware
-    private DcMotor frontLeftDrive = null;
-    private DcMotor frontRightDrive = null;
-    private DcMotor backLeftDrive = null;
-    private DcMotor backRightDrive = null;
+    // Set a static time to wait before starting auto
+    private final int TIME_BEFORE_STARTING = 0; // Seconds
+    private final ElapsedTime runtime = new ElapsedTime();
 
     // Utilities
-    private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
-    private Follower follower; // Pedro Pathing follower
-    private StateMachine stateMachine; // Custom autonomous state machine
-    private Constants.Paths paths; // Custom paths class
-    private Launcher launcher; // Custom launcher class
-    private AprilTag aprilTag; // Custom April Tag class
-    private Pinpoint pinpoint; // Custom Pinpoint class
+    private final ElapsedTime robotMovingFor = new ElapsedTime();
+    private Pinpoint pinpoint;
+    private Launcher launcher;
 
-    // Other variables
-    private MovementVectors movementVectors; // Movement vectors for robot drive
-    private Constants.Alliance alliance; // Alliance of the robot
-    private Constants.StartPositionConstants.StartSelection startPosition; // Start position of the robot
-    private Constants.Pattern targetPattern; // Target pattern determined by obelisk April Tag
-    private State pathState; // Current state machine value
+    // Variables
+    enum State {
+        START,
+        LINING_UP,
+        LAUNCHING,
+        STRAFING,
+        COMPLETE
+    }
+    private State currentState = State.START; // Current state of the robot
+    private boolean exitAuto = false; // Should the auto be stopped
 
     @Override
     public void runOpMode() {
-        // Initialize Pedro Pathing follower (ONLY USED FOR PATH GENERATION)
-        follower = Constants.Pedro.createFollower(hardwareMap);
-
         // Initialize hardware
-        frontLeftDrive = hardwareMap.get(DcMotor.class, Constants.Pedro.driveConstants.leftFrontMotorName);
-        frontRightDrive = hardwareMap.get(DcMotor.class, Constants.Pedro.driveConstants.rightFrontMotorName);
-        backLeftDrive = hardwareMap.get(DcMotor.class, Constants.Pedro.driveConstants.leftRearMotorName);
-        backRightDrive = hardwareMap.get(DcMotor.class, Constants.Pedro.driveConstants.rightRearMotorName);
+        DcMotor frontLeftDrive = hardwareMap.get(DcMotor.class, Constants.Pedro.driveConstants.leftFrontMotorName);
+        DcMotor frontRightDrive = hardwareMap.get(DcMotor.class, Constants.Pedro.driveConstants.rightFrontMotorName);
+        DcMotor backLeftDrive = hardwareMap.get(DcMotor.class, Constants.Pedro.driveConstants.leftRearMotorName);
+        DcMotor backRightDrive = hardwareMap.get(DcMotor.class, Constants.Pedro.driveConstants.rightRearMotorName);
 
         // Set motor directions
         frontLeftDrive.setDirection(Constants.Pedro.driveConstants.leftFrontMotorDirection);
@@ -79,179 +58,113 @@ public class LM1Auto extends LinearOpMode {
         backLeftDrive.setZeroPowerBehavior(BRAKE);
         backRightDrive.setZeroPowerBehavior(BRAKE);
 
-        // Initialize all utilities used in auto
-        paths = new Constants.Paths();
-        launcher = new Launcher(hardwareMap);
-        aprilTag = new AprilTag(hardwareMap);
         pinpoint = new Pinpoint(hardwareMap);
-        stateMachine = new StateMachine();
+        pinpoint.setPosition(new Pose(0, 0, 0));
+        launcher = new Launcher(hardwareMap);
 
-        // Prompt the driver to select an alliance
-        alliance = AllianceSelector.run(gamepad1, telemetry);
-
-        // Prompt user to select start position and set starting pose
-        startPosition = StartPositionSelector.run(gamepad1, telemetry, (alliance == Constants.Alliance.BLUE));
-        pinpoint.setPosition(startPosition.pose);
-
-        // Log completed initialization
+        // Tell the driver that initialization is complete
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("Alliance", alliance);
-        telemetry.addData("Start Position", startPosition.startPosition);
-        telemetry.addData("Start Pose", startPosition.pose);
         telemetry.update();
 
         // Wait for the game to start (driver presses START)
         waitForStart();
-
-        // Reset runtime timer
-        runtime.reset();
-
-        // Speed up launcher
-        stateMachine.speedUpLauncher();
-
-        /*
-        The April tag obelisk is randomized after the OpMode is initialized, so right after we run the OpMode
-        we'll need to immediately scan the April Tag and then initialize our poses and paths.
-        */
-        targetPattern = aprilTag.detectPattern();
-
-        // Build paths based on detected pattern
-        paths.build(follower, targetPattern, alliance, startPosition.pose);
+        runtime.reset(); // Reset the runtime timer to zero
+        robotMovingFor.reset(); // Reset the robot move timer to zero
 
         while (opModeIsActive()) {
-            // Update Pinpoint
-            pinpoint.update();
+            pinpoint.update(); // Update current position
+            launcher.update(); // Update the launcher
 
-            // If the state machine is complete or time is almost up, hold position to avoid penalties
-            if (pathState == State.COMPLETED || runtime.milliseconds() > 28000) {
-                movementVectors = new MovementVectors(0, 0, 0); // No movement
-            } else {
-                // Run the state machine update loop (updates movementVectors)
-                pathState = stateMachine.update();
+            if (exitAuto) {
+                break; // Exit the auto if the exit flag is set
             }
 
-            // Set motor powers
-            WheelPowers powers = movementVectors.getWheelPowers();
-            frontLeftDrive.setPower(powers.frontLeft);
-            frontRightDrive.setPower(powers.frontRight);
-            backLeftDrive.setPower(powers.backLeft);
-            backRightDrive.setPower(powers.backRight);
-
-            // Log status
-            telemetry.addData("Elapsed", runtime.toString());
-            telemetry.addData("Path State", pathState);
-            telemetry.addData("Launcher State", launcher.getState());
-            telemetry.addData("Path Index", stateMachine.statesIndex);
-            telemetry.addData("Movement Vectors", movementVectors);
-            telemetry.update();
-        }
-
-        // OpMode is ending, stop all mechanisms
-        stateMachine.stop(); // Stop the state machine
-        follower.breakFollowing(); // Stop the position holding
-
-        // Save values for TeleOp
-        blackboard.put("alliance", alliance);
-        blackboard.put("autoEndPose", paths.poses.home); // Not actually used in the TeleOp, so for LM1 we can just set it random
-        blackboard.put("paths", paths);
-    }
-
-    public enum State {
-        LAUNCH,
-        LINE_UP_WITH_GOAL,
-        STRAFE_OFF_LAUNCH_LINE,
-        COMPLETED
-    }
-
-    class StateMachine {
-        private int statesIndex; // Current index in states
-        private State currentState; // Current state (only used in update for cleaner code)
-        private boolean launchCommanded; // Has the launch been commanded by the LAUNCH state
-        private boolean launcherActive; // Is the launcher currently active
-        private boolean strafingOffLaunchLine; // Is the robot currently strafing off the launch line
-        private final ElapsedTime strafeOffLaunchLineTimer = new ElapsedTime(); // Timer for the strafe off launch line state
-
-        private void nextState() {
-            statesIndex += 1;
-        }
-
-        public StateMachine() {
-            this.statesIndex = 0;
-        }
-
-        public void speedUpLauncher() {
-            launcher.speedUp();
-            this.launcherActive = true; // Launcher is now active
-        }
-
-        public void stop() {
-            if (currentState != State.COMPLETED) { // If not already completed
-                statesIndex = stateList.size(); // Set index to end (COMPLETED state)
-                update(); // Run update to stop mechanisms
-            }
-        }
-
-        public State update() {
-            // Handle out of bounds index
-            if (statesIndex >= stateList.size()) {
-                currentState = State.COMPLETED;
-            } else {
-                currentState = stateList.get(statesIndex);
-            }
-
-            // State machine switch
             switch (currentState) {
-                case LAUNCH:
-                    if (!this.launchCommanded) { // Command the launcher to launch 3 artifacts
-                        this.launchCommanded = true; // Launch has been commanded
-                        launcher.launch(3); // Command launcher
-                    }
-                    if (launcher.update().cycleCompleted) {
-                        this.launchCommanded = false; // Reset launch commanded flag
-                        nextState();
-                    }
-
-                    movementVectors = new MovementVectors(0, 0, 0); // No movement while launching
-                    break;
-                case LINE_UP_WITH_GOAL:
-                    // Get movement vectors from Pinpoint utility
-                    MovementVectors alignmentVectors = pinpoint.driveTo(paths.poses.score);
-                    if (alignmentVectors.moveCompleted) {
-                        movementVectors = new MovementVectors(0, 0, 0); // Stop movement
-                        nextState();
-                    } else {
-                        // Set movement vectors to vectors for goal alignment
-                        movementVectors.forward = alignmentVectors.forward;
-                        movementVectors.strafe = alignmentVectors.strafe;
-                        movementVectors.turn = alignmentVectors.turn;
+                case START:
+                    // Wait for the specified time before starting auto
+                    if (runtime.seconds() >= TIME_BEFORE_STARTING) {
+                        currentState = State.LINING_UP; // Start lining up
                     }
                     break;
-                case STRAFE_OFF_LAUNCH_LINE:
-                    if (!strafingOffLaunchLine) { // If we haven't started strafing yet
-                        strafeOffLaunchLineTimer.reset(); // Reset the strafe timer
-                        strafingOffLaunchLine = true; // Set strafing flag
+                case LINING_UP:
+                    // Use the Pinpoint to correct for heading error while moving back
+                    double turn = 0;
+                    if (Math.toDegrees(pinpoint.getPosition().getHeading()) > 1) {
+                        turn = 0.12;
+                    } else if (Math.toDegrees(pinpoint.getPosition().getHeading()) < 1) {
+                        turn = -0.12;
                     }
 
-                    // Strafe right for 1 second then stop and move on
-                    if (strafeOffLaunchLineTimer.milliseconds() > 1000) { // Strafe for 1 second
-                        movementVectors = new MovementVectors(0, 0, 0); // No movement
-                        strafingOffLaunchLine = false; // Reset strafing flag
-                        nextState();
-                    } else {
-                        movementVectors = new MovementVectors(0, 0.4, 0); // Strafe right
+                    // Static movement values
+                    double forward = -0.3; // Move back at 0.3 power
+                    double strafe = 0.03; // Tiny correction to the right for
+
+                    // Apply movement vectors to motors
+                    double frontLeftPower = forward + strafe + turn;
+                    double frontRightPower = forward - strafe - turn;
+                    double backLeftPower = forward - strafe + turn;
+                    double backRightPower = forward + strafe - turn;
+
+                    // Normalize the values so no wheel power exceeds 100%
+                    // This ensures that the robot maintains the desired motion.
+                    double max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
+                    max = Math.max(max, Math.abs(backLeftPower));
+                    //noinspection DataFlowIssue
+                    max = Math.max(max, Math.abs(backRightPower));
+                    //noinspection ReassignedVariable,ConstantValue
+                    if (max > 1.0) {
+                        frontLeftPower /= max;
+                        frontRightPower /= max;
+                        backLeftPower /= max;
+                        backRightPower /= max;
+                    }
+
+                    // Set powers
+                    frontLeftDrive.setPower(frontLeftPower);
+                    frontRightDrive.setPower(frontRightPower);
+                    backLeftDrive.setPower(backLeftPower);
+                    backRightDrive.setPower(backRightPower);
+
+                    // If the robot has been moving for 2.8 seconds, stop
+                    if (robotMovingFor.seconds() >= 2.8) {
+                        frontLeftDrive.setPower(0);
+                        frontRightDrive.setPower(0);
+                        backLeftDrive.setPower(0);
+                        backRightDrive.setPower(0);
+
+                        // Start launching
+                        launcher.speedUp();
+                        launcher.launch(3);
+                        currentState = State.LAUNCHING; // Move to the launching state
                     }
                     break;
-                case COMPLETED:
-                    // If the launcher is currently active, stop it
-                    if (this.launcherActive) {
-                        launcher.stop();
-                        this.launcherActive = false; // Launcher is no longer active
+                case LAUNCHING:
+                    // Wait for the launcher to finish launching
+                    Constants.LauncherConstants.LauncherReturnProps launcherReturn = launcher.update();
+                    if (launcherReturn.cycleCompleted) {
+                        currentState = State.STRAFING;
+                        robotMovingFor.reset();
                     }
-
-                    movementVectors = new MovementVectors(0, 0, 0); // No movement
+                    break;
+                case STRAFING:
+                    // Strafe right off the launch line for a second
+                    frontLeftDrive.setPower(0.5);
+                    frontRightDrive.setPower(-0.5);
+                    backLeftDrive.setPower(-0.5);
+                    backRightDrive.setPower(0.5);
+                    if (robotMovingFor.seconds() > 1) {
+                        frontLeftDrive.setPower(0);
+                        frontRightDrive.setPower(0);
+                        backLeftDrive.setPower(0);
+                        backRightDrive.setPower(0);
+                        currentState = State.COMPLETE;
+                    }
+                    break;
+                case COMPLETE:
+                    launcher.stop(); // Stop the launcher
+                    exitAuto = true; // Set exit flag to true
                     break;
             }
-            return currentState;
         }
     }
 }

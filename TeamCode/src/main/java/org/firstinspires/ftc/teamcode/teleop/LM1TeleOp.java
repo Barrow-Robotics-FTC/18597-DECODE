@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Pedro Pathing
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
 
 // Local helper files
 import static org.firstinspires.ftc.teamcode.utils.Constants.TeleOp.*;
@@ -25,7 +24,7 @@ Gamepad Map for LM1 TeleOp
 
 Drive Coach: Parley
 Human Player: Cedar
-Gamepad 1 (Driver): Dylan OR Jozy
+Gamepad 1 (Driver): Dylan
     Left Stick X: Robot translation movement
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
@@ -33,7 +32,7 @@ Gamepad 1 (Driver): Dylan OR Jozy
     Light:
         Red: Lining up with April Tag
         Blue: Slow mode
-Gamepad 2 (Operator): Dylan OR Jozy
+Gamepad 2 (Operator): Jozy
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact
     Right Trigger: Launch 3 artifacts
@@ -48,7 +47,6 @@ Gamepad 2 (Operator): Dylan OR Jozy
 public class LM1TeleOp extends LinearOpMode {
     // Values retrieved from blackboard
     private Alliance alliance; // Alliance of the robot
-    private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
 
     // Driver controller variables
     private boolean slowMode = false;
@@ -99,11 +97,9 @@ public class LM1TeleOp extends LinearOpMode {
     public void runOpMode() {
         // Get variables from Blackboard
         alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE);
-        autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(80, 8.25, Math.toRadians(90)));
 
         // Initialize the Pedro Pathing follower and set the start pose to the autonomous ending pose
         follower = Constants.Pedro.createFollower(hardwareMap);
-        follower.setStartingPose(autoEndPose);
         follower.update();
 
         // Initialize all utilities used in TeleOp
