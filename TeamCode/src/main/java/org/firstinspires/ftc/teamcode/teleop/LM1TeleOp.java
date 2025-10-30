@@ -85,12 +85,18 @@ public class LM1TeleOp extends LinearOpMode {
     }
 
     // Gamepad light helpers
+    private int[] gamepad1Color = new int[]{0, 0, 0};
+    private int[] gamepad2Color = new int[]{0, 0, 0};
     @SuppressWarnings("SameParameterValue")
     private void setGamepad1Light(int r, int g, int b) {
-        gamepad1.setLedColor(r, g, b, 100);
+        gamepad1Color = new int[]{r, g, b};
     }
     private void setGamepad2Light(int r, int g, int b) {
-        gamepad2.setLedColor(r, g, b, 100);
+        gamepad2Color = new int[]{r, g, b};
+    }
+    private void updateGamepadLights() {
+        gamepad1.setLedColor(gamepad1Color[0], gamepad1Color[1], gamepad1Color[2], 100);
+        gamepad2.setLedColor(gamepad2Color[0], gamepad2Color[1], gamepad2Color[2], 100);
     }
 
     @Override
@@ -211,6 +217,9 @@ public class LM1TeleOp extends LinearOpMode {
             } else { // None of the above conditions: off
                 setGamepad2Light(0, 0, 0);
             }
+
+            // Update gamepad lights
+            updateGamepadLights();
 
             // Log status
             telemetry.addData("Run Time: ", runtime.seconds());
