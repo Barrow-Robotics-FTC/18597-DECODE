@@ -123,15 +123,15 @@ public class Constants {
         public static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
         public static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
         public static final int RED_GOAL_TAG_ID = 24; // Tag ID for red goal
-        public static final double SPEED_GAIN = 0.03; // Forward speed gain (for driving to April Tag)
-        public static final double STRAFE_GAIN = 0.02; // Strafe speed gain (for driving to April Tag)
+        public static final double SPEED_GAIN = 0.025; // Forward speed gain (for driving to April Tag)
+        public static final double STRAFE_GAIN = 0.015; // Strafe speed gain (for driving to April Tag)
         public static final double TURN_GAIN = 0.015; // Turn speed gain (for driving to April Tag)
         public static final double MAX_FORWARD_SPEED = 0.3; // Max forward vector speed (for driving to April Tag)
         public static final double MAX_STRAFE_SPEED = 0.3; // Max strafe vector speed (for driving to April Tag)
         public static final double MAX_TURN_SPEED = 0.2; // Max turn vector speed (for driving to April Tag)
-        public static final double RANGE_ERROR_TOL = 3; // Inches
-        public static final double YAW_ERROR_TOL = 3; // Degrees
-        public static final double HEADING_ERROR_TOL = 3; // Degrees
+        public static final double RANGE_ERROR_TOL = 2.5; // Inches
+        public static final double YAW_ERROR_TOL = 2.5; // Degrees
+        public static final double HEADING_ERROR_TOL = 2.5; // Degrees
     }
 
     // Pinpoint
@@ -158,8 +158,8 @@ public class Constants {
 
     // Launcher
     public static class LauncherConstants {
-        public static PIDFCoefficients LAUNCHER_PIDF_COEFFICIENTS = new PIDFCoefficients(200, 0, 20, 10); // Test these first
-        //public static PIDFCoefficients LAUNCHER_PIDF_COEFFICIENTS = new PIDFCoefficients(300,0,0,10); // PIDF coefficients for launcher motors
+        public static PIDFCoefficients LAUNCHER_PIDF_COEFFICIENTS = new PIDFCoefficients(150, 0, 15, 10); // Test these first
+        //public static PIDFCoefficients LAUNCHER_PIDF_COEFFICIENTS = new PIDFCoefficients(200, 0, 20, 10); // PIDF coefficients for launcher motors
         public static int TARGET_RPM = 900; // Target RPM for both launcher motors
         public static final int RPM_TOLERANCE = 100; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static final int RPM_IN_RANGE_TIME = 200; // How long the launcher must be within the target RPM tolerance to launch (milliseconds)
