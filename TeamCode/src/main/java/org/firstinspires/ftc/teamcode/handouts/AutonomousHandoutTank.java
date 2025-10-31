@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 /*
  * Barrow Robotics 18597 RoboClovers Delta - Tank Drive Autonomous Handout
  *
- * This is a simple autonomous that drives forward for 2 seconds using tank drive.
+ * This is a simple autonomous that drives forward for 1.5 seconds using tank drive.
  * It is intended to be a simple autonomous for teams that do not have an autonomous yet.
  *
  * You will need to change the motor names and directions to match your configuration. See the TODO comments below.
@@ -18,8 +18,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  *
  * Why should you use this?
  * This program will drive your robot off the starting line, earning our alliance 3 points.
- * Combined with our autonomous and endgame full + partial parking, we will earn a ranking point
- * So single handedly, this program will earn both of us a ranking point!
+ * This is better than doing nothing, which earns 0 points.
+ *
+ * How do you use this?
+ * Start your robot on the audience wall facing forwards on the far edge of the launch line.
+ * When the match starts, your robot will drive forward for 1 second, then stop.
 */
 
 @Autonomous(name="18597 Tank Auto Handout", group="Autonomous")
@@ -50,12 +53,12 @@ public class AutonomousHandoutTank extends LinearOpMode {
         robotMovingFor.reset(); // Reset the robot move timer to zero
 
         while (opModeIsActive()) {
-            // Move in a curved path forward and left to get off the launch line
-            leftDrive.setPower(.25);
-            rightDrive.setPower(.5);
+            // Move forward at half power
+            leftDrive.setPower(0.5);
+            rightDrive.setPower(0.5);
 
-            // If the robot has been moving for 2 seconds, stop the robot
-            if (robotMovingFor.seconds() >= 2.0) {
+            // If the robot has been moving for 1.5 seconds, stop the robot
+            if (robotMovingFor.seconds() >= 1.5) {
                 leftDrive.setPower(0);
                 rightDrive.setPower(0);
                 break; // Exit the loop (end OpMode)

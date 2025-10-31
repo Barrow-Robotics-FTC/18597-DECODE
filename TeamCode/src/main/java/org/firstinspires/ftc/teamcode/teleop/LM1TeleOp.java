@@ -19,6 +19,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.teamcode.utils.AprilTag;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 
+// Java
+import java.util.Arrays;
+
 /*
 Gamepad Map for LM1 TeleOp
 
@@ -89,14 +92,20 @@ public class LM1TeleOp extends LinearOpMode {
     private int[] gamepad2Color = new int[]{0, 0, 0};
     @SuppressWarnings("SameParameterValue")
     private void setGamepad1Light(int r, int g, int b) {
-        gamepad1Color = new int[]{r, g, b};
+        int[] newGamepadColor = new int[]{r, g, b};
+        if (!Arrays.equals(gamepad1Color, newGamepadColor)) { // If the color is not the same as before
+            gamepad1Color = newGamepadColor;
+        }
     }
     private void setGamepad2Light(int r, int g, int b) {
-        gamepad2Color = new int[]{r, g, b};
+        int[] newGamepadColor = new int[]{r, g, b};
+        if (!Arrays.equals(gamepad2Color, newGamepadColor)) { // If the color is not the same as before
+            gamepad2Color = newGamepadColor;
+        }
     }
     private void updateGamepadLights() {
-        gamepad1.setLedColor(gamepad1Color[0], gamepad1Color[1], gamepad1Color[2], 100);
-        gamepad2.setLedColor(gamepad2Color[0], gamepad2Color[1], gamepad2Color[2], 100);
+        gamepad1.setLedColor(gamepad1Color[0], gamepad1Color[1], gamepad1Color[2], -1);
+        gamepad2.setLedColor(gamepad2Color[0], gamepad2Color[1], gamepad2Color[2], -1);
     }
 
     @Override

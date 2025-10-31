@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /*
  * Barrow Robotics 18597 RoboClovers Delta - Omni Drive Autonomous Handout
  *
- * This is a simple autonomous that drives forward for 2 seconds using omni drive.
+ * This is a simple autonomous that drives forward for 1 second using omni drive.
  * It is intended to be a simple autonomous for teams that do not have an autonomous yet.
  *
  * You will need to change the motor names and directions to match your configuration. See the TODO comments below.
@@ -17,8 +17,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  *
  * Why should you use this?
  * This program will drive your robot off the starting line, earning our alliance 3 points.
- * Combined with our autonomous and endgame full + partial parking, we will earn a ranking point
- * So single handedly, this program will earn both of us a ranking point!
+ * This is better than doing nothing, which earns 0 points.
+ *
+ * How do you use this?
+ * Start your robot on the audience wall facing forwards on the far edge of the launch line.
+ * When the match starts, your robot will drive forward for 1 second, then stop.
 */
 
 @Autonomous(name="18597 Omni Auto Handout", group="Autonomous")
@@ -55,14 +58,14 @@ public class AutonomousHandoutOmni extends LinearOpMode {
         robotMovingFor.reset(); // Reset the robot move timer to zero
 
         while (opModeIsActive()) {
-            // Move diagonally forward and to the left
-            frontLeftDrive.setPower(-.5);
-            frontRightDrive.setPower(.5);
-            backLeftDrive.setPower(.5);
-            backRightDrive.setPower(-.5);
+            // Move the robot to the robot forward at half power
+            frontLeftDrive.setPower(0.5);
+            frontRightDrive.setPower(0.5);
+            backLeftDrive.setPower(0.5);
+            backRightDrive.setPower(0.5);
 
-            // If the robot has been moving for 1.5 seconds, stop the robot
-            if (robotMovingFor.seconds() >= 1.5) {
+            // If the robot has been moving for 1 second, stop the robot
+            if (robotMovingFor.seconds() >= 1) {
                 frontLeftDrive.setPower(0);
                 frontRightDrive.setPower(0);
                 backLeftDrive.setPower(0);

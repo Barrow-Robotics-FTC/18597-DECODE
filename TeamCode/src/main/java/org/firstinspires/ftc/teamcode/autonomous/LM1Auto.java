@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.pedropathing.geometry.Pose;
 
 // Local helper files
+import org.firstinspires.ftc.teamcode.utils.AllianceSelector;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
 import org.firstinspires.ftc.teamcode.utils.Pinpoint;
 import org.firstinspires.ftc.teamcode.utils.Constants;
@@ -37,6 +38,7 @@ public class LM1Auto extends LinearOpMode {
     }
     private State currentState = State.START; // Current state of the robot
     private boolean exitAuto = false; // Should the auto be stopped
+    private Constants.Alliance alliance; // Alliance of the robot
 
     @Override
     public void runOpMode() {
@@ -58,9 +60,14 @@ public class LM1Auto extends LinearOpMode {
         backLeftDrive.setZeroPowerBehavior(BRAKE);
         backRightDrive.setZeroPowerBehavior(BRAKE);
 
+        // Initialize utilities
         pinpoint = new Pinpoint(hardwareMap);
         pinpoint.setPosition(new Pose(0, 0, 0));
         launcher = new Launcher(hardwareMap);
+
+        // Prompt the driver to select an alliance
+        alliance = AllianceSelector.run(gamepad1, telemetry);
+        blackboard.put("alliance", alliance); // Save the alliance for TeleOp
 
         // Tell the driver that initialization is complete
         telemetry.addData("Status", "Initialized");
