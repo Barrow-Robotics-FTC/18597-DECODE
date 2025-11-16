@@ -1,0 +1,48 @@
+package org.firstinspires.ftc.teamcode.pedro;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.ftc.FollowerBuilder;
+import com.pedropathing.ftc.drivetrains.MecanumConstants;
+import com.pedropathing.ftc.localization.constants.PinpointConstants;
+import com.pedropathing.paths.PathConstraints;
+
+public class PedroConstants {
+    public static FollowerConstants followerConstants = new FollowerConstants()
+            .mass(19);
+
+    public static MecanumConstants driveConstants = new MecanumConstants()
+            .maxPower(1.0)
+            .rightFrontMotorName("front_right_drive")
+            .rightRearMotorName("back_right_drive")
+            .leftRearMotorName("back_left_drive")
+            .leftFrontMotorName("front_left_drive")
+            .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
+
+    public static PinpointConstants localizerConstants = new PinpointConstants()
+            .forwardPodY(1.9)
+            .strafePodX(6)
+            .distanceUnit(DistanceUnit.INCH)
+            .hardwareMapName("pinpoint")
+            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
+            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+
+    public static Follower createFollower(HardwareMap hardwareMap) {
+        return new FollowerBuilder(followerConstants, hardwareMap)
+                .mecanumDrivetrain(driveConstants)
+                .pinpointLocalizer(localizerConstants)
+                .pathConstraints(pathConstraints)
+                .build();
+    }
+}

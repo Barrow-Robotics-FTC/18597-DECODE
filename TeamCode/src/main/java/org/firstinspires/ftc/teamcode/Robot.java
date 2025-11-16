@@ -66,6 +66,10 @@ public class Robot {
             - TeleOp OpModes will use the Robot methods to control the robot
                 - Gamepad inputs will be processed in the OpMode and passed to the Robot methods as needed
                 - Use the Gamepad subsystem to handle gamepad input processing and lighting
+        - Pedro Pathing:
+            - Pedro Pathing integration will be handled in the Drivetrain subsystem
+                - The Drivetrain subsystem will have methods to initialize and use Pedro Pathing
+            - Separate Constants file from the main one to prevent problems with PIDFCoefficients import and Tuning file problems
          */
     }
 
