@@ -70,6 +70,20 @@ public class Robot {
             - Pedro Pathing integration will be handled in the Drivetrain subsystem
                 - The Drivetrain subsystem will have methods to initialize and use Pedro Pathing
             - Separate Constants file from the main one to prevent problems with PIDFCoefficients import and Tuning file problems
+        - Launcher
+            - Use this controller instead of the internal PIDF controller for more consistent velocity control
+                - https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/tuning-flywheel.html
+            - Instead of V, P, I, D, use V, P, S, where S is the static friction coefficient
+            - Tune S first by increasing until the motor moves and then backing off until it stops
+            - Then tune V until it reaches the desired velocity in a reasonable amount of time, it will overshoot a bit
+            - Then tune P to make it respond fast and stay at the target velocity without oscillating
+            - u = K_p * (r - x) + K_v * r + K_s * signum(r)
+                - u: control output (motor power) (motor.setPower(u))
+                - r: reference velocity (target velocity) (r = TARGET_RPM)
+                - x: measured velocity (current velocity) (x = motor.getVelocity())
+                - K_p: proportional gain
+                - K_v: velocity gain
+                - K_s: static friction gain
          */
     }
 
