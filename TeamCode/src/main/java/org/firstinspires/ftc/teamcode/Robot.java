@@ -6,18 +6,22 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants;
+import org.firstinspires.ftc.teamcode.subsystem.Launcher;
+import org.firstinspires.ftc.teamcode.subsystem.Tapper;
 
 public class Robot {
     // Hardware
-    private DcMotorEx leftLauncherMotor;
-    private DcMotorEx rightLauncherMotor;
-    private DcMotor intakeMotor;
-    private Servo tapperServo;
-    private Servo rampServo;
+    public DcMotorEx leftLauncherMotor;
+    public DcMotorEx rightLauncherMotor;
+    public DcMotor intakeMotor;
+    public Servo tapperServo;
+    public Servo rampServo;
+
+    // Subsystems
+    public Launcher launcher;
+    public Tapper tapper;
 
     public Robot(HardwareMap hardwareMap) {
         // NOTE: Drivetrain motors and Pinpoint are initialized and set up by Pedro Pathing
@@ -28,20 +32,20 @@ public class Robot {
         rampServo = hardwareMap.get(Servo.class, "ramp");
 
         // Launcher motor configuration
-        PIDFCoefficients launcherPIDF = new PIDFCoefficients(LauncherConstants.P, LauncherConstants.I, LauncherConstants.D, LauncherConstants.F);
         leftLauncherMotor.setZeroPowerBehavior(BRAKE);
         leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, launcherPIDF);
-        rightLauncherMotor.setDirection(REVERSE);
+        rightLauncherMotor.setDirection(REVERSE); // Reverse right motor
         rightLauncherMotor.setZeroPowerBehavior(BRAKE);
         rightLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, launcherPIDF);
 
         // Intake motor configuration
         intakeMotor.setZeroPowerBehavior(BRAKE);
         intakeMotor.setDirection(REVERSE);
 
-        // TODO: Initialize subsystems
+        // Initialize subsystems (subsystems take a Robot object as a parameter)
+        launcher = new Launcher(this);
+        tapper = new Tapper(this);
+
         /*
         Game plan for codebase rewrite:
         - Subsystems:
@@ -96,11 +100,21 @@ public class Robot {
                     - Keep I = 0 unless you notice any steady-state error (ex. motor settles below target)
                     - If needed, slowly increase I until the motor reaches the target exactly
             - Make the launcher subsystem first and implement this into it, make a LauncherTuner and LauncherTest OpMode to help with tuning and testing
-                - Don't worry about integrating with Robot class for now, just make it work standalone
          */
     }
 
     public void update() {
-        // TODO: Update subsystems
+        // Update all subsystems
+        launcher.update(this);
+        tapper.update(this);
+    }
+
+    public void stop() {
+        // Stop all subsystems
+        launcher.stop();
+        tapper.stop();
+
+        // Update all subsystems to apply the stop commands
+        update();
     }
 }
