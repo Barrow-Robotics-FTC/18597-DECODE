@@ -70,20 +70,33 @@ public class Robot {
             - Pedro Pathing integration will be handled in the Drivetrain subsystem
                 - The Drivetrain subsystem will have methods to initialize and use Pedro Pathing
             - Separate Constants file from the main one to prevent problems with PIDFCoefficients import and Tuning file problems
-        - Launcher
-            - Use this controller instead of the internal PIDF controller for more consistent velocity control
-                - https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/tuning-flywheel.html
-            - Instead of V, P, I, D, use V, P, S, where S is the static friction coefficient
-            - Tune S first by increasing until the motor moves and then backing off until it stops
-            - Then tune V until it reaches the desired velocity in a reasonable amount of time, it will overshoot a bit
-            - Then tune P to make it respond fast and stay at the target velocity without oscillating
-            - u = K_p * (r - x) + K_v * r + K_s * signum(r)
-                - u: control output (motor power) (motor.setPower(u))
-                - r: reference velocity (target velocity) (r = TARGET_RPM)
-                - x: measured velocity (current velocity) (x = motor.getVelocity())
-                - K_p: proportional gain
-                - K_v: velocity gain
-                - K_s: static friction gain
+        - Launcher:
+            - We'll switch from 6000RPM motors to 1620RPM motors for better control and efficiency
+                - Its easier to run a motor at 50% power than 100% power for velocity control
+                - Faster speed ups due to more torque at lower speeds
+                - We don't use the full 6000RPM, so there's no need for it
+                - Saves energy due to these things
+            - Use the Pedro Pathing Filtered PIDF Controller to manage launcher velocity
+            - Tuning
+                - F: Provides the "base" amount of power needed to hit the target before any error even occurs.
+                    - Set everything to 0
+                    - Increase F until the motor settles near the target velocity (about 90%)
+                - T: Controls how much to smooth the derivative signal. It's a value between 0 (no filtering) and 1 (max filtering, but very laggy)
+                    - Start with T = 0.7 (70% old value, 30% new value)
+                    - Tune with D, if the motor is "chattering", increase T, if it's too slow to respond, decrease T
+                - D: Fights against rapid changes in error, which is what happens before overshoot and oscillation.
+                    - Start with D = 0
+                    - Set P to very small value
+                    - Increase D until the motor stops overshooting and oscillating
+                    - Simultaneously tune T
+                - P: Provides power that is proportional to the current error. It does the main work of closing the gap from where F left off
+                    - Slowly increase P until the motor gets to the target quickly without overshooting
+                    - D can be further adjusted to reduce any overshoot
+                - I: Fixes any steady-state error that may occur when the motor is at the target velocity
+                    - Keep I = 0 unless you notice any steady-state error (ex. motor settles below target)
+                    - If needed, slowly increase I until the motor reaches the target exactly
+            - Make the launcher subsystem first and implement this into it, make a LauncherTuner and LauncherTest OpMode to help with tuning and testing
+                - Don't worry about integrating with Robot class for now, just make it work standalone
          */
     }
 
