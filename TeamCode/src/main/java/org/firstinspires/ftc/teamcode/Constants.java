@@ -22,6 +22,8 @@ public class Constants {
         public static int RPM_IN_RANGE_TIME = 300; // Time that the RPM must be within the tolerance before launching (milliseconds)
         public static int MIN_TIME_BETWEEN_LAUNCHES = 600; // Minimum time between launches (milliseconds)
         public static double LAUNCHER_POWER_WHILE_INTAKING = 0.3; // Power for launcher wheels while intaking to prevent jamming
+        public static double POSITIVE_TO_NEGATIVE_SAFETY_RPM = 100; // RPM threshold to prevent sudden direction changes when switching directions for intake
+        public static double COAST_DOWN_POWER = -0.1; // Power to apply to the launcher wheels to help them coast down below the safety threshold when reversing for intake
         public enum LauncherState {
             IDLE,
             SPEED_UP,
