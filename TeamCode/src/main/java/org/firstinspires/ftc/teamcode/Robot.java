@@ -3,14 +3,17 @@ package org.firstinspires.ftc.teamcode;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import static org.firstinspires.ftc.teamcode.Constants.CameraConstants;
 import org.firstinspires.ftc.teamcode.subsystem.Launcher;
 import org.firstinspires.ftc.teamcode.subsystem.Tapper;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
+import org.firstinspires.ftc.teamcode.subsystem.Camera;
 
 public class Robot {
     // Hardware
@@ -19,11 +22,13 @@ public class Robot {
     public DcMotor intakeMotor;
     public Servo tapperServo;
     public Servo rampServo;
+    public WebcamName webcam;
 
     // Subsystems
     public Launcher launcher;
     public Tapper tapper;
     public Intake intake;
+    public Camera camera;
 
     public Robot(HardwareMap hardwareMap) {
         // NOTE: Drivetrain motors and Pinpoint are initialized and set up by Pedro Pathing
@@ -32,6 +37,7 @@ public class Robot {
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
         tapperServo = hardwareMap.get(Servo.class, "tapper");
         rampServo = hardwareMap.get(Servo.class, "ramp");
+        webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         // Launcher motor configuration
         leftLauncherMotor.setZeroPowerBehavior(BRAKE);
@@ -48,6 +54,7 @@ public class Robot {
         launcher = new Launcher(this);
         tapper = new Tapper(this);
         intake = new Intake(this);
+        camera = new Camera(this);
 
         /*
         Game plan for codebase rewrite:
@@ -110,6 +117,7 @@ public class Robot {
         launcher.update(this);
         tapper.update(this);
         intake.update(this);
+        camera.update(this);
     }
 
     public void stop() {
@@ -117,6 +125,7 @@ public class Robot {
         launcher.stop();
         tapper.stop();
         intake.stop();
+        camera.stop();
 
         // Update all subsystems to apply the stop commands
         update();

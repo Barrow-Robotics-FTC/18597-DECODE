@@ -3,6 +3,17 @@ package org.firstinspires.ftc.teamcode;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 
 public class Constants {
+    public enum Alliance {
+        RED,
+        BLUE
+    }
+
+    public enum Pattern {
+        PPG,
+        PGP,
+        GPP
+    }
+
     public static class TapperConstants {
         public static double POSITIONING_TIME = 500; // Time it takes for the tapper to move between positions (milliseconds)
         public static double PUSHED_POSITION = 0.65; // Position that the tapper goes to when pushing an artifact into the launcher
@@ -49,5 +60,19 @@ public class Constants {
             RUNNING,
             STOPPED
         }
+    }
+
+    public static class CameraConstants {
+        public static int DECIMATION = 2; // Higher value = farther detection range, lower detection rate
+        public static int EXPOSURE = 2; // Camera exposure time (milliseconds)
+        public static int GAIN = 350; // Camera gain
+    }
+
+    public static class AprilTagConstants {
+        public static final int BLUE_GOAL_TAG_ID = 20; // Tag ID for blue goal
+        public static final int GPP_TAG_ID = 21; // Tag ID for GPP on the obelisk
+        public static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
+        public static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
+        public static final int RED_GOAL_TAG_ID = 24; // Tag ID for red goal
     }
 }
