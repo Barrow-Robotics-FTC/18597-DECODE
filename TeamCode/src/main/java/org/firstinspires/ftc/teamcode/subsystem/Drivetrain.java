@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 public class Drivetrain {
     public Follower follower;
     private boolean lastState;
+    private boolean holdingPose;
 
     public Drivetrain(Robot robot, HardwareMap hardwareMap) {
         this.follower = PedroConstants.createFollower(hardwareMap);
@@ -89,6 +90,18 @@ public class Drivetrain {
      */
     public void holdPose(Pose pose) {
         follower.holdPoint(pose); // Hold the provided pose
+        holdingPose = true; // We only need to set this when we are deliberately holding a pose
+    }
+
+    /**
+     * Stop an ongoing hold point action
+     * Only necessary if the hold point was set deliberately using `holdPose()`
+     */
+    public void stopHoldPoint() {
+        if (holdingPose) {
+            follower.breakFollowing(); // Stop holding the point
+            holdingPose = false; // Reset the holding pose flag
+        }
     }
 
     /**
@@ -121,10 +134,10 @@ public class Drivetrain {
 
         if (robot.mode == Mode.TELEOP) {
             // Check if an autonomous drive has just completed
-            if (lastState && !isDriving()) {
+            if (lastState && !isDriving() && !holdingPose) {
                 startTeleOp(); // Start the TeleOp again
             }
-            lastState = isDriving(); // Update the last state
+            lastState = isDriving() || holdingPose; // Update the last state
         }
     }
 }

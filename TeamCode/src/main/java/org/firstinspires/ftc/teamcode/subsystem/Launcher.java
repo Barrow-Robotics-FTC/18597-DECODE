@@ -154,7 +154,7 @@ public class Launcher {
 
     public void update(Robot robot) {
         launchCycleCompleted = false; // Reset launch cycle completed flag
-        
+
         // Check if intake is running
         if (robot.intake.isActive()) {
             // Run the launcher wheels in reverse to avoid jamming
