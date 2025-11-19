@@ -3,6 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 
 public class Constants {
+    public enum Mode {
+        AUTO,
+        TELEOP
+    }
+
     public enum Alliance {
         RED,
         BLUE
@@ -12,6 +17,25 @@ public class Constants {
         PPG,
         PGP,
         GPP
+    }
+
+    // Omni movement vector class
+    public static class MovementVectors {
+        public double forward;
+        public double strafe;
+        public double turn;
+        public Boolean moveCompleted;
+
+        public MovementVectors(double forward, double strafe, double turn, Boolean moveCompleted) {
+            this.forward = forward;
+            this.strafe = strafe;
+            this.turn = turn;
+            this.moveCompleted = moveCompleted;
+        }
+
+        public MovementVectors(double forward, double strafe, double turn) {
+            this(forward, strafe, turn, null);
+        }
     }
 
     public static class TapperConstants {
@@ -74,5 +98,12 @@ public class Constants {
         public static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
         public static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
         public static final int RED_GOAL_TAG_ID = 24; // Tag ID for red goal
+    }
+
+    public static class TeleOpConstants {
+        public static final boolean BRAKE_MODE = true; // Whether the motors should brake on stop (recommended)
+        public static final boolean ROBOT_CENTRIC = true; // True for robot centric driving, false for field centric
+        public static final double SLOW_MODE_MULTIPLIER = 0.25; // Multiplier for slow mode speed
+        public static final double NORMAL_SPEED_MULTIPLIER = 0.75; // Multiplier for normal driving speed
     }
 }

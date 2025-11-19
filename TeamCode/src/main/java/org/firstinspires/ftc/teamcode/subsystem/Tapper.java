@@ -19,7 +19,7 @@ public class Tapper {
         update(robot); // Run an initial update (IDLE) to set the tapper to the home position
     }
 
-    /*
+    /**
      * Get the current state of the tapper
      *
      * @return The current TapperState
@@ -28,7 +28,7 @@ public class Tapper {
         return state;
     }
 
-    /*
+    /**
      * Check if the tapper is in the pushed position
      *
      * @return True if the tapper is pushed, false otherwise
@@ -37,7 +37,7 @@ public class Tapper {
         return state == TapperState.PUSHED;
     }
 
-    /*
+    /**
      * Command the tapper to push an artifact into the launcher
      */
     public void push() {
@@ -48,7 +48,7 @@ public class Tapper {
         tapperRaisedTimer.reset(); // Start timer to track positioning time
     }
 
-    /*
+    /**
      * Stop the tapper and return it to the home position
      */
     public void retract() {

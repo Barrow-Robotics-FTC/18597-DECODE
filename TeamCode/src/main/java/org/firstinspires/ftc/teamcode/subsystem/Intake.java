@@ -13,7 +13,7 @@ public class Intake {
         update(robot); // Run an initial update (STOPPED) to set the intake ramp to the home position
     }
 
-    /*
+    /**
      * Get the current state of the tapper
      *
      * @return The current IntakeState
@@ -22,7 +22,7 @@ public class Intake {
         return state;
     }
 
-    /*
+    /**
      * Check if the intake is running
      *
      * @return True if the intake is running, false otherwise
@@ -31,14 +31,14 @@ public class Intake {
         return state == IntakeState.RUNNING;
     }
 
-    /*
+    /**
      * Command the intake motor to run and lower the ramp to intake artifacts
      */
     public void run() {
         state = IntakeState.RUNNING;
     }
 
-    /*
+    /**
      * Command the intake motor to stop and the ramp to hold artifacts in the storage area
      */
     public void stop() {

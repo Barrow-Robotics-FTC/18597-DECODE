@@ -60,7 +60,7 @@ public class Launcher {
         setPowers(leftController.run(), rightController.run(), robot);
     }
 
-    /*
+    /**
      * Get the current state of the launcher
      *
      * @return The current LauncherState
@@ -69,7 +69,7 @@ public class Launcher {
         return state;
     }
 
-    /*
+    /**
      * Check if a launch cycle was completed in the last update
      *
      * @return True if a launch cycle was completed, false otherwise
@@ -78,7 +78,7 @@ public class Launcher {
         return launchCycleCompleted;
     }
 
-    /*
+    /**
      * Get the left launcher motor RPM
      *
      * @param robot The Robot object
@@ -88,7 +88,7 @@ public class Launcher {
         return robot.leftLauncherMotor.getVelocity();
     }
 
-    /*
+    /**
      * Get the right launcher motor RPM
      *
      * @param robot The Robot object
@@ -98,7 +98,7 @@ public class Launcher {
         return robot.rightLauncherMotor.getVelocity();
     }
 
-    /*
+    /**
      * Get the target RPM of the launcher motors
      *
      * @return The target RPM
@@ -107,7 +107,7 @@ public class Launcher {
         return TARGET_RPM;
     }
 
-    /*
+    /**
      * Update the PIDFT controller coefficients for the left motor
      *
      * @param coefficients The new PIDFT coefficients
@@ -116,7 +116,7 @@ public class Launcher {
         leftController.setCoefficients(coefficients);
     }
 
-    /*
+    /**
      * Update the PIDFT controller coefficients for the right motor
      *
      * @param coefficients The new PIDFT coefficients
@@ -125,7 +125,7 @@ public class Launcher {
         rightController.setCoefficients(coefficients);
     }
 
-    /*
+    /**
      * Command the launcher to speed up to target RPM
      */
     public void speedUp() {
@@ -133,7 +133,7 @@ public class Launcher {
         inToleranceTimer.reset(); // Reset in tolerance timer
     }
 
-    /*
+    /**
      * Command the launcher to launch a set number of artifacts
      * The launcher will speed up if it is not already at target RPM
      *

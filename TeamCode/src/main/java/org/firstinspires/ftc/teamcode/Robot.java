@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import static org.firstinspires.ftc.teamcode.Constants.CameraConstants;
+import org.firstinspires.ftc.teamcode.subsystem.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystem.Launcher;
 import org.firstinspires.ftc.teamcode.subsystem.Tapper;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
@@ -25,12 +25,18 @@ public class Robot {
     public WebcamName webcam;
 
     // Subsystems
+    public Drivetrain drivetrain;
     public Launcher launcher;
     public Tapper tapper;
     public Intake intake;
     public Camera camera;
 
-    public Robot(HardwareMap hardwareMap) {
+    // Other variables
+    public Constants.Mode mode;
+
+    public Robot(HardwareMap hardwareMap, Constants.Mode mode) {
+        this.mode = mode;
+
         // NOTE: Drivetrain motors and Pinpoint are initialized and set up by Pedro Pathing
         leftLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_left");
         rightLauncherMotor = hardwareMap.get(DcMotorEx.class, "launcher_right");
@@ -51,6 +57,7 @@ public class Robot {
         intakeMotor.setDirection(REVERSE);
 
         // Initialize subsystems (subsystems take a Robot object as a parameter)
+        drivetrain = new Drivetrain(this, hardwareMap); // Drivetrain needs HardwareMap for Pedro Pathing
         launcher = new Launcher(this);
         tapper = new Tapper(this);
         intake = new Intake(this);
@@ -112,6 +119,9 @@ public class Robot {
          */
     }
 
+    /**
+     * Update all subsystems of the robot
+     */
     public void update() {
         // Update all subsystems
         launcher.update(this);
@@ -120,6 +130,9 @@ public class Robot {
         camera.update(this);
     }
 
+    /**
+     * Stop all subsystems of the robot
+     */
     public void stop() {
         // Stop all subsystems
         launcher.stop();
