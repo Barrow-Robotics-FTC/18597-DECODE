@@ -3,12 +3,18 @@ package org.firstinspires.ftc.teamcode;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Constants.Alliance;
+import org.firstinspires.ftc.teamcode.Constants.StartPosition;
+import org.firstinspires.ftc.teamcode.Constants.Poses;
 import org.firstinspires.ftc.teamcode.subsystem.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystem.Launcher;
 import org.firstinspires.ftc.teamcode.subsystem.Tapper;
@@ -30,6 +36,7 @@ public class Robot {
     public Tapper tapper;
     public Intake intake;
     public Camera camera;
+    public Poses poses;
 
     // Other variables
     public Constants.Mode mode;
@@ -72,7 +79,7 @@ public class Robot {
             - The Robot.update() method will be called in the main OpMode loop to update all subsystems
             - Robot.stop() method will call stop() on all subsystems to ensure everything is stopped safely
                 - The OpMode can also call Robot.subsystem.stop() directly if needed
-            - Launcher, Tapper, Intake, Camera, Gamepad, and Drivetrain will be subsystems
+            - Launcher, Tapper, Intake, Camera, and Drivetrain will be subsystems
         - Helpers:
             - Helper methods that previously resided in their own class will be moved in here
                 - AllianceSelector will become Robot.selectAlliance()
@@ -120,10 +127,71 @@ public class Robot {
     }
 
     /**
+     * Select the alliance for the match
+     *
+     * @param gamepad1 The gamepad to use for selection
+     * @param telemetry The telemetry to use for displaying information
+     * @return The selected alliance
+     */
+    public Alliance selectAlliance(Gamepad gamepad1, Telemetry telemetry) {
+        Alliance selectedAlliance = null;
+        while (selectedAlliance == null) {
+            if (gamepad1.bWasPressed()) {
+                selectedAlliance = Alliance.RED;
+            } else if (gamepad1.xWasPressed()) {
+                selectedAlliance = Alliance.BLUE;
+            }
+
+            telemetry.addData("Alliance Selector", "Select Alliance");
+            telemetry.addData("Red Alliance", "Press Circle (B) to select red alliance");
+            telemetry.addData("Blue Alliance", "Press Square (X) to select blue alliance");
+            telemetry.update();
+        }
+
+        return selectedAlliance;
+    }
+
+    /**
+     * Select the starting position for Autonomous
+     *
+     * @param gamepad1 The gamepad to use for selection
+     * @param telemetry The telemetry to use for displaying information
+     * @return The selected starting position
+     */
+    public StartPosition selectStartPosition(Gamepad gamepad1, Telemetry telemetry) {
+        StartPosition selectedPosition = null;
+        while (selectedPosition == null) {
+            if (gamepad1.bWasPressed()) {
+                selectedPosition = StartPosition.GOAL_WALL;
+            } else if (gamepad1.xWasPressed()) {
+                selectedPosition = StartPosition.AUDIENCE_WALL;
+            }
+
+            telemetry.addData("Start Position Selector", "Select Start Position:");
+            telemetry.addData("Goal/Ramp Wall", "Press Circle (B) to select the goal/depot pose");
+            telemetry.addData("Audience Wall", "Press Square (X) to select the audience wall pose");
+            telemetry.update();
+        }
+
+        return selectedPosition;
+    }
+
+    /**
+     * Build poses based on the selected alliance
+     * Must be used in initialization before using poses
+     *
+     * @param alliance The selected alliance
+     */
+    public void buildPoses(Alliance alliance) {
+        poses = new Poses(alliance);
+    }
+
+    /**
      * Update all subsystems of the robot
      */
     public void update() {
         // Update all subsystems
+        drivetrain.update(this);
         launcher.update(this);
         tapper.update(this);
         intake.update(this);
@@ -135,6 +203,7 @@ public class Robot {
      */
     public void stop() {
         // Stop all subsystems
+        drivetrain.stop();
         launcher.stop();
         tapper.stop();
         intake.stop();

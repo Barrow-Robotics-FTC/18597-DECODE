@@ -1,11 +1,22 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.pedropathing.geometry.BezierCurve;
+import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.PathChain;
+
+import org.firstinspires.ftc.teamcode.subsystem.Drivetrain;
 
 public class Constants {
     public enum Mode {
         AUTO,
         TELEOP
+    }
+
+    public enum StartPosition {
+        GOAL_WALL,
+        AUDIENCE_WALL
     }
 
     public enum Alliance {
@@ -105,5 +116,134 @@ public class Constants {
         public static final boolean ROBOT_CENTRIC = true; // True for robot centric driving, false for field centric
         public static final double SLOW_MODE_MULTIPLIER = 0.25; // Multiplier for slow mode speed
         public static final double NORMAL_SPEED_MULTIPLIER = 0.75; // Multiplier for normal driving speed
+    }
+
+    // Pedro Pathing poses
+    public static class Poses {
+        // Whether to mirror poses (true for red alliance, false for blue alliance)
+        boolean mirrorPoses;
+
+        // Poses (assuming blue alliance)
+        public Pose goalStartPose; // Starting pose that is perpendicular with and touching the ramp wall, as far forward as possible touching depot line
+        public Pose audienceStartPose; // Starting pose that is against the audience wall, left edge on C tile left line
+        public Pose score; // Facing goal (close to the white line point)
+        public Pose baseZone; // In the endgame zone (facing away from audience)
+        public Pose loadingZone; // In the loading zone (facing away from the human player)
+        public Pose gateZoneNotPushed; // Right beside the gate, but not pushing it (facing away from audience)
+        public Pose gateZonePushed; // Right beside the gate, pushing it (facing away from audience)
+        public Pose patternScanPosition; // In front of the obelisk, facing it
+        public Pose PPGArtifacts; // In front of upper artifacts
+        public Pose PGPArtifacts; // In front of middle artifacts
+        public Pose GPPArtifacts; // In front of lower artifacts
+        public Pose PPGArtifactsEnd; // In front of PPGArtifacts
+        public Pose PGPArtifactsEnd; // In front of PGPArtifacts
+        public Pose GPPArtifactsEnd; // In front of GPPArtifacts
+
+        // Control Points
+        public Pose goalStartToScoreCP;
+        public Pose toScoreCP;
+        public Pose scoreToLoadingZoneCP;
+
+        public Poses(Alliance alliance) {
+            // Set mirroring flag based on alliance
+            this.mirrorPoses = (alliance == Alliance.RED);
+
+            // Build the poses, see descriptions in definitions above
+            this.goalStartPose = buildPose(15.25, 111, 90, mirrorPoses);
+            this.audienceStartPose = buildPose(56, 8.25, 90, mirrorPoses);
+            this.score = buildPose(60, 83.5, 135, mirrorPoses);
+            this.baseZone = buildPose(106, 33, 90, mirrorPoses);
+            this.loadingZone = buildPose(15, 13, 0, mirrorPoses);
+            this.gateZoneNotPushed = buildPose(20, 68, 90, mirrorPoses);
+            this.gateZonePushed = buildPose(17, 68, 90, mirrorPoses);
+            this.patternScanPosition = buildPose(72, 72, 90, mirrorPoses);
+            this.PPGArtifacts = buildPose(42, 35.5, 180, mirrorPoses);
+            this.PGPArtifacts = buildPose(42, 59.5, 180, mirrorPoses);
+            this.GPPArtifacts = buildPose(42, 83.5, 180, mirrorPoses);
+            this.PPGArtifactsEnd = buildPose(24, 35.5, 180, mirrorPoses);
+            this.PGPArtifactsEnd = buildPose(24, 59.5, 180, mirrorPoses);
+            this.GPPArtifactsEnd = buildPose(24, 83.5, 180, mirrorPoses);
+
+            // Control points (heading has no effect on control points)
+            this.goalStartToScoreCP = buildPose(40, 110, 0, mirrorPoses);
+            this.toScoreCP = buildPose(80, 60, 0, mirrorPoses);
+            this.scoreToLoadingZoneCP = buildPose(90, 20, 0, mirrorPoses);
+        }
+
+        // Suppress warning about mirrorIfNeeded always being true
+        private static Pose buildPose(double x, double y, double heading, boolean mirror) {
+            Pose pose = new Pose(x, y, Math.toRadians(heading));
+            if (mirror) {
+                pose = pose.mirror();
+            }
+            return pose;
+        }
+
+        /**
+         * Build an ordered array of poses that starts with pose1, then the controlPoints (if any),
+         * and ends with pose2.
+         */
+        private static Pose[] createCurvePoints(Pose pose1, Pose pose2, Pose[] controlPoints) {
+            Pose[] result = new Pose[controlPoints.length + 2];
+            result[0] = pose1;
+            System.arraycopy(controlPoints, 0, result, 1, controlPoints.length);
+            result[result.length - 1] = pose2;
+            return result;
+        }
+
+        /**
+         * Build a path chain between two poses with control points to make a bezier curve.
+         *
+         * @param drivetrain    Drivetrain object to build the path with
+         * @param pose1         Starting pose of the path
+         * @param pose2         Ending pose of the path
+         * @param controlPoints Control points for the bezier curve
+         * @return The built path chain
+         */
+        public static PathChain buildPath(Drivetrain drivetrain, Pose pose1, Pose pose2, Pose[] controlPoints) {
+            return drivetrain.follower.pathBuilder()
+                    .addPath(new BezierCurve(createCurvePoints(pose1, pose2, controlPoints)))
+                    .setLinearHeadingInterpolation(pose1.getHeading(), pose2.getHeading())
+                    .build();
+        }
+
+        /**
+         * Build a path chain between two poses to make a bezier line.
+         *
+         * @param drivetrain Drivetrain object to build the path with
+         * @param pose1 Starting pose of the path
+         * @param pose2 Ending pose of the path
+         * @return The built path chain
+         */
+        public static PathChain buildPath(Drivetrain drivetrain, Pose pose1, Pose pose2) {
+            return drivetrain.follower.pathBuilder()
+                    .addPath(new BezierLine(pose1, pose2))
+                    .setLinearHeadingInterpolation(pose1.getHeading(), pose2.getHeading())
+                    .build();
+        }
+
+        /**
+         * Build a path chain from the current position to the target pose with control points to
+         * make a bezier curve.
+         *
+         * @param drivetrain Drivetrain object to build the path with
+         * @param pose Ending pose of the path
+         * @param controlPoints Control points for the bezier curve
+         * @return The built path chain
+         */
+        public static PathChain buildPath(Drivetrain drivetrain, Pose pose, Pose[] controlPoints) {
+            return buildPath(drivetrain, drivetrain.getPose(), pose, controlPoints);
+        }
+
+        /**
+         * Build a path chain from the current position to the target pose to make a bezier line.
+         *
+         * @param drivetrain Drivetrain object to build the path with
+         * @param pose Ending pose of the path
+         * @return The built path chain
+         */
+        public static PathChain buildPath(Drivetrain drivetrain, Pose pose) {
+            return buildPath(drivetrain, drivetrain.getPose(), pose);
+        }
     }
 }
