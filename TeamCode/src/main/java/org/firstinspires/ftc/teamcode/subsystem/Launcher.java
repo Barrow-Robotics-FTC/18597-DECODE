@@ -79,6 +79,24 @@ public class Launcher {
     }
 
     /**
+     * Check if the launcher is active (speeding up or launching)
+     *
+     * @return True if the launcher is active, false otherwise
+     */
+    public boolean isActive() {
+        return state == LauncherState.SPEED_UP || state == LauncherState.LAUNCH;
+    }
+
+    /**
+     * Check if the launcher is currently launching artifacts
+     *
+     * @return True if the launcher is launching, false otherwise
+     */
+    public boolean isLaunching() {
+        return state == LauncherState.LAUNCH;
+    }
+
+    /**
      * Get the left launcher motor RPM
      *
      * @param robot The Robot object
@@ -123,6 +141,24 @@ public class Launcher {
      */
     public void updateRightControllerCoefficients(FilteredPIDFCoefficients coefficients) {
         rightController.setCoefficients(coefficients);
+    }
+
+    /**
+     * Get the PDFT coefficients for the left motor
+     *
+     * @return FilteredPIDF coefficients
+     */
+    public FilteredPIDFCoefficients getLeftControllerCoefficients() {
+        return leftController.getCoefficients();
+    }
+
+    /**
+     * Get the PDFT coefficients for the right motor
+     *
+     * @return FilteredPIDF coefficients
+     */
+    public FilteredPIDFCoefficients getRightControllerCoefficients() {
+        return rightController.getCoefficients();
     }
 
     /**
