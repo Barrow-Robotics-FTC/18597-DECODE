@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystem.Launcher;
 import org.firstinspires.ftc.teamcode.subsystem.Tapper;
+import org.firstinspires.ftc.teamcode.subsystem.Intake;
 
 public class Robot {
     // Hardware
@@ -22,6 +23,7 @@ public class Robot {
     // Subsystems
     public Launcher launcher;
     public Tapper tapper;
+    public Intake intake;
 
     public Robot(HardwareMap hardwareMap) {
         // NOTE: Drivetrain motors and Pinpoint are initialized and set up by Pedro Pathing
@@ -45,18 +47,18 @@ public class Robot {
         // Initialize subsystems (subsystems take a Robot object as a parameter)
         launcher = new Launcher(this);
         tapper = new Tapper(this);
+        intake = new Intake(this);
 
         /*
         Game plan for codebase rewrite:
         - Subsystems:
-            - Each subsystem will have extend a base Subsystem class
-                - It has an update() method that is called in Robot.update(), the method takes a telemetry object as a parameter for logging
+            - Each subsystem will have its own class
+                - It has an update() method that is called in Robot.update()
                 - It has a stop() method that stops all motors/servos in the subsystem
-                - Each subsystem can override these methods as needed (by default they do nothing)
             - The Robot.update() method will be called in the main OpMode loop to update all subsystems
             - Robot.stop() method will call stop() on all subsystems to ensure everything is stopped safely
                 - The OpMode can also call Robot.subsystem.stop() directly if needed
-            - Launcher, Intake, Camera, Gamepad, and Drivetrain will be subsystems
+            - Launcher, Tapper, Intake, Camera, Gamepad, and Drivetrain will be subsystems
         - Helpers:
             - Helper methods that previously resided in their own class will be moved in here
                 - AllianceSelector will become Robot.selectAlliance()
@@ -107,12 +109,14 @@ public class Robot {
         // Update all subsystems
         launcher.update(this);
         tapper.update(this);
+        intake.update(this);
     }
 
     public void stop() {
         // Stop all subsystems
         launcher.stop();
         tapper.stop();
+        intake.stop();
 
         // Update all subsystems to apply the stop commands
         update();
