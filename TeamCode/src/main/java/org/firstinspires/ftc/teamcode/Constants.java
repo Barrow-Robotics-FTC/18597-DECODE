@@ -61,9 +61,9 @@ public class Constants {
     }
 
     public static class LauncherConstants {
-        public static FilteredPIDFCoefficients leftLauncherCoefficients = new FilteredPIDFCoefficients(0, 0, 0, 0, 0);
-        public static FilteredPIDFCoefficients rightLauncherCoefficients = new FilteredPIDFCoefficients(0, 0, 0, 0, 0);
-        public static int TARGET_RPM = 710; // Target RPM for both launcher motors
+        public static FilteredPIDFCoefficients leftLauncherCoefficients = new FilteredPIDFCoefficients(85, 0, 80, 0.6, 13.2);
+        public static FilteredPIDFCoefficients rightLauncherCoefficients = new FilteredPIDFCoefficients(85, 0, 80, 0.6, 13.2);
+        public static int TARGET_RPM = 700; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 30; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 300; // Time that the RPM must be within the tolerance before launching (milliseconds)
         public static int MIN_TIME_BETWEEN_LAUNCHES = 600; // Minimum time between launches (milliseconds)
@@ -151,18 +151,18 @@ public class Constants {
             // Build the poses, see descriptions in definitions above
             this.goalStartPose = buildPose(15.25, 111, 90, mirrorPoses);
             this.audienceStartPose = buildPose(56, 8.25, 90, mirrorPoses);
-            this.score = buildPose(60, 83.5, 135, mirrorPoses);
+            this.score = buildPose(71, 98.5, 143, mirrorPoses);
             this.baseZone = buildPose(106, 33, 90, mirrorPoses);
             this.loadingZone = buildPose(15, 13, 0, mirrorPoses);
             this.gateZoneNotPushed = buildPose(20, 68, 90, mirrorPoses);
             this.gateZonePushed = buildPose(17, 68, 90, mirrorPoses);
             this.patternScanPosition = buildPose(72, 72, 90, mirrorPoses);
-            this.PPGArtifacts = buildPose(42, 35.5, 180, mirrorPoses);
-            this.PGPArtifacts = buildPose(42, 59.5, 180, mirrorPoses);
-            this.GPPArtifacts = buildPose(42, 83.5, 180, mirrorPoses);
-            this.PPGArtifactsEnd = buildPose(24, 35.5, 180, mirrorPoses);
-            this.PGPArtifactsEnd = buildPose(24, 59.5, 180, mirrorPoses);
-            this.GPPArtifactsEnd = buildPose(24, 83.5, 180, mirrorPoses);
+            this.PPGArtifacts = buildPose(48, 47.5, 180, mirrorPoses);
+            this.PGPArtifacts = buildPose(48, 71.5, 180, mirrorPoses);
+            this.GPPArtifacts = buildPose(48, 95.5, 180, mirrorPoses);
+            this.PPGArtifactsEnd = buildPose(23, 47.5, 180, mirrorPoses);
+            this.PGPArtifactsEnd = buildPose(23, 71.5, 180, mirrorPoses);
+            this.GPPArtifactsEnd = buildPose(23, 95.5, 180, mirrorPoses);
 
             // Control points (heading has no effect on control points)
             this.goalStartToScoreCP = buildPose(40, 110, 0, mirrorPoses);

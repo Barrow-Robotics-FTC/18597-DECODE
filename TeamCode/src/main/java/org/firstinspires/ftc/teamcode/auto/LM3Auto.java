@@ -104,7 +104,7 @@ public class LM3Auto extends LinearOpMode {
             pathState = stateMachine.update();
 
             // If the state machine is complete or time is almost up, exit this loop
-            if (pathState == State.COMPLETED || runtime.milliseconds() > 29000) {
+            if (pathState == State.COMPLETED || runtime.milliseconds() > 60000) {
                 break;
             }
 

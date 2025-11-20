@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 // Local helper files
 import org.firstinspires.ftc.teamcode.Constants.Mode;
@@ -23,7 +24,6 @@ Right Bumper: Toggle launcher speed up
 D-Pad Up/Down: Increase/Decrease P
 D-Pad Right/Left: Increase/Decrease D
 Triangle/Cross: Increase/Decrease F
-Circle/Square: Increase/Decrease T
 */
 
 @TeleOp(name = "Launcher Tuner", group = "Tests")
@@ -34,13 +34,12 @@ public class LauncherTuner extends LinearOpMode {
     private double p;
     private double d;
     private double f;
-    private double t;
 
-    private FilteredPIDFCoefficients getCoefficients() {
+    private PIDFCoefficients getCoefficients() {
         if (tuningLeft) {
-            return robot.launcher.getLeftControllerCoefficients();
+            return robot.launcher.getLeftControllerCoefficients(robot);
         } else {
-            return robot.launcher.getRightControllerCoefficients();
+            return robot.launcher.getRightControllerCoefficients(robot);
         }
     }
 
@@ -53,16 +52,15 @@ public class LauncherTuner extends LinearOpMode {
 
         // Turn off the motor we aren't tuning
         if (tuningLeft) {
-            robot.launcher.updateRightControllerCoefficients(new FilteredPIDFCoefficients(0, 0, 0, 0, 0));
+            robot.launcher.updateRightControllerCoefficients(robot, new PIDFCoefficients(0, 0, 0, 0));
         } else {
-            robot.launcher.updateLeftControllerCoefficients(new FilteredPIDFCoefficients(0, 0, 0, 0, 0));
+            robot.launcher.updateLeftControllerCoefficients(robot, new PIDFCoefficients(0, 0, 0, 0));
         }
 
         // Set initial coefficients from Constants
-        p = getCoefficients().P;
-        d = getCoefficients().D;
-        f = getCoefficients().F;
-        t = getCoefficients().T;
+        p = getCoefficients().p;
+        d = getCoefficients().d;
+        f = getCoefficients().f;
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -76,21 +74,19 @@ public class LauncherTuner extends LinearOpMode {
             robot.update();
 
             // Tune with the gamepad
-            if (gamepad1.dpad_up) { p += 0.001; }
-            if (gamepad1.dpad_down) { p -= 0.001; }
-            if (gamepad1.dpad_right) { d += 0.001; }
-            if (gamepad1.dpad_left) { d -= 0.001; }
-            if (gamepad1.triangle) { f += 0.001; }
-            if (gamepad1.cross) { f -= 0.001; }
-            if (gamepad1.circle) { t += 0.001; }
-            if (gamepad1.square) { t -= 0.001; }
+            if (gamepad1.dpadUpWasPressed()) { p += 0.1; }
+            if (gamepad1.dpadDownWasPressed()) { p -= 0.1; }
+            if (gamepad1.dpadRightWasPressed()) { d += 0.1; }
+            if (gamepad1.dpadLeftWasPressed()) { d -= 0.1; }
+            if (gamepad1.triangleWasPressed()) { f += 0.1; }
+            if (gamepad1.crossWasPressed()) { f -= 0.1; }
 
             // Update the controller coefficients
-            FilteredPIDFCoefficients newCoeffs = new FilteredPIDFCoefficients(p, 0, d, f, t);
+            PIDFCoefficients newCoeffs = new PIDFCoefficients(p, 0, d, f);
             if (tuningLeft) {
-                robot.launcher.updateLeftControllerCoefficients(newCoeffs);
+                robot.launcher.updateLeftControllerCoefficients(robot, newCoeffs);
             } else {
-                robot.launcher.updateRightControllerCoefficients(newCoeffs);
+                robot.launcher.updateRightControllerCoefficients(robot, newCoeffs);
             }
 
             // Right Bumper: toggle launcher speed up
@@ -112,6 +108,9 @@ public class LauncherTuner extends LinearOpMode {
             telemetry.addData("Target RPM", robot.launcher.getTargetRPM());
             telemetry.addData("Left Motor RPM", robot.launcher.getLeftRPM(robot));
             telemetry.addData("Right Motor RPM", robot.launcher.getRightRPM(robot));
+            telemetry.addData("P", newCoeffs.p);
+            telemetry.addData("D", newCoeffs.d);
+            telemetry.addData("F", newCoeffs.f);
             telemetry.update();
         }
     }

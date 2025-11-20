@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 // FTC SDK
-import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
- 
-// Pedro Pathing
-import com.pedropathing.control.FilteredPIDFController;
 
 // Local helpers
 import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.*;
+import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.leftLauncherCoefficients;
+import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.rightLauncherCoefficients;
 import org.firstinspires.ftc.teamcode.Robot;
 
 public class Launcher {
-    // PIDFT controllers
-    private final FilteredPIDFController leftController;
-    private final FilteredPIDFController rightController;
-
     // Timers
     private final ElapsedTime inToleranceTimer = new ElapsedTime();
     private final ElapsedTime timeSinceLastLaunch = new ElapsedTime();
@@ -30,13 +27,10 @@ public class Launcher {
 
     // Constructor
     public Launcher(Robot robot) {
-        // Initialize PIDF controllers
-        leftController = new FilteredPIDFController(leftLauncherCoefficients);
-        rightController = new FilteredPIDFController(rightLauncherCoefficients);
-        leftController.setTargetPosition(TARGET_RPM);
-        rightController.setTargetPosition(TARGET_RPM);
-        leftController.updateFeedForwardInput(TARGET_RPM);
-        rightController.updateFeedForwardInput(TARGET_RPM);
+        robot.leftLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(leftLauncherCoefficients.P, leftLauncherCoefficients.I, leftLauncherCoefficients.D, leftLauncherCoefficients.F));
+        robot.rightLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(rightLauncherCoefficients.P, rightLauncherCoefficients.I, rightLauncherCoefficients.D, rightLauncherCoefficients.F));
     }
 
     // Called after each cycle to reset variables
@@ -52,12 +46,8 @@ public class Launcher {
     }
 
     private void updateControllers(Robot robot) {
-        // Update controller inputs
-        leftController.updatePosition(getLeftRPM(robot));
-        rightController.updatePosition(getRightRPM(robot));
-
-        // Set motor powers with updated controller outputs
-        setPowers(leftController.run(), rightController.run(), robot);
+        robot.leftLauncherMotor.setVelocity(getTargetRPM());
+        robot.rightLauncherMotor.setVelocity(getTargetRPM());
     }
 
     /**
@@ -126,21 +116,21 @@ public class Launcher {
     }
 
     /**
-     * Update the PIDFT controller coefficients for the left motor
+     * Update the PIDF controller coefficients for the left motor
      *
-     * @param coefficients The new PIDFT coefficients
+     * @param coefficients The new PIDF coefficients
      */
-    public void updateLeftControllerCoefficients(FilteredPIDFCoefficients coefficients) {
-        leftController.setCoefficients(coefficients);
+    public void updateLeftControllerCoefficients(Robot robot, PIDFCoefficients coefficients) {
+        robot.leftLauncherMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
     }
 
     /**
-     * Update the PIDFT controller coefficients for the right motor
+     * Update the PIDF controller coefficients for the right motor
      *
-     * @param coefficients The new PIDFT coefficients
+     * @param coefficients The new PIDF coefficients
      */
-    public void updateRightControllerCoefficients(FilteredPIDFCoefficients coefficients) {
-        rightController.setCoefficients(coefficients);
+    public void updateRightControllerCoefficients(Robot robot, PIDFCoefficients coefficients) {
+        robot.rightLauncherMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
     }
 
     /**
@@ -148,8 +138,8 @@ public class Launcher {
      *
      * @return FilteredPIDF coefficients
      */
-    public FilteredPIDFCoefficients getLeftControllerCoefficients() {
-        return leftController.getCoefficients();
+    public PIDFCoefficients getLeftControllerCoefficients(Robot robot) {
+        return robot.leftLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
@@ -157,8 +147,8 @@ public class Launcher {
      *
      * @return FilteredPIDF coefficients
      */
-    public FilteredPIDFCoefficients getRightControllerCoefficients() {
-        return rightController.getCoefficients();
+    public PIDFCoefficients getRightControllerCoefficients(Robot robot) {
+        return robot.leftLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
