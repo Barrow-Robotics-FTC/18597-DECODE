@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-// FTC SDK
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Pedro Pathing
 import com.pedropathing.geometry.Pose;
 
-// Local helper files
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Constants.Alliance;
@@ -16,7 +13,6 @@ import org.firstinspires.ftc.teamcode.Constants.Pattern;
 import org.firstinspires.ftc.teamcode.Constants.StartPosition;
 import org.firstinspires.ftc.teamcode.Constants.Poses;
 
-// Java
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -97,13 +93,14 @@ public class LM3Auto extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Update robot and current pose
-            robot.update();
+            robot.update(gamepad1, gamepad2);
             currentPose = robot.drivetrain.getPose();
 
             // Update state machine
             pathState = stateMachine.update();
 
             // If the state machine is complete or time is almost up, exit this loop
+            // TODO: Set back to normal value, this is just for testing
             if (pathState == State.COMPLETED || runtime.milliseconds() > 60000) {
                 break;
             }
@@ -121,7 +118,7 @@ public class LM3Auto extends LinearOpMode {
 
         // OpMode is ending, stop the robot
         stateMachine.stop();
-        robot.stop();
+        robot.stop(gamepad1, gamepad2);
 
         // Save values for TeleOp
         blackboard.put("alliance", alliance);

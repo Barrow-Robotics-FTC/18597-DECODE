@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-// FTC SDK
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Local helpers
 import static org.firstinspires.ftc.teamcode.Constants.TapperConstants.*;
 import org.firstinspires.ftc.teamcode.Robot;
 

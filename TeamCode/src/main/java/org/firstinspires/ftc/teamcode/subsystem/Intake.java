@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-// Local helpers
 import static org.firstinspires.ftc.teamcode.Constants.IntakeConstants.*;
 import org.firstinspires.ftc.teamcode.Robot;
 

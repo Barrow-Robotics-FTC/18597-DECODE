@@ -1,21 +1,28 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-// FTC SDK
-import com.qualcomm.robotcore.hardware.DcMotor;
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Local helpers
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
+
 import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.leftLauncherCoefficients;
 import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.rightLauncherCoefficients;
+
 import org.firstinspires.ftc.teamcode.Robot;
 
 public class Launcher {
     // Timers
     private final ElapsedTime inToleranceTimer = new ElapsedTime();
     private final ElapsedTime timeSinceLastLaunch = new ElapsedTime();
+
+    // Motor velocity PIDF controllers
+    private final PIDFController leftMotorController;
+    private final PIDFController rightMotorController;
 
     // Other variables
     private LauncherState state = LauncherState.IDLE; // Current state of the launcher
@@ -27,10 +34,18 @@ public class Launcher {
 
     // Constructor
     public Launcher(Robot robot) {
-        robot.leftLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
-                new PIDFCoefficients(leftLauncherCoefficients.P, leftLauncherCoefficients.I, leftLauncherCoefficients.D, leftLauncherCoefficients.F));
-        robot.rightLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
-                new PIDFCoefficients(rightLauncherCoefficients.P, rightLauncherCoefficients.I, rightLauncherCoefficients.D, rightLauncherCoefficients.F));
+        // Initialize motor controllers
+        leftMotorController = new PIDFController(leftLauncherCoefficients);
+        rightMotorController = new PIDFController(rightLauncherCoefficients);
+        leftMotorController.setTargetPosition(TARGET_RPM);
+        rightMotorController.setTargetPosition(TARGET_RPM);
+
+        // Configure motors
+        robot.leftLauncherMotor.setZeroPowerBehavior(BRAKE);
+        robot.leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        robot.rightLauncherMotor.setDirection(REVERSE); // Reverse right motor
+        robot.rightLauncherMotor.setZeroPowerBehavior(BRAKE);
+        robot.rightLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
     }
 
     // Called after each cycle to reset variables
@@ -46,8 +61,16 @@ public class Launcher {
     }
 
     private void updateControllers(Robot robot) {
-        robot.leftLauncherMotor.setVelocity(getTargetRPM());
-        robot.rightLauncherMotor.setVelocity(getTargetRPM());
+        // Set the current position of the PIDF controllers to the current RPM of the motors
+        leftMotorController.updatePosition(getLeftRPM(robot));
+        rightMotorController.updatePosition(getRightRPM(robot));
+
+        // Run the controllers to get the new powers
+        double leftPower = leftMotorController.run();
+        double rightPower = rightMotorController.run();
+
+        // powers
+        setPowers(leftPower, rightPower, robot);
     }
 
     /**
@@ -120,8 +143,8 @@ public class Launcher {
      *
      * @param coefficients The new PIDF coefficients
      */
-    public void updateLeftControllerCoefficients(Robot robot, PIDFCoefficients coefficients) {
-        robot.leftLauncherMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
+    public void updateLeftControllerCoefficients(PIDFCoefficients coefficients) {
+        leftMotorController.setCoefficients(coefficients);
     }
 
     /**
@@ -129,17 +152,17 @@ public class Launcher {
      *
      * @param coefficients The new PIDF coefficients
      */
-    public void updateRightControllerCoefficients(Robot robot, PIDFCoefficients coefficients) {
-        robot.rightLauncherMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
+    public void updateRightControllerCoefficients(PIDFCoefficients coefficients) {
+        rightMotorController.setCoefficients(coefficients);
     }
 
     /**
      * Get the PDFT coefficients for the left motor
      *
-     * @return FilteredPIDF coefficients
+     * @return PIDF coefficients
      */
-    public PIDFCoefficients getLeftControllerCoefficients(Robot robot) {
-        return robot.leftLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+    public PIDFCoefficients getLeftControllerCoefficients() {
+        return leftMotorController.getCoefficients();
     }
 
     /**
@@ -147,8 +170,8 @@ public class Launcher {
      *
      * @return FilteredPIDF coefficients
      */
-    public PIDFCoefficients getRightControllerCoefficients(Robot robot) {
-        return robot.leftLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+    public PIDFCoefficients getRightControllerCoefficients() {
+        return rightMotorController.getCoefficients();
     }
 
     /**
@@ -196,6 +219,7 @@ public class Launcher {
             return;
         } else if (prevIntaking) { // Intaking last update but not this update
             // No longer intaking, move back to speed up state if the launcher wasn't previously idle
+            setPowers(0, 0, robot);
             if (state != LauncherState.IDLE) {
                 state = LauncherState.SPEED_UP; // Move to speed up state
                 inToleranceTimer.reset(); // Reset in tolerance timer

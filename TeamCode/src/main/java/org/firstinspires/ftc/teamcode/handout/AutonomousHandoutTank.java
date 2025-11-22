@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.handout; // TODO: CHANGE THIS TO YOUR CODE FOLDER
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;

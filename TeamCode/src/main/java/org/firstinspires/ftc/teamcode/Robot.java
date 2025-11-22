@@ -38,6 +38,16 @@ public class Robot {
     public Camera camera;
     public Poses poses;
 
+    // The SDK doesn't support "pressed" state for triggers, so we have to track it manually
+    private boolean lastGamepad1RightTriggerPressed = false;
+    private boolean lastGamepad1LeftTriggerPressed = false;
+    private boolean lastGamepad2RightTriggerPressed = false;
+    private boolean lastGamepad2LeftTriggerPressed = false;
+
+    // Gamepad color handler
+    private final int[] gamepad1Color = new int[]{0, 0, 0};
+    private final int[] gamepad2Color = new int[]{0, 0, 0};
+
     // Other variables
     public Constants.Mode mode;
 
@@ -51,13 +61,6 @@ public class Robot {
         tapperServo = hardwareMap.get(Servo.class, "tapper");
         rampServo = hardwareMap.get(Servo.class, "ramp");
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
-
-        // Launcher motor configuration
-        leftLauncherMotor.setZeroPowerBehavior(BRAKE);
-        leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightLauncherMotor.setDirection(REVERSE); // Reverse right motor
-        rightLauncherMotor.setZeroPowerBehavior(BRAKE);
-        rightLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         // Intake motor configuration
         intakeMotor.setZeroPowerBehavior(BRAKE);
@@ -93,36 +96,6 @@ public class Robot {
             - TeleOp OpModes will use the Robot methods to control the robot
                 - Gamepad inputs will be processed in the OpMode and passed to the Robot methods as needed
                 - Use the Gamepad subsystem to handle gamepad input processing and lighting
-        - Pedro Pathing:
-            - Pedro Pathing integration will be handled in the Drivetrain subsystem
-                - The Drivetrain subsystem will have methods to initialize and use Pedro Pathing
-            - Separate Constants file from the main one to prevent problems with PIDFCoefficients import and Tuning file problems
-        - Launcher:
-            - We'll switch from 6000RPM motors to 1620RPM motors for better control and efficiency
-                - Its easier to run a motor at 50% power than 100% power for velocity control
-                - Faster speed ups due to more torque at lower speeds
-                - We don't use the full 6000RPM, so there's no need for it
-                - Saves energy due to these things
-            - Use the Pedro Pathing Filtered PIDF Controller to manage launcher velocity
-            - Tuning
-                - F: Provides the "base" amount of power needed to hit the target before any error even occurs.
-                    - Set everything to 0
-                    - Increase F until the motor settles near the target velocity (about 90%)
-                - T: Controls how much to smooth the derivative signal. It's a value between 0 (no filtering) and 1 (max filtering, but very laggy)
-                    - Start with T = 0.7 (70% old value, 30% new value)
-                    - Tune with D, if the motor is "chattering", increase T, if it's too slow to respond, decrease T
-                - D: Fights against rapid changes in error, which is what happens before overshoot and oscillation.
-                    - Start with D = 0
-                    - Set P to very small value
-                    - Increase D until the motor stops overshooting and oscillating
-                    - Simultaneously tune T
-                - P: Provides power that is proportional to the current error. It does the main work of closing the gap from where F left off
-                    - Slowly increase P until the motor gets to the target quickly without overshooting
-                    - D can be further adjusted to reduce any overshoot
-                - I: Fixes any steady-state error that may occur when the motor is at the target velocity
-                    - Keep I = 0 unless you notice any steady-state error (ex. motor settles below target)
-                    - If needed, slowly increase I until the motor reaches the target exactly
-            - Make the launcher subsystem first and implement this into it, make a LauncherTuner and LauncherTest OpMode to help with tuning and testing
          */
     }
 
@@ -177,6 +150,76 @@ public class Robot {
     }
 
     /**
+     * Check if gamepad 1s right trigger was pressed (not just held down)
+     * The trigger is considered pressed if its value goes above 0.5
+     *
+     * @param gamepad1 Gamepad 1
+     * @return True if the right trigger was pressed, false otherwise
+     */
+    public boolean gamepad1RightTriggerPressed(Gamepad gamepad1) {
+        return gamepad1.right_trigger > 0.5 && !lastGamepad1RightTriggerPressed;
+    }
+
+    /**
+     * Check if gamepad 1s left trigger was pressed (not just held down)
+     * The trigger is considered pressed if its value goes above 0.5
+     *
+     * @param gamepad1 Gamepad 1
+     * @return True if the left trigger was pressed, false otherwise
+     */
+    public boolean gamepad1LeftTriggerPressed(Gamepad gamepad1) {
+        return gamepad1.left_trigger > 0.5 && !lastGamepad1LeftTriggerPressed;
+    }
+
+    /**
+     * Check if gamepad 2s right trigger was pressed (not just held down)
+     * The trigger is considered pressed if its value goes above 0.5
+     *
+     * @param gamepad2 Gamepad 2
+     * @return True if the right trigger was pressed, false otherwise
+     */
+    public boolean gamepad2RightTriggerPressed(Gamepad gamepad2) {
+        return gamepad2.right_trigger > 0.5 && !lastGamepad2RightTriggerPressed;
+    }
+
+    /**
+     * Check if gamepad 2s left trigger was pressed (not just held down)
+     * The trigger is considered pressed if its value goes above 0.5
+     *
+     * @param gamepad2 Gamepad 2
+     * @return True if the left trigger was pressed, false otherwise
+     */
+    public boolean gamepad2LeftTriggerPressed(Gamepad gamepad2) {
+        return gamepad2.left_trigger > 0.5 && !lastGamepad2LeftTriggerPressed;
+    }
+
+    /**
+     * Set the color of gamepad 1 LEDs
+     *
+     * @param r Red value (0-255)
+     * @param g Green value (0-255)
+     * @param b Blue value (0-255)
+     */
+    public void setGamepad1Color(int r, int g, int b) {
+        gamepad1Color[0] = r;
+        gamepad1Color[1] = g;
+        gamepad1Color[2] = b;
+    }
+
+    /**
+     * Set the color of gamepad 2 LEDs
+     *
+     * @param r Red value (0-255)
+     * @param g Green value (0-255)
+     * @param b Blue value (0-255)
+     */
+    public void setGamepad2Color(int r, int g, int b) {
+        gamepad2Color[0] = r;
+        gamepad2Color[1] = g;
+        gamepad2Color[2] = b;
+    }
+
+    /**
      * Build poses based on the selected alliance
      * Must be used in initialization before using poses
      *
@@ -188,8 +231,21 @@ public class Robot {
 
     /**
      * Update all subsystems of the robot
+     *
+     * @param gamepad1 The first gamepad
+     * @param gamepad2 The second gamepad
      */
-    public void update() {
+    public void update(Gamepad gamepad1, Gamepad gamepad2) {
+        // Update gamepad trigger states
+        lastGamepad1RightTriggerPressed = gamepad1.right_trigger > 0.5;
+        lastGamepad1LeftTriggerPressed = gamepad1.left_trigger > 0.5;
+        lastGamepad2RightTriggerPressed = gamepad2.right_trigger > 0.5;
+        lastGamepad2LeftTriggerPressed = gamepad2.left_trigger > 0.5;
+
+        // Set gamepad colors (R, G, B, -1), here -1 means infinite duration
+        gamepad1.setLedColor(gamepad1Color[0], gamepad1Color[1], gamepad1Color[2], -1);
+        gamepad2.setLedColor(gamepad2Color[0], gamepad2Color[1], gamepad2Color[2], -1);
+
         // Update all subsystems
         drivetrain.update(this);
         launcher.update(this);
@@ -200,8 +256,11 @@ public class Robot {
 
     /**
      * Stop all subsystems of the robot
+     *
+     * @param gamepad1 The first gamepad
+     * @param gamepad2 The second gamepad
      */
-    public void stop() {
+    public void stop(Gamepad gamepad1, Gamepad gamepad2) {
         // Stop all subsystems
         drivetrain.stop();
         launcher.stop();
@@ -210,6 +269,6 @@ public class Robot {
         camera.stop();
 
         // Update all subsystems to apply the stop commands
-        update();
+        update(gamepad1, gamepad2);
     }
 }

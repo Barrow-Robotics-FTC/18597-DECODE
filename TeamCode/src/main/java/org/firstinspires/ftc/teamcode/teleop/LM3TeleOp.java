@@ -1,24 +1,17 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-// FTC SDK
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// Pedro Pathing
 import com.pedropathing.geometry.Pose;
 
-// Local helper files
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
 import org.firstinspires.ftc.teamcode.Constants.MovementVectors;
 import org.firstinspires.ftc.teamcode.Constants.Alliance;
 import org.firstinspires.ftc.teamcode.Constants.Poses;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Robot;
-
-// Java
-import java.util.Arrays;
 
 /*
 Gamepad Map for LM3 TeleOp
@@ -58,49 +51,12 @@ public class LM3TeleOp extends LinearOpMode {
     private boolean launcherIsActive = false; // Is the launcher currently active (sped up)?
     private boolean launcherIsLaunching = false; // Is the launcher currently launching?
 
-    // Gamepad trigger states
-    private boolean prevLeftTriggerPressed = false;
-    private boolean prevRightTriggerPressed = false;
-
-    private boolean gamepad2LeftTriggerPressed() {
-        boolean currState = gamepad2.left_trigger > 0.5 && !prevLeftTriggerPressed; // Current state (use gamepad2)
-        prevLeftTriggerPressed = gamepad2.left_trigger > 0.5; // Update previous state
-        return currState;
-    }
-
-    private boolean gamepad2RightTriggerPressed() {
-        boolean currState = gamepad2.right_trigger > 0.5 && !prevRightTriggerPressed; // Current state (use gamepad2)
-        prevRightTriggerPressed = gamepad2.right_trigger > 0.5; // Update previous state
-        return currState;
-    }
-
     private void startLaunch(int numArtifacts) {
         artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
         liningUpWithGoal = true; // Start by lining up with the goal
 
         // Follow path to scoring pose
         robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score));
-    }
-
-    // Gamepad light helpers
-    private int[] gamepad1Color = new int[]{0, 0, 0};
-    private int[] gamepad2Color = new int[]{0, 0, 0};
-    @SuppressWarnings("SameParameterValue")
-    private void setGamepad1Light(int r, int g, int b) {
-        int[] newGamepadColor = new int[]{r, g, b};
-        if (!Arrays.equals(gamepad1Color, newGamepadColor)) { // If the color is not the same as before
-            gamepad1Color = newGamepadColor;
-        }
-    }
-    private void setGamepad2Light(int r, int g, int b) {
-        int[] newGamepadColor = new int[]{r, g, b};
-        if (!Arrays.equals(gamepad2Color, newGamepadColor)) { // If the color is not the same as before
-            gamepad2Color = newGamepadColor;
-        }
-    }
-    private void updateGamepadLights() {
-        gamepad1.setLedColor(gamepad1Color[0], gamepad1Color[1], gamepad1Color[2], -1);
-        gamepad2.setLedColor(gamepad2Color[0], gamepad2Color[1], gamepad2Color[2], -1);
     }
 
     @Override
@@ -125,7 +81,7 @@ public class LM3TeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Update drivetrain
-            robot.update();
+            robot.update(gamepad1, gamepad2);
             currentPose = robot.drivetrain.getPose();
 
             // Check if we are lining up with the goal
@@ -170,12 +126,12 @@ public class LM3TeleOp extends LinearOpMode {
             }
 
             // Gamepad 2 Left Trigger: Launch 1 artifact
-            if (gamepad2LeftTriggerPressed() && !launcherIsLaunching) {
+            if (robot.gamepad2LeftTriggerPressed(gamepad2) && !launcherIsLaunching) {
                 startLaunch(1); // Indicate that we want to launch 1 artifact
             }
 
             // Gamepad 2 Right Trigger: Launch 3 artifacts
-            if (gamepad2RightTriggerPressed() && !launcherIsLaunching) {
+            if (robot.gamepad2RightTriggerPressed(gamepad2) && !launcherIsLaunching) {
                 startLaunch(3); // Indicate that we want to launch 3 artifacts
             }
 
@@ -199,26 +155,23 @@ public class LM3TeleOp extends LinearOpMode {
 
             // Set Gamepad 1 lights (priority goes first to last)
             if (liningUpWithGoal) { // Lining up with goal: purple
-                setGamepad1Light(255, 0, 255);
+                robot.setGamepad1Color(255, 0, 255);
             } else if (slowMode) { // Slow mode: blue
-                setGamepad1Light(0, 0, 255);
+                robot.setGamepad1Color(0, 0, 255);
             } else { // None of the above conditions: off
-                setGamepad1Light(0, 0, 0);
+                robot.setGamepad1Color(0, 0, 0);
             }
 
             // Set Gamepad 2 lights (priority goes first to last)
             if (liningUpWithGoal) { // Lining up with goal: purple
-                setGamepad2Light(255, 0, 255);
+                robot.setGamepad2Color(255, 0, 255);
             } else if (launcherIsLaunching) { // Launcher is launching: green
-                setGamepad2Light(0, 255, 0);
+                robot.setGamepad2Color(0, 255, 0);
             } else if (launcherIsActive) { // Launcher is active: blue
-                setGamepad2Light(0, 0, 255);
+                robot.setGamepad2Color(0, 0, 255);
             } else { // None of the above conditions: off
-                setGamepad2Light(0, 0, 0);
+                robot.setGamepad2Color(0, 0, 0);
             }
-
-            // Update gamepad lights
-            updateGamepadLights();
 
             // Log status
             telemetry.addData("Run Time: ", runtime.seconds());
@@ -232,6 +185,6 @@ public class LM3TeleOp extends LinearOpMode {
         }
 
         // Stop the robot completely after TeleOp ends
-        robot.stop();
+        robot.stop(gamepad1, gamepad2);
     }
 }

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -61,8 +61,8 @@ public class Constants {
     }
 
     public static class LauncherConstants {
-        public static FilteredPIDFCoefficients leftLauncherCoefficients = new FilteredPIDFCoefficients(85, 0, 80, 0.6, 13.2);
-        public static FilteredPIDFCoefficients rightLauncherCoefficients = new FilteredPIDFCoefficients(85, 0, 80, 0.6, 13.2);
+        public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
+        public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
         public static int TARGET_RPM = 700; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 30; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 300; // Time that the RPM must be within the tolerance before launching (milliseconds)

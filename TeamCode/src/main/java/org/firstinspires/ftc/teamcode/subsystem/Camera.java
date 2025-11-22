@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-// FTC SDK
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -10,19 +9,16 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-// Pedro Pathing
 import com.pedropathing.ftc.InvertedFTCCoordinates;
 import com.pedropathing.geometry.PedroCoordinates;
 import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.Pose;
 
-// Local helper files
 import org.firstinspires.ftc.teamcode.Robot;
 import static org.firstinspires.ftc.teamcode.Constants.Pattern;
 import static org.firstinspires.ftc.teamcode.Constants.CameraConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.AprilTagConstants.*;
 
-// Java
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
