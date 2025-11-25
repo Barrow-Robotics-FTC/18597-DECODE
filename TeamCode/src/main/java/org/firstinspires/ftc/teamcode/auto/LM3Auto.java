@@ -66,12 +66,12 @@ public class LM3Auto extends LinearOpMode {
 
         // Set variables based on start position
         if (startPosition == StartPosition.GOAL_WALL) {
-            robot.drivetrain.setStartingPose(robot.poses.goalStartPose); // Set starting pose
-            lastCommandedPose = robot.poses.goalStartPose; // Set last commanded pose
+            robot.drivetrain.setStartingPose(robot.poses.goalStart); // Set starting pose
+            lastCommandedPose = robot.poses.goalStart; // Set last commanded pose
             stateList = goalStartingStateList; // Set starting state list
         } else {
-            robot.drivetrain.setStartingPose(robot.poses.audienceStartPose);
-            lastCommandedPose = robot.poses.audienceStartPose;
+            robot.drivetrain.setStartingPose(robot.poses.audienceStart);
+            lastCommandedPose = robot.poses.audienceStart;
             stateList = audienceStartingStateList;
         }
         robot.drivetrain.update(robot); // Update drivetrain to set starting pose

@@ -23,6 +23,7 @@ Gamepad 1 (Driver): Dylan
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
     Left Bumper: Toggle slow mode
+    Circle: Localize (set robot pose to human player corner)
 Gamepad 2 (Operator): Parley
     Left Bumper: Toggle intake
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
@@ -62,14 +63,15 @@ public class LM3TeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Get variables from Blackboard
-        alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE);
-        autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", new Pose(alliance == Alliance.BLUE ? 56 : 88, 8, Math.toRadians(90)));
+        alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.RED);
+        autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", null);
 
         // Initialize robot
         robot = new Robot(hardwareMap, Mode.TELEOP);
+        robot.buildPoses(alliance);
 
-        // Set starting pose to the end pose of auto
-        robot.drivetrain.setStartingPose(autoEndPose);
+        // Set starting pose to the end pose of auto (if it doesn't exist, use audience start)
+        robot.drivetrain.setStartingPose(autoEndPose == null ? robot.poses.audienceStart : autoEndPose);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -103,6 +105,12 @@ public class LM3TeleOp extends LinearOpMode {
             // Gamepad 1 Left Bumper: Toggle slow mode
             if (gamepad1.leftBumperWasPressed()) {
                 slowMode = !slowMode;
+            }
+
+            // Gamepad 1 Circle: Localize
+            if (gamepad1.circleWasPressed()) {
+                // Set the robot pose to the localization pose (human player corner)
+                robot.drivetrain.setPose(robot.poses.localize);
             }
 
             // Gamepad 2 Left Bumper: Toggle intake

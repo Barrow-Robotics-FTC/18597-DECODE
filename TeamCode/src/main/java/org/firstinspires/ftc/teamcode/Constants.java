@@ -124,11 +124,11 @@ public class Constants {
         boolean mirrorPoses;
 
         // Poses (assuming blue alliance)
-        public Pose goalStartPose; // Starting pose that is perpendicular with and touching the ramp wall, as far forward as possible touching depot line
-        public Pose audienceStartPose; // Starting pose that is against the audience wall, left edge on C tile left line
+        public Pose goalStart; // Starting pose that is perpendicular with and touching the ramp wall, as far forward as possible touching depot line
+        public Pose audienceStart; // Starting pose that is against the audience wall, left edge on C tile left line
+        public Pose localize; // Back against the audience and alliance walls, robot is driven into this corner for localization
         public Pose score; // Facing goal (close to the white line point)
         public Pose baseZone; // In the endgame zone (facing away from audience)
-        public Pose loadingZone; // In the loading zone (facing away from the human player)
         public Pose gateZoneNotPushed; // Right beside the gate, but not pushing it (facing away from audience)
         public Pose gateZonePushed; // Right beside the gate, pushing it (facing away from audience)
         public Pose patternScanPosition; // In front of the obelisk, facing it
@@ -149,11 +149,11 @@ public class Constants {
             this.mirrorPoses = (alliance == Alliance.RED);
 
             // Build the poses, see descriptions in definitions above
-            this.goalStartPose = buildPose(15.25, 111, 90, mirrorPoses);
-            this.audienceStartPose = buildPose(56, 8.25, 90, mirrorPoses);
+            this.goalStart = buildPose(15.25, 111, 90, mirrorPoses);
+            this.audienceStart = buildPose(56, 8.25, 90, mirrorPoses);
+            this.localize = buildPose(8.25, 8, 0, mirrorPoses);
             this.score = buildPose(71, 98.5, 143, mirrorPoses);
             this.baseZone = buildPose(106, 33, 90, mirrorPoses);
-            this.loadingZone = buildPose(15, 13, 0, mirrorPoses);
             this.gateZoneNotPushed = buildPose(20, 68, 90, mirrorPoses);
             this.gateZonePushed = buildPose(17, 68, 90, mirrorPoses);
             this.patternScanPosition = buildPose(72, 72, 90, mirrorPoses);
