@@ -72,31 +72,6 @@ public class Robot {
         tapper = new Tapper(this);
         intake = new Intake(this);
         camera = new Camera(this);
-
-        /*
-        Game plan for codebase rewrite:
-        - Subsystems:
-            - Each subsystem will have its own class
-                - It has an update() method that is called in Robot.update()
-                - It has a stop() method that stops all motors/servos in the subsystem
-            - The Robot.update() method will be called in the main OpMode loop to update all subsystems
-            - Robot.stop() method will call stop() on all subsystems to ensure everything is stopped safely
-                - The OpMode can also call Robot.subsystem.stop() directly if needed
-            - Launcher, Tapper, Intake, Camera, and Drivetrain will be subsystems
-        - Helpers:
-            - Helper methods that previously resided in their own class will be moved in here
-                - AllianceSelector will become Robot.selectAlliance()
-                - StartPositionSelector will become Robot.selectStartPosition()
-        - Autonomous:
-            - Autonomous OpModes will use a state machine loop
-                - Each state will be represented by an enum value
-                - There will be a list of states at the top of the OpMode for easy configuration
-                - The state machine will use the Robot method to perform actions during Autonomous
-        - TeleOp:
-            - TeleOp OpModes will use the Robot methods to control the robot
-                - Gamepad inputs will be processed in the OpMode and passed to the Robot methods as needed
-                - Use the Gamepad subsystem to handle gamepad input processing and lighting
-         */
     }
 
     /**
