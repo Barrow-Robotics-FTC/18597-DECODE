@@ -227,9 +227,9 @@ public class LM3Auto extends LinearOpMode {
                     case MOVE_TO_SCORING_POSITION:
                         if (!lastCommandedPose.equals(robot.poses.goalStart)) { // If the robot is at the goal start pose
                             // Use the control point specifically for goal start to scoring position
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.goalStartToScoreCP}));
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.goalStartToScoreCP}), 0.7);
                         } else {
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.toScoreCP}));
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.toScoreCP}), 0.7);
                         }
 
                         lastCommandedPose = robot.poses.score;
@@ -269,7 +269,7 @@ public class LM3Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.4);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.5);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
                             robot.intake.stop(); // Stop the intake
@@ -277,7 +277,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_GATE_ZONE:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed), 0.4);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed), 0.5);
                         lastCommandedPose = robot.poses.gateZoneNotPushed;
                         nextState();
                         break;

@@ -31,6 +31,7 @@ public class Launcher {
     private boolean launchWhenReady = false; // Has the launcher been commanded to launch
     private boolean launchCycleCompleted = false; // Was a launch cycle completed in the last update
     private boolean prevIntaking = false; // Was the intake running in the previous update
+    private boolean returnToIdleAfterLaunch; // Should the launcher return to idle after launching
 
     // Constructor
     public Launcher(Robot robot) {
@@ -178,8 +179,8 @@ public class Launcher {
      * Command the launcher to speed up to target RPM
      */
     public void speedUp() {
-        state = LauncherState.SPEED_UP; // Move to speed up state
-        inToleranceTimer.reset(); // Reset in tolerance timer
+        state = LauncherState.SPEED_UP;
+        inToleranceTimer.reset(); // Reset in tolerance timer when entering speed up state
     }
 
     /**
@@ -189,6 +190,7 @@ public class Launcher {
      * @param artifacts The number of artifacts to launch
      */
     public void launch(int artifacts) {
+        returnToIdleAfterLaunch = state == LauncherState.IDLE; // Determine if we should return to idle after launching
         if (state == LauncherState.IDLE) {
             speedUp(); // If the launcher hasn't sped up, start the speed up now
         }
@@ -221,8 +223,7 @@ public class Launcher {
             // No longer intaking, move back to speed up state if the launcher wasn't previously idle
             setPowers(0, 0, robot);
             if (state != LauncherState.IDLE) {
-                state = LauncherState.SPEED_UP; // Move to speed up state
-                inToleranceTimer.reset(); // Reset in tolerance timer
+                speedUp(); // Move to speed up state
             }
             prevIntaking = false; // Mark that the intake is no longer running
         }
@@ -230,7 +231,7 @@ public class Launcher {
         switch(state) {
             case IDLE:
                 setPowers(0, 0, robot); // Stop the launcher motors
-                inToleranceTimer.reset(); // Reset in tolerance timer
+
                 break;
             case SPEED_UP:
                 // Update the motor speeds using the controllers
@@ -253,16 +254,11 @@ public class Launcher {
                 } else {
                     inToleranceTimer.reset(); // If the motors aren't in tolerance, reset the timer
                 }
-                break;
 
+                break;
             case LAUNCH:
                 // Continue updating the motor speeds to maintain RPM
                 updateControllers(robot);
-
-                // Check if we need to wait before launching again
-                if (timeSinceLastLaunch.milliseconds() < MIN_TIME_BETWEEN_LAUNCHES) {
-                    break; // Wait until the minimum time between launches has passed
-                }
 
                 // Command and wait for the tapper to push an artifact into the launcher
                 if (!robot.tapper.isPushed()) {
@@ -275,10 +271,14 @@ public class Launcher {
                 if (launches >= launchesToPerform) { // If we have launched the target amount of artifacts
                     resetCycleVariables(); // Reset cycle variables
                     launchCycleCompleted = true; // Mark that a launch cycle was completed
-                    stop(); // Stop the launcher
+
+                    if (returnToIdleAfterLaunch) {
+                        stop(); // Stop the launcher if we were previously idle
+                    } else {
+                        speedUp(); // Otherwise, remain at speed for the next launch cycle
+                    }
                 } else {
-                    state = LauncherState.SPEED_UP; // Recover motor speed for the next launch
-                    inToleranceTimer.reset(); // Reset in tolerance timer
+                    speedUp(); // Recover motor speed for the next launch
                 }
 
                 // Reset variables for next launch
