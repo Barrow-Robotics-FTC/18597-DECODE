@@ -74,16 +74,6 @@ public class Constants {
             SPEED_UP,
             LAUNCH
         }
-
-        public static class LauncherReturnProps { // Props returned by Launcher.update()
-            public final LauncherState state;
-            public final boolean cycleCompleted;
-
-            public LauncherReturnProps(LauncherState state, boolean cycleCompleted) {
-                this.state = state;
-                this.cycleCompleted = cycleCompleted;
-            }
-        }
     }
 
     public static class IntakeConstants {

@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 /*
 Launcher Test OpMode
 Full test of the launcher subsystem
-Start the robot at the blue goal starting position to find the launch pose easier using the telemetry
+Start the robot in the blue alliance human player zone corner (localize position)
 
 Controls:
 Right Bumper: Toggle launcher speed up
@@ -30,7 +30,7 @@ public class LauncherTest extends LinearOpMode {
 
         // Build poses and set start position to blue goal pose
         robot.buildPoses(Alliance.BLUE);
-        robot.drivetrain.setStartingPose(robot.poses.goalStartPose);
+        robot.drivetrain.setStartingPose(robot.poses.localize);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");

@@ -6,6 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Robot;
 
+/*
+Position Recorder OpMode
+Displays the current position of the robot in telemetry to help record positions for autonomous paths
+Start the robot in the blue alliance human player zone corner (localize position)
+*/
+
 @TeleOp(name = "Position Recorder", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class PositionRecorder extends LinearOpMode {
@@ -18,7 +24,7 @@ public class PositionRecorder extends LinearOpMode {
 
         // Build poses and set start position to blue goal pose
         robot.buildPoses(Constants.Alliance.BLUE);
-        robot.drivetrain.setStartingPose(robot.poses.goalStartPose);
+        robot.drivetrain.setStartingPose(robot.poses.localize);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
