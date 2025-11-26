@@ -51,7 +51,7 @@ public class Robot {
     // Other variables
     public Constants.Mode mode;
 
-    public Robot(HardwareMap hardwareMap, Constants.Mode mode) {
+    public Robot(HardwareMap hardwareMap, Constants.Mode mode, boolean useVision) {
         this.mode = mode;
 
         // NOTE: Drivetrain motors and Pinpoint are initialized and set up by Pedro Pathing
@@ -71,7 +71,11 @@ public class Robot {
         launcher = new Launcher(this);
         tapper = new Tapper(this);
         intake = new Intake(this);
-        camera = new Camera(this);
+        camera = useVision ? new Camera(this) : null; // Only initialize camera if vision is used
+    }
+
+    public Robot(HardwareMap hardwareMap, Constants.Mode mode) {
+        this(hardwareMap, mode, false); // Default to not using vision
     }
 
     /**
@@ -226,7 +230,7 @@ public class Robot {
         launcher.update(this);
         tapper.update(this);
         intake.update(this);
-        camera.update(this);
+        if (camera != null) { camera.update(this); } // Only update camera if it is being used
     }
 
     /**
@@ -241,7 +245,7 @@ public class Robot {
         launcher.stop();
         tapper.stop();
         intake.stop();
-        camera.stop();
+        if (camera != null) { camera.stop(); } // Only stop camera if it is being used
 
         // Update all subsystems to apply the stop commands
         update(gamepad1, gamepad2);

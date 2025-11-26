@@ -9,7 +9,6 @@ import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Constants.Alliance;
-import org.firstinspires.ftc.teamcode.Constants.Pattern;
 import org.firstinspires.ftc.teamcode.Constants.StartPosition;
 import org.firstinspires.ftc.teamcode.Constants.Poses;
 
@@ -20,22 +19,29 @@ import java.util.List;
 @Autonomous(name = "LM3 Auto", group = "Autonomous")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM3Auto extends LinearOpMode {
-    // Editable variables
-    List<State> stateList = null; // This will be set to one of the following based on start position and then updated based on pattern
-    final List<State> goalStartingStateList = new ArrayList<>(Arrays.asList(
-            // Start of the autonomous states for goal starting position
+    // Autonomous states list
+    final List<State> stateList = new ArrayList<>(Arrays.asList(
+            State.MOVE_TO_SCORING_POSITION, // Move from starting position to scoring position
+            State.LAUNCH, // Score preloaded artifacts
+            State.MOVE_TO_GPP, // Move in front of the PPG artifact row
+            State.INTAKE_ARTIFACT_ROW, // Intake the artifacts from the GPP row
+            State.MOVE_TO_GPP, // Return to the GPP artifact row start position
+            State.INTAKE_ARTIFACT_ROW, // Attempt to intake any remaining artifacts from the GPP row
             State.MOVE_TO_SCORING_POSITION,
             State.LAUNCH,
-            State.MOVE_TO_PATTERN_SCANNING_POSITION,
-            State.DETECT_PATTERN
-            // The rest of the states will be added dynamically based on the detected pattern
-    ));
-    final List<State> audienceStartingStateList = new ArrayList<>(Arrays.asList(
-            // Start of the autonomous states for audience wall starting position
-            State.DETECT_PATTERN,
+            State.MOVE_TO_PGP,
+            State.INTAKE_ARTIFACT_ROW,
+            State.MOVE_TO_PGP,
+            State.INTAKE_ARTIFACT_ROW,
             State.MOVE_TO_SCORING_POSITION,
-            State.LAUNCH
-            // The rest of the states will be added dynamically based on the detected pattern
+            State.LAUNCH,
+            State.MOVE_TO_PPG,
+            State.INTAKE_ARTIFACT_ROW,
+            State.MOVE_TO_PPG,
+            State.INTAKE_ARTIFACT_ROW,
+            State.MOVE_TO_SCORING_POSITION,
+            State.LAUNCH,
+            State.MOVE_TO_GATE_ZONE // Move to gate zone to prepare for TeleOp
     ));
 
     // Utilities
@@ -45,7 +51,6 @@ public class LM3Auto extends LinearOpMode {
 
     // Other variables
     private Alliance alliance; // Alliance of the robot
-    private Pattern targetPattern; // Target pattern determined by obelisk April Tag
     private StartPosition startPosition; // Starting position selected by the user
     private Pose currentPose; // Current pose of the robot
     private Pose lastCommandedPose; // Last pose that was commanded to the drivetrain
@@ -68,11 +73,9 @@ public class LM3Auto extends LinearOpMode {
         if (startPosition == StartPosition.GOAL_WALL) {
             robot.drivetrain.setStartingPose(robot.poses.goalStart); // Set starting pose
             lastCommandedPose = robot.poses.goalStart; // Set last commanded pose
-            stateList = goalStartingStateList; // Set starting state list
         } else {
             robot.drivetrain.setStartingPose(robot.poses.audienceStart);
             lastCommandedPose = robot.poses.audienceStart;
-            stateList = audienceStartingStateList;
         }
         robot.drivetrain.update(robot); // Update drivetrain to set starting pose
 
@@ -87,9 +90,6 @@ public class LM3Auto extends LinearOpMode {
 
         // Reset runtime timer
         runtime.reset();
-
-        // Start launcher speed up (it will stay active throughout the autonomous)
-        robot.launcher.speedUp();
 
         while (opModeIsActive()) {
             // Update robot and current pose
@@ -126,10 +126,8 @@ public class LM3Auto extends LinearOpMode {
     }
 
     public enum State {
-        DETECT_PATTERN, // Detect obelisk April Tag pattern, compute the rest of the autonomous states based on that
         LAUNCH, // Launch 3 artifacts
         MOVE_TO_SCORING_POSITION, // Move from the current position to the scoring position
-        MOVE_TO_PATTERN_SCANNING_POSITION, // Move to the position to scan the April Tag (only used on the depot starting position, not the audience wall)
         MOVE_TO_PPG, // Move in front of the PPG artifact row
         MOVE_TO_PGP, // Move in front of the PGP artifact row
         MOVE_TO_GPP, // Move in front of the GPP artifact row
@@ -153,13 +151,6 @@ public class LM3Auto extends LinearOpMode {
             actionTimer.reset(); // Reset action timer for the next state to use if needed
         }
 
-        private void appendAfterIntakeStates() {
-            stateList.add(State.INTAKE_ARTIFACT_ROW); // Intake the row that the robot is lined up with
-            stateList.add(State.MOVE_TO_SCORING_POSITION); // Move back to scoring position
-            stateList.add(State.LAUNCH); // Launch the artifacts
-            // Now we're ready for the next round of intakes or to finish
-        }
-
         private boolean actionTimerElapsed(double milliseconds) {
             return actionTimer.milliseconds() >= milliseconds;
         }
@@ -176,50 +167,6 @@ public class LM3Auto extends LinearOpMode {
 
                 // State machine switch
                 switch (currentState) {
-                    case DETECT_PATTERN:
-                        if (actionTimerElapsed(200)) {
-                            break; // Wait to allow the camera to stabilize
-                        }
-
-                        // Based on the detected pattern, append the appropriate states to the state list
-                        // NOTE: None of this is actively happening in this state, it's just laying out what will happen
-                        targetPattern = robot.camera.detectPattern(); // Detect the April Tag pattern
-
-                        // First round of intakes (pattern row)
-                        if (targetPattern == Pattern.GPP) {
-                            stateList.add(State.MOVE_TO_GPP);
-                        } else if (targetPattern == Pattern.PGP) {
-                            stateList.add(State.MOVE_TO_PGP);
-                        } else if (targetPattern == Pattern.PPG) {
-                            stateList.add(State.MOVE_TO_PPG);
-                        }
-                        appendAfterIntakeStates(); // Append the states for the first round of intakes
-
-                        // Second round of intakes (closest to goal of the two, not pattern)
-                        if (targetPattern == Pattern.GPP) {
-                            stateList.add(State.MOVE_TO_PGP);
-                        } else if (targetPattern == Pattern.PGP) {
-                            stateList.add(State.MOVE_TO_GPP);
-                        } else if (targetPattern == Pattern.PPG) {
-                            stateList.add(State.MOVE_TO_GPP);
-                        }
-                        appendAfterIntakeStates(); // Append the states for the second round of intakes
-
-                        // Last (third) round of intakes (not pattern row)
-                        if (targetPattern == Pattern.GPP) {
-                            stateList.add(State.MOVE_TO_PPG);
-                        } else if (targetPattern == Pattern.PGP) {
-                            stateList.add(State.MOVE_TO_PPG);
-                        } else if (targetPattern == Pattern.PPG) {
-                            stateList.add(State.MOVE_TO_PGP);
-                        }
-                        appendAfterIntakeStates(); // Append the states for the last round of intakes
-
-                        stateList.add(State.MOVE_TO_GATE_ZONE); // Move to gate zone to prepare for TeleOp
-                        stateList.add(State.COMPLETED);
-                        nextState();
-
-                        break;
                     case LAUNCH:
                         if (actionTimerElapsed(250)) {
                             break; // Wait to allow the robot to stabilize
@@ -230,10 +177,12 @@ public class LM3Auto extends LinearOpMode {
                         }
                         if (robot.launcher.didCompleteCycle()) { // If the launch cycle is completed
                             this.launchCommanded = false; // Reset launch commanded flag
+                            robot.launcher.stop(); // Stop the launcher
                             nextState();
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
+                        robot.launcher.speedUp(); // Speed up the launcher while driving to scoring position
                         if (!lastCommandedPose.equals(robot.poses.goalStart)) { // If the robot is at the goal start pose
                             // Use the control point specifically for goal start to scoring position
                             robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.goalStartToScoreCP}), 0.7);
@@ -242,11 +191,6 @@ public class LM3Auto extends LinearOpMode {
                         }
 
                         lastCommandedPose = robot.poses.score;
-                        nextState();
-                        break;
-                    case MOVE_TO_PATTERN_SCANNING_POSITION:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.patternScanPosition));
-                        lastCommandedPose = robot.poses.patternScanPosition;
                         nextState();
                         break;
                     case MOVE_TO_PPG:
@@ -278,11 +222,14 @@ public class LM3Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.5);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.6);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
-                            robot.intake.stop(); // Stop the intake
-                            nextState();
+                            // This time is intended to allow the intake a small amount of time after the robot has stopped to finish
+                            if (actionTimerElapsed(2000)) {
+                                robot.intake.stop(); // Stop the intake
+                                nextState();
+                            }
                         }
                         break;
                     case MOVE_TO_GATE_ZONE:

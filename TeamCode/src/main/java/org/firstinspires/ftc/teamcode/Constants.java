@@ -120,7 +120,6 @@ public class Constants {
         public Pose baseZone; // In the endgame zone (facing away from audience)
         public Pose gateZoneNotPushed; // Right beside the gate, but not pushing it (facing away from audience)
         public Pose gateZonePushed; // Right beside the gate, pushing it (facing away from audience)
-        public Pose patternScanPosition; // In front of the obelisk, facing it
         public Pose PPGArtifacts; // In front of upper artifacts
         public Pose PGPArtifacts; // In front of middle artifacts
         public Pose GPPArtifacts; // In front of lower artifacts
@@ -131,7 +130,6 @@ public class Constants {
         // Control Points
         public Pose goalStartToScoreCP;
         public Pose toScoreCP;
-        public Pose scoreToLoadingZoneCP;
 
         public Poses(Alliance alliance) {
             // Set mirroring flag based on alliance
@@ -145,7 +143,6 @@ public class Constants {
             this.baseZone = buildPose(106, 33, 90, mirrorPoses);
             this.gateZoneNotPushed = buildPose(20, 68, 90, mirrorPoses);
             this.gateZonePushed = buildPose(17, 68, 90, mirrorPoses);
-            this.patternScanPosition = buildPose(72, 72, 90, mirrorPoses);
             this.PPGArtifacts = buildPose(48, 47.5, 180, mirrorPoses);
             this.PGPArtifacts = buildPose(48, 71.5, 180, mirrorPoses);
             this.GPPArtifacts = buildPose(48, 95.5, 180, mirrorPoses);
@@ -156,7 +153,6 @@ public class Constants {
             // Control points (heading has no effect on control points)
             this.goalStartToScoreCP = buildPose(40, 110, 0, mirrorPoses);
             this.toScoreCP = buildPose(80, 60, 0, mirrorPoses);
-            this.scoreToLoadingZoneCP = buildPose(90, 20, 0, mirrorPoses);
         }
 
         // Suppress warning about mirrorIfNeeded always being true
