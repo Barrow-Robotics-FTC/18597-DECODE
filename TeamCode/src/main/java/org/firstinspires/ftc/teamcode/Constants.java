@@ -66,8 +66,8 @@ public class Constants {
         public static int TARGET_RPM = 700; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 30; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 300; // Time that the RPM must be within the tolerance before launching (milliseconds)
-        public static double LAUNCHER_POWER_WHILE_INTAKING = 0.3; // Power for launcher wheels while intaking to prevent jamming
-        public static double POSITIVE_TO_NEGATIVE_SAFETY_RPM = 100; // RPM threshold to prevent sudden direction changes when switching directions for intake
+        public static double POWER_WHILE_INTAKING = -0.3; // Power for launcher wheels while intaking to prevent jamming
+        public static double DIRECTION_SWITCH_SAFETY_RPM = 100; // RPM threshold to prevent sudden direction changes when switching directions for intake
         public static double COAST_DOWN_POWER = -0.1; // Power to apply to the launcher wheels to help them coast down below the safety threshold when reversing for intake
         public enum LauncherState {
             IDLE,

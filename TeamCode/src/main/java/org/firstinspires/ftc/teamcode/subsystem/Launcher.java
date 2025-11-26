@@ -43,10 +43,10 @@ public class Launcher {
 
         // Configure motors
         robot.leftLauncherMotor.setZeroPowerBehavior(BRAKE);
-        robot.leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        robot.leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightLauncherMotor.setDirection(REVERSE); // Reverse right motor
         robot.rightLauncherMotor.setZeroPowerBehavior(BRAKE);
-        robot.rightLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        robot.rightLauncherMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     // Called after each cycle to reset variables
@@ -210,22 +210,23 @@ public class Launcher {
         if (robot.intake.isActive()) {
             // Run the launcher wheels in reverse to avoid jamming
             // Make sure we don't suddenly switch directions and cause damage or back EMF
-            if (getLeftRPM(robot) > POSITIVE_TO_NEGATIVE_SAFETY_RPM || getRightRPM(robot) > POSITIVE_TO_NEGATIVE_SAFETY_RPM) {
+            if (getLeftRPM(robot) > DIRECTION_SWITCH_SAFETY_RPM || getRightRPM(robot) > DIRECTION_SWITCH_SAFETY_RPM) {
                 // Help the launcher wheels coast down below the safety threshold
                 setPowers(COAST_DOWN_POWER, COAST_DOWN_POWER, robot);
             } else {
                 // Run the launcher wheels at full intake power
-                setPowers(-LAUNCHER_POWER_WHILE_INTAKING, -LAUNCHER_POWER_WHILE_INTAKING, robot);
+                setPowers(POWER_WHILE_INTAKING, POWER_WHILE_INTAKING, robot);
             }
-            prevIntaking = true; // Mark that the intake was running
+            prevIntaking = true; // Mark that the intake was running this update
             return;
         } else if (prevIntaking) { // Intaking last update but not this update
             // No longer intaking, move back to speed up state if the launcher wasn't previously idle
             setPowers(0, 0, robot);
-            if (state != LauncherState.IDLE) {
-                speedUp(); // Move to speed up state
+            if (state != LauncherState.IDLE) { // If the launcher wasn't idle
+                speedUp(); // Return to speed up state
             }
             prevIntaking = false; // Mark that the intake is no longer running
+            return;
         }
 
         switch(state) {

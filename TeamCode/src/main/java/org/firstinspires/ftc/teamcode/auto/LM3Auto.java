@@ -88,8 +88,8 @@ public class LM3Auto extends LinearOpMode {
         // Reset runtime timer
         runtime.reset();
 
-        // Start launcher speed up
-        stateMachine.speedUpLauncher();
+        // Start launcher speed up (it will stay active throughout the autonomous)
+        robot.launcher.speedUp();
 
         while (opModeIsActive()) {
             // Update robot and current pose
@@ -149,10 +149,6 @@ public class LM3Auto extends LinearOpMode {
 
         public StateMachine() {
             this.statesIndex = 0;
-        }
-
-        public void speedUpLauncher() {
-            robot.launcher.speedUp();
         }
 
         public void stop() {
