@@ -142,26 +142,32 @@ public class LM3Auto extends LinearOpMode {
         private int statesIndex; // Current index in states
         private State currentState; // Current state (only used in update for cleaner code)
         private boolean launchCommanded; // Has the launch been commanded by the LAUNCH state
-
-        private void nextState() {
-            statesIndex += 1;
-        }
+        private final ElapsedTime actionTimer = new ElapsedTime(); // Timer to wait before performing an action
 
         public StateMachine() {
             this.statesIndex = 0;
+        }
+
+        private void nextState() {
+            statesIndex += 1;
+            actionTimer.reset(); // Reset action timer for the next state to use if needed
+        }
+        
+        private void appendAfterIntakeStates() {
+            stateList.add(State.INTAKE_ARTIFACT_ROW); // Intake the row that the robot is lined up with
+            stateList.add(State.MOVE_TO_SCORING_POSITION); // Move back to scoring position
+            stateList.add(State.LAUNCH); // Launch the artifacts
+            // Now we're ready for the next round of intakes or to finish
+        }
+
+        private boolean actionTimerElapsed(double milliseconds) {
+            return actionTimer.milliseconds() >= milliseconds;
         }
 
         public void stop() {
             if (currentState != State.COMPLETED) { // If not already completed
                 statesIndex = stateList.size(); // Set index to end (COMPLETED state)
             }
-        }
-
-        private void appendAfterIntakeStates() {
-            stateList.add(State.INTAKE_ARTIFACT_ROW); // Intake the row that the robot is lined up with
-            stateList.add(State.MOVE_TO_SCORING_POSITION); // Move back to scoring position
-            stateList.add(State.LAUNCH); // Launch the artifacts
-            // Now we're ready for the next round of intakes or to finish
         }
 
         public State update() {
@@ -171,6 +177,10 @@ public class LM3Auto extends LinearOpMode {
                 // State machine switch
                 switch (currentState) {
                     case DETECT_PATTERN:
+                        if (actionTimerElapsed(200)) {
+                            break; // Wait to allow the camera to stabilize
+                        }
+
                         // Based on the detected pattern, append the appropriate states to the state list
                         // NOTE: None of this is actively happening in this state, it's just laying out what will happen
                         targetPattern = robot.camera.detectPattern(); // Detect the April Tag pattern
@@ -211,6 +221,9 @@ public class LM3Auto extends LinearOpMode {
 
                         break;
                     case LAUNCH:
+                        if (actionTimerElapsed(250)) {
+                            break; // Wait to allow the robot to stabilize
+                        }
                         if (!this.launchCommanded) { // If the launcher hasn't been commanded
                             robot.launcher.launch(3); // Command launcher to launch 3 artifacts
                             this.launchCommanded = true; // Launch has been commanded
