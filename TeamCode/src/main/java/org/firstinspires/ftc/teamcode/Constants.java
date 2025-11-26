@@ -113,8 +113,8 @@ public class Constants {
     public static class TeleOpConstants {
         public static final boolean BRAKE_MODE = true; // Whether the motors should brake on stop (recommended)
         public static final boolean ROBOT_CENTRIC = true; // True for robot centric driving, false for field centric
-        public static final double SLOW_MODE_MULTIPLIER = 0.25; // Multiplier for slow mode speed
-        public static final double NORMAL_SPEED_MULTIPLIER = 0.75; // Multiplier for normal driving speed
+        public static final double SLOW_MODE_MULTIPLIER = 0.3; // Multiplier for slow mode speed
+        public static final double NORMAL_SPEED_MULTIPLIER = 0.8; // Multiplier for normal driving speed
     }
 
     // Pedro Pathing poses

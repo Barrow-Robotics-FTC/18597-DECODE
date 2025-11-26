@@ -152,7 +152,7 @@ public class LM3Auto extends LinearOpMode {
             statesIndex += 1;
             actionTimer.reset(); // Reset action timer for the next state to use if needed
         }
-        
+
         private void appendAfterIntakeStates() {
             stateList.add(State.INTAKE_ARTIFACT_ROW); // Intake the row that the robot is lined up with
             stateList.add(State.MOVE_TO_SCORING_POSITION); // Move back to scoring position

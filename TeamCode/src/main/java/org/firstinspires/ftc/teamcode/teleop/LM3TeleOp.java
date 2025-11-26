@@ -49,8 +49,6 @@ public class LM3TeleOp extends LinearOpMode {
     private Pose currentPose; // Current pose of the robot
     private int artifactsToLaunch = 0; // Number of artifacts to launch
     private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
-    private boolean launcherIsActive = false; // Is the launcher currently active (sped up)?
-    private boolean launcherIsLaunching = false; // Is the launcher currently launching?
 
     private void startLaunch(int numArtifacts) {
         artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
@@ -124,41 +122,34 @@ public class LM3TeleOp extends LinearOpMode {
 
             // Gamepad 2 Right Bumper: Toggle launcher speed up
             if (gamepad2.rightBumperWasPressed()) {
-                if (launcherIsActive) {
+                if (robot.launcher.isActive()) {
                     robot.launcher.stop(); // Stop the launcher
-                    launcherIsActive = false; // Set active flag to false
                 } else {
                     robot.launcher.speedUp(); // Speed up the launcher
-                    launcherIsActive = true; // Set active flag to true
                 }
             }
 
             // Gamepad 2 Left Trigger: Launch 1 artifact
-            if (robot.gamepad2LeftTriggerPressed(gamepad2) && !launcherIsLaunching) {
+            if (robot.gamepad2LeftTriggerPressed(gamepad2) && !robot.launcher.isLaunching()) {
                 startLaunch(1); // Indicate that we want to launch 1 artifact
             }
 
             // Gamepad 2 Right Trigger: Launch 3 artifacts
-            if (robot.gamepad2RightTriggerPressed(gamepad2) && !launcherIsLaunching) {
+            if (robot.gamepad2RightTriggerPressed(gamepad2) && !robot.launcher.isLaunching()) {
                 startLaunch(3); // Indicate that we want to launch 3 artifacts
             }
 
             // If we are in the process of launching artifacts
             if (artifactsToLaunch > 0) {
+                // This won't run until we are lined up with the goal
                 if (!liningUpWithGoal) {
                     // Note: line up is handled above in drivetrain update
                     // Note: The launch command will call speedUp() if the launcher is idle, so no need to check here
                     robot.launcher.launch(artifactsToLaunch); // Start the launch of artifacts
-                    launcherIsLaunching = true; // Indicate that the launcher is launching
 
                     // Reset flags
                     artifactsToLaunch = 0; // Reset the launch request
                 }
-            }
-
-            // Check if a launch cycle was completed
-            if (robot.launcher.didCompleteCycle()) { // If a launch cycle has completed
-                launcherIsLaunching = false; // Indicate that the launcher is no longer launching
             }
 
             // Set Gamepad 1 lights (priority goes first to last)
@@ -173,9 +164,9 @@ public class LM3TeleOp extends LinearOpMode {
             // Set Gamepad 2 lights (priority goes first to last)
             if (liningUpWithGoal) { // Lining up with goal: purple
                 robot.setGamepad2Color(255, 0, 255);
-            } else if (launcherIsLaunching) { // Launcher is launching: green
+            } else if (robot.launcher.isLaunching()) { // Launcher is launching: green
                 robot.setGamepad2Color(0, 255, 0);
-            } else if (launcherIsActive) { // Launcher is active: blue
+            } else if (robot.launcher.isActive()) { // Launcher is active: blue
                 robot.setGamepad2Color(0, 0, 255);
             } else { // None of the above conditions: off
                 robot.setGamepad2Color(0, 0, 0);
@@ -185,7 +176,6 @@ public class LM3TeleOp extends LinearOpMode {
             telemetry.addData("Run Time: ", runtime.seconds());
             telemetry.addData("Automated Drive: ", robot.drivetrain.isDriving());
             telemetry.addData("Launcher State: ", robot.launcher.getState());
-            telemetry.addData("Artifacts to launch", artifactsToLaunch);
             telemetry.addData("X: ", currentPose.getX());
             telemetry.addData("Y: ", currentPose.getY());
             telemetry.addData("Heading: ", Math.toDegrees(currentPose.getHeading()));
