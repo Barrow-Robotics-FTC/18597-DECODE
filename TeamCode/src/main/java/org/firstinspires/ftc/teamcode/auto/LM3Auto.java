@@ -225,7 +225,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        if (!lastCommandedPose.equals(robot.poses.goalStartPose)) { // If the robot is at the goal start pose
+                        if (!lastCommandedPose.equals(robot.poses.goalStart)) { // If the robot is at the goal start pose
                             // Use the control point specifically for goal start to scoring position
                             robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.goalStartToScoreCP}));
                         } else {
