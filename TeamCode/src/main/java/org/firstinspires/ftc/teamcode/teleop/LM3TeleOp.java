@@ -38,14 +38,12 @@ public class LM3TeleOp extends LinearOpMode {
     private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
     private Alliance alliance; // Alliance color
 
-    // Driver controller variables
-    private boolean slowMode = false;
-
     // Utilities
     private final ElapsedTime runtime = new ElapsedTime();
     private Robot robot; // Robot object
 
     // Variables
+    private boolean slowMode = false;
     private Pose currentPose; // Current pose of the robot
     private int artifactsToLaunch = 0; // Number of artifacts to launch
     private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
@@ -61,7 +59,7 @@ public class LM3TeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Get variables from Blackboard
-        alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.RED);
+        alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE);
         autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", null);
 
         // Initialize robot
@@ -148,28 +146,26 @@ public class LM3TeleOp extends LinearOpMode {
                     robot.launcher.launch(artifactsToLaunch); // Start the launch of artifacts
 
                     // Reset flags
-                    artifactsToLaunch = 0; // Reset the launch request
+                    artifactsToLaunch = 0;
                 }
             }
 
             // Set Gamepad 1 lights (priority goes first to last)
-            if (liningUpWithGoal) { // Lining up with goal: purple
-                robot.setGamepad1Color(255, 0, 255);
+            if (robot.launcher.isLaunching()) { // Launch process is running: purple
+                robot.setGamepad2Color(0, 255, 255);
             } else if (slowMode) { // Slow mode: blue
                 robot.setGamepad1Color(0, 0, 255);
-            } else { // None of the above conditions: off
-                robot.setGamepad1Color(0, 0, 0);
+            } else { // None of the above conditions: green
+                robot.setGamepad1Color(0, 255, 0);
             }
 
             // Set Gamepad 2 lights (priority goes first to last)
-            if (liningUpWithGoal) { // Lining up with goal: purple
-                robot.setGamepad2Color(255, 0, 255);
-            } else if (robot.launcher.isLaunching()) { // Launcher is launching: green
-                robot.setGamepad2Color(0, 255, 0);
+            if (robot.launcher.isLaunching()) { // Launch process is running: purple
+                robot.setGamepad2Color(0, 255, 255);
             } else if (robot.launcher.isActive()) { // Launcher is active: blue
                 robot.setGamepad2Color(0, 0, 255);
-            } else { // None of the above conditions: off
-                robot.setGamepad2Color(0, 0, 0);
+            } else { // None of the above conditions: green
+                robot.setGamepad2Color(0, 255, 0);
             }
 
             // Log status

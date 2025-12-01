@@ -107,7 +107,7 @@ public class Launcher {
      * @return True if the launcher is launching, false otherwise
      */
     public boolean isLaunching() {
-        return state == LauncherState.LAUNCH;
+        return launchesToPerform > 0;
     }
 
     /**
