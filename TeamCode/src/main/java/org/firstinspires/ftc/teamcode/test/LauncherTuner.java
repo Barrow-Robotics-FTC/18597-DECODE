@@ -96,7 +96,7 @@ public class LauncherTuner extends LinearOpMode {
                 if (robot.launcher.isActive()) { // If launcher isn't idle
                     robot.launcher.stop(); // Stop the launcher
                 } else {
-                    robot.launcher.speedUp(); // Speed up the launcher
+                    robot.launcher.speedUp(true); // Speed up the launcher
                 }
             }
 

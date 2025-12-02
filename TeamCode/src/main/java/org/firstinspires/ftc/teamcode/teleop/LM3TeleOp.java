@@ -67,7 +67,7 @@ public class LM3TeleOp extends LinearOpMode {
         robot.buildPoses(alliance);
 
         // Set starting pose to the end pose of auto (if it doesn't exist, use audience start)
-        robot.drivetrain.setStartingPose(autoEndPose == null ? robot.poses.audienceStart : autoEndPose);
+        robot.drivetrain.setPose(autoEndPose == null ? robot.poses.audienceStart : autoEndPose);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -123,7 +123,7 @@ public class LM3TeleOp extends LinearOpMode {
                 if (robot.launcher.isActive()) {
                     robot.launcher.stop(); // Stop the launcher
                 } else {
-                    robot.launcher.speedUp(); // Speed up the launcher
+                    robot.launcher.speedUp(true); // Speed up the launcher
                 }
             }
 

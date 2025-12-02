@@ -45,23 +45,13 @@ public class Drivetrain {
     }
 
     /**
-     * Set the starting pose for Pedro Pathing
-     * Automatically calls `update()` to apply the new starting pose
-     *
-     * @param pose The starting pose to set
-     */
-    public void setStartingPose(Pose pose) {
-        follower.setStartingPose(pose); // Set the starting pose in Pedro Pathing
-        follower.update(); // Update Pedro Pathing to apply the new starting pose
-    }
-
-    /**
      * Set the current pose for Pedro Pathing
      *
      * @param pose The current pose to set
      */
     public void setPose(Pose pose) {
         follower.setPose(pose); // Set the robot's pose in Pedro Pathing
+        follower.update(); // Update Pedro Pathing to apply the new pose
     }
 
     /**

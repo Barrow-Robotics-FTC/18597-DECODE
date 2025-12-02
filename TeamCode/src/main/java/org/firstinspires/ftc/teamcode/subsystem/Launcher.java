@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 // FTC SDK
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -21,14 +24,21 @@ public class Launcher {
     private LauncherState state = LauncherState.IDLE; // Current state of the launcher
     private int launchesToPerform; // How many launches to perform in this launch cycle
     private int launches; // How many artifacts have been launched in the current launch cycle
+    private boolean holdSpeed = false; // Should the launcher return to the speed up state after any action
     private boolean launchWhenReady = false; // Has the launcher been commanded to launch
     private boolean launchCycleCompleted = false; // Was a launch cycle completed in the last update
     private boolean prevIntaking = false; // Was the intake running in the previous update
 
     // Constructor
     public Launcher(Robot robot) {
+        // Launcher motor configuration
+        robot.leftLauncherMotor.setZeroPowerBehavior(BRAKE);
+        robot.leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         robot.leftLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
                 new PIDFCoefficients(leftLauncherCoefficients.P, leftLauncherCoefficients.I, leftLauncherCoefficients.D, leftLauncherCoefficients.F));
+        robot.rightLauncherMotor.setDirection(REVERSE); // Reverse right motor
+        robot.rightLauncherMotor.setZeroPowerBehavior(BRAKE);
+        robot.rightLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         robot.rightLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
                 new PIDFCoefficients(rightLauncherCoefficients.P, rightLauncherCoefficients.I, rightLauncherCoefficients.D, rightLauncherCoefficients.F));
     }
@@ -154,9 +164,10 @@ public class Launcher {
     /**
      * Command the launcher to speed up to target RPM
      */
-    public void speedUp() {
+    public void speedUp(boolean holdSpeed) {
         state = LauncherState.SPEED_UP; // Move to speed up state
-        inToleranceTimer.reset(); // Reset in tolerance timer
+        this.holdSpeed = holdSpeed; // Set hold speed flag
+        inToleranceTimer.reset(); // Ensure that the in tolerance timer is reset, probably redundant
     }
 
     /**
@@ -167,7 +178,7 @@ public class Launcher {
      */
     public void launch(int artifacts) {
         if (state == LauncherState.IDLE) {
-            speedUp(); // If the launcher hasn't sped up, start the speed up now
+            speedUp(false); // If the launcher hasn't sped up, start the speed up now, don't hold speed after
         }
 
         launchesToPerform = artifacts; // Set the amount of launches to perform
@@ -184,29 +195,15 @@ public class Launcher {
         // Check if intake is running
         if (robot.intake.isActive()) {
             // Run the launcher wheels in reverse to avoid jamming
-            // Make sure we don't suddenly switch directions and cause damage or back EMF
-            if (getLeftRPM(robot) > DIRECTION_SWITCH_SAFETY_RPM || getRightRPM(robot) > DIRECTION_SWITCH_SAFETY_RPM) {
-                // Help the launcher wheels coast down below the safety threshold
-                setPowers(COAST_DOWN_POWER, COAST_DOWN_POWER, robot);
-            } else {
-                // Run the launcher wheels at full intake power
-                setPowers(POWER_WHILE_INTAKING, POWER_WHILE_INTAKING, robot);
-            }
-            prevIntaking = true; // Mark that the intake was running
+            setPowers(POWER_WHILE_INTAKING, POWER_WHILE_INTAKING, robot);
             return;
-        } else if (prevIntaking) { // Intaking last update but not this update
-            // No longer intaking, move back to speed up state if the launcher wasn't previously idle
-            if (state != LauncherState.IDLE) {
-                state = LauncherState.SPEED_UP; // Move to speed up state
-                inToleranceTimer.reset(); // Reset in tolerance timer
-            }
-            prevIntaking = false; // Mark that the intake is no longer running
         }
 
         switch(state) {
             case IDLE:
                 setPowers(0, 0, robot); // Stop the launcher motors
                 inToleranceTimer.reset(); // Reset in tolerance timer
+
                 break;
             case SPEED_UP:
                 // Update the motor speeds using the controllers
@@ -229,8 +226,8 @@ public class Launcher {
                 } else {
                     inToleranceTimer.reset(); // If the motors aren't in tolerance, reset the timer
                 }
-                break;
 
+                break;
             case LAUNCH:
                 // Continue updating the motor speeds to maintain RPM
                 updateControllers(robot);

@@ -25,18 +25,12 @@ public class LM3Auto extends LinearOpMode {
             State.LAUNCH, // Score preloaded artifacts
             State.MOVE_TO_GPP, // Move in front of the PPG artifact row
             State.INTAKE_ARTIFACT_ROW, // Intake the artifacts from the GPP row
-            State.MOVE_TO_GPP, // Return to the GPP artifact row start position
-            State.INTAKE_ARTIFACT_ROW, // Attempt to intake any remaining artifacts from the GPP row
             State.MOVE_TO_SCORING_POSITION,
             State.LAUNCH,
             State.MOVE_TO_PGP,
             State.INTAKE_ARTIFACT_ROW,
-            State.MOVE_TO_PGP,
-            State.INTAKE_ARTIFACT_ROW,
             State.MOVE_TO_SCORING_POSITION,
             State.LAUNCH,
-            State.MOVE_TO_PPG,
-            State.INTAKE_ARTIFACT_ROW,
             State.MOVE_TO_PPG,
             State.INTAKE_ARTIFACT_ROW,
             State.MOVE_TO_SCORING_POSITION,
@@ -90,6 +84,9 @@ public class LM3Auto extends LinearOpMode {
 
         // Reset runtime timer
         runtime.reset();
+
+        // Start the launcher, it will stay active throughout the auto
+        robot.launcher.speedUp(true);
 
         while (opModeIsActive()) {
             // Update robot and current pose
@@ -151,10 +148,6 @@ public class LM3Auto extends LinearOpMode {
             actionTimer.reset(); // Reset action timer for the next state to use if needed
         }
 
-        private boolean actionTimerElapsed(double milliseconds) {
-            return actionTimer.milliseconds() >= milliseconds;
-        }
-
         public void stop() {
             if (currentState != State.COMPLETED) { // If not already completed
                 statesIndex = stateList.size(); // Set index to end (COMPLETED state)
@@ -179,11 +172,11 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        robot.launcher.speedUp(); // Speed up the launcher while driving to scoring position
                         if (!lastCommandedPose.equals(robot.poses.goalStart)) { // If the robot is at the goal start pose
-                            // Use the control point specifically for goal start to scoring position
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.goalStartToScoreCP}));
+                            // No control point needed
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score));
                         } else {
+                            // Add control point to avoid hitting artifacts
                             robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.toScoreCP}));
                         }
 
@@ -219,7 +212,7 @@ public class LM3Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.6);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.75);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
                             robot.intake.stop(); // Stop the intake
@@ -227,7 +220,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_GATE_ZONE:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed));
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed), 0.75);
                         lastCommandedPose = robot.poses.gateZoneNotPushed;
                         nextState();
                         break;

@@ -50,7 +50,7 @@ public class Constants {
     }
 
     public static class TapperConstants {
-        public static double POSITIONING_TIME = 500; // Time it takes for the tapper to move between positions (milliseconds)
+        public static double POSITIONING_TIME = 400; // Time it takes for the tapper to move between positions (milliseconds)
         public static double PUSHED_POSITION = 0.65; // Position that the tapper goes to when pushing an artifact into the launcher
         public static double HOME_POSITION = 0.1; // Position of the tapper when retracted
         public enum TapperState {
@@ -64,11 +64,9 @@ public class Constants {
         public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
         public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
         public static int TARGET_RPM = 700; // Target RPM for both launcher motors
-        public static int RPM_TOLERANCE = 50; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
+        public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 250; // Time that the RPM must be within the tolerance before launching (milliseconds)
-        public static double POWER_WHILE_INTAKING = -0.3; // Power for launcher wheels while intaking to prevent jamming
-        public static double DIRECTION_SWITCH_SAFETY_RPM = 100; // RPM threshold to prevent sudden direction changes when switching directions for intake
-        public static double COAST_DOWN_POWER = -0.1; // Power to apply to the launcher wheels to help them coast down below the safety threshold when reversing for intake
+        public static double POWER_WHILE_INTAKING = -0.1; // Power for launcher wheels while intaking to prevent jamming
         public enum LauncherState {
             IDLE,
             SPEED_UP,
@@ -117,9 +115,7 @@ public class Constants {
         public Pose audienceStart; // Starting pose that is against the audience wall, left edge on C tile left line
         public Pose localize; // Back against the audience and alliance walls, robot is driven into this corner for localization
         public Pose score; // Facing goal (close to the white line point)
-        public Pose baseZone; // In the endgame zone (facing away from audience)
         public Pose gateZoneNotPushed; // Right beside the gate, but not pushing it (facing away from audience)
-        public Pose gateZonePushed; // Right beside the gate, pushing it (facing away from audience)
         public Pose PPGArtifacts; // In front of upper artifacts
         public Pose PGPArtifacts; // In front of middle artifacts
         public Pose GPPArtifacts; // In front of lower artifacts
@@ -128,7 +124,6 @@ public class Constants {
         public Pose GPPArtifactsEnd; // In front of GPPArtifacts
 
         // Control Points
-        public Pose goalStartToScoreCP;
         public Pose toScoreCP;
 
         public Poses(Alliance alliance) {
@@ -136,22 +131,19 @@ public class Constants {
             this.mirrorPoses = (alliance == Alliance.RED);
 
             // Build the poses, see descriptions in definitions above
-            this.goalStart = buildPose(15.25, 111, 90, mirrorPoses);
+            this.goalStart = buildPose(15.25, 111, 144, mirrorPoses);
             this.audienceStart = buildPose(56, 8.25, 90, mirrorPoses);
             this.localize = buildPose(8.25, 8, 0, mirrorPoses);
-            this.score = buildPose(71, 98.5, 143, mirrorPoses);
-            this.baseZone = buildPose(106, 33, 90, mirrorPoses);
-            this.gateZoneNotPushed = buildPose(20, 68, 90, mirrorPoses);
-            this.gateZonePushed = buildPose(17, 68, 90, mirrorPoses);
-            this.PPGArtifacts = buildPose(48, 47.5, 180, mirrorPoses);
-            this.PGPArtifacts = buildPose(48, 71.5, 180, mirrorPoses);
-            this.GPPArtifacts = buildPose(48, 95.5, 180, mirrorPoses);
-            this.PPGArtifactsEnd = buildPose(23, 47.5, 180, mirrorPoses);
-            this.PGPArtifactsEnd = buildPose(23, 71.5, 180, mirrorPoses);
+            this.score = buildPose(72, 96, 144, mirrorPoses);
+            this.gateZoneNotPushed = buildPose(25, 69, 90, mirrorPoses);
+            this.PPGArtifacts = buildPose(55, 47.5, 180, mirrorPoses);
+            this.PGPArtifacts = buildPose(55, 71.5, 180, mirrorPoses);
+            this.GPPArtifacts = buildPose(55, 95.5, 180, mirrorPoses);
+            this.PPGArtifactsEnd = buildPose(17, 47.5, 180, mirrorPoses);
+            this.PGPArtifactsEnd = buildPose(17, 71.5, 180, mirrorPoses);
             this.GPPArtifactsEnd = buildPose(23, 95.5, 180, mirrorPoses);
 
             // Control points (heading has no effect on control points)
-            this.goalStartToScoreCP = buildPose(40, 120, 0, mirrorPoses);
             this.toScoreCP = buildPose(80, 60, 0, mirrorPoses);
         }
 
