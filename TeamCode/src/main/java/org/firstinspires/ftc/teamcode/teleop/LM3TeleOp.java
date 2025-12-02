@@ -94,7 +94,6 @@ public class LM3TeleOp extends LinearOpMode {
                 // When the launch is started, we should be following a path to the scoring pose
                 if (!robot.drivetrain.isDriving()) { // When we reach the scoring pose
                     liningUpWithGoal = false; // Finished lining up
-                    robot.drivetrain.holdPose(robot.poses.score); // Hold the scoring pose
                 }
             }
 

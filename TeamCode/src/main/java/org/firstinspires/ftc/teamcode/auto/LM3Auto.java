@@ -35,7 +35,8 @@ public class LM3Auto extends LinearOpMode {
             State.INTAKE_ARTIFACT_ROW,
             State.MOVE_TO_SCORING_POSITION,
             State.LAUNCH,
-            State.MOVE_TO_GATE_ZONE // Move to gate zone to prepare for TeleOp
+            State.MOVE_TO_GATE_ZONE, // Move to gate zone to prepare for TeleOp
+            State.COMPLETED // End of autonomous
     ));
 
     // Utilities
@@ -172,7 +173,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        if (!lastCommandedPose.equals(robot.poses.goalStart)) { // If the robot is at the goal start pose
+                        if (lastCommandedPose.equals(robot.poses.goalStart)) { // If the robot is at the goal start pose
                             // No control point needed
                             robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score));
                         } else {
