@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode.test;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-
-import com.pedropathing.control.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Robot;
@@ -35,11 +34,11 @@ public class LauncherTuner extends LinearOpMode {
     private double d;
     private double f;
 
-    private PIDFCoefficients getCoefficients() {
+    private PIDFCoefficients getCoefficients(Robot robot) {
         if (tuningLeft) {
-            return robot.launcher.getLeftControllerCoefficients();
+            return robot.launcher.getLeftControllerCoefficients(robot);
         } else {
-            return robot.launcher.getRightControllerCoefficients();
+            return robot.launcher.getRightControllerCoefficients(robot);
         }
     }
 
@@ -52,16 +51,16 @@ public class LauncherTuner extends LinearOpMode {
 
         // Turn off the motor we aren't tuning
         if (tuningLeft) {
-            robot.launcher.updateRightControllerCoefficients(new PIDFCoefficients(0, 0, 0, 0));
+            robot.launcher.updateRightControllerCoefficients(robot, new PIDFCoefficients(0, 0, 0, 0));
         } else {
-            robot.launcher.updateLeftControllerCoefficients(new PIDFCoefficients(0, 0, 0, 0));
+            robot.launcher.updateLeftControllerCoefficients(robot, new PIDFCoefficients(0, 0, 0, 0));
         }
 
         // Set initial coefficients from Constants
-        p = getCoefficients().P;
-        i = getCoefficients().I;
-        d = getCoefficients().D;
-        f = getCoefficients().F;
+        p = getCoefficients(robot).p;
+        i = getCoefficients(robot).i;
+        d = getCoefficients(robot).d;
+        f = getCoefficients(robot).f;
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");
@@ -87,9 +86,9 @@ public class LauncherTuner extends LinearOpMode {
             // Update the controller coefficients
             PIDFCoefficients newCoeffs = new PIDFCoefficients(p, i, d, f);
             if (tuningLeft) {
-                robot.launcher.updateLeftControllerCoefficients(newCoeffs);
+                robot.launcher.updateLeftControllerCoefficients(robot, newCoeffs);
             } else {
-                robot.launcher.updateRightControllerCoefficients(newCoeffs);
+                robot.launcher.updateRightControllerCoefficients(robot, newCoeffs);
             }
 
             // Right Bumper: toggle launcher speed up
@@ -111,10 +110,10 @@ public class LauncherTuner extends LinearOpMode {
             telemetry.addData("Target RPM", robot.launcher.getTargetRPM());
             telemetry.addData("Left Motor RPM", robot.launcher.getLeftRPM(robot));
             telemetry.addData("Right Motor RPM", robot.launcher.getRightRPM(robot));
-            telemetry.addData("P", newCoeffs.P);
-            telemetry.addData("I", newCoeffs.I);
-            telemetry.addData("D", newCoeffs.D);
-            telemetry.addData("F", newCoeffs.F);
+            telemetry.addData("P", newCoeffs.p);
+            telemetry.addData("I", newCoeffs.i);
+            telemetry.addData("D", newCoeffs.d);
+            telemetry.addData("F", newCoeffs.f);
             telemetry.update();
         }
     }

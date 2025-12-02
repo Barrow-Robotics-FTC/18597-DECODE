@@ -24,7 +24,7 @@ public class PositionRecorder extends LinearOpMode {
 
         // Build poses and set start position to blue goal pose
         robot.buildPoses(Constants.Alliance.BLUE);
-        robot.drivetrain.setStartingPose(robot.poses.localize);
+        robot.drivetrain.setPose(robot.poses.localize);
 
         // Log completed initialization
         telemetry.addData("Status", "Initialized");

@@ -62,6 +62,13 @@ public class Robot {
         rampServo = hardwareMap.get(Servo.class, "ramp");
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
 
+        // Launcher motor configuration
+        leftLauncherMotor.setZeroPowerBehavior(BRAKE);
+        leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        rightLauncherMotor.setDirection(REVERSE); // Reverse right motor
+        rightLauncherMotor.setZeroPowerBehavior(BRAKE);
+        rightLauncherMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
         // Intake motor configuration
         intakeMotor.setZeroPowerBehavior(BRAKE);
         intakeMotor.setDirection(REVERSE);

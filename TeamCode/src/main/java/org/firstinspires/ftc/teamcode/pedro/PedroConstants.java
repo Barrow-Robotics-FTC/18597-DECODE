@@ -17,16 +17,10 @@ import com.pedropathing.paths.PathConstraints;
 
 public class PedroConstants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(19)
-            .forwardZeroPowerAcceleration(-33.67)
-            .lateralZeroPowerAcceleration(-59.27)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.005, 0.04))
-            .headingPIDFCoefficients(new PIDFCoefficients(1.4, 0, 0.1, 0.02))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.018,0,0.0005,0.6,0.007))
-            .centripetalScaling(0.1);
+            .mass(19);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
-            .maxPower(0.6)
+            .maxPower(1.0)
             .rightFrontMotorName("front_right_drive")
             .rightRearMotorName("back_right_drive")
             .leftRearMotorName("back_left_drive")
@@ -34,9 +28,7 @@ public class PedroConstants {
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(82.23)
-            .yVelocity(58.35);
+            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(1.9)

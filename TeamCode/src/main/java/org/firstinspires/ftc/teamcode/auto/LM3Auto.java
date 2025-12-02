@@ -71,10 +71,10 @@ public class LM3Auto extends LinearOpMode {
 
         // Set variables based on start position
         if (startPosition == StartPosition.GOAL_WALL) {
-            robot.drivetrain.setStartingPose(robot.poses.goalStart); // Set starting pose
+            robot.drivetrain.setPose(robot.poses.goalStart); // Set starting pose
             lastCommandedPose = robot.poses.goalStart; // Set last commanded pose
         } else {
-            robot.drivetrain.setStartingPose(robot.poses.audienceStart);
+            robot.drivetrain.setPose(robot.poses.audienceStart);
             lastCommandedPose = robot.poses.audienceStart;
         }
         robot.drivetrain.update(robot); // Update drivetrain to set starting pose
@@ -168,9 +168,6 @@ public class LM3Auto extends LinearOpMode {
                 // State machine switch
                 switch (currentState) {
                     case LAUNCH:
-                        if (actionTimerElapsed(250)) {
-                            break; // Wait to allow the robot to stabilize
-                        }
                         if (!this.launchCommanded) { // If the launcher hasn't been commanded
                             robot.launcher.launch(3); // Command launcher to launch 3 artifacts
                             this.launchCommanded = true; // Launch has been commanded
@@ -185,9 +182,9 @@ public class LM3Auto extends LinearOpMode {
                         robot.launcher.speedUp(); // Speed up the launcher while driving to scoring position
                         if (!lastCommandedPose.equals(robot.poses.goalStart)) { // If the robot is at the goal start pose
                             // Use the control point specifically for goal start to scoring position
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.goalStartToScoreCP}), 0.7);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.goalStartToScoreCP}));
                         } else {
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.toScoreCP}), 0.7);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score, new Pose[]{robot.poses.toScoreCP}));
                         }
 
                         lastCommandedPose = robot.poses.score;
@@ -225,15 +222,12 @@ public class LM3Auto extends LinearOpMode {
                             robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.6);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
-                            // This time is intended to allow the intake a small amount of time after the robot has stopped to finish
-                            if (actionTimerElapsed(2000)) {
-                                robot.intake.stop(); // Stop the intake
-                                nextState();
-                            }
+                            robot.intake.stop(); // Stop the intake
+                            nextState();
                         }
                         break;
                     case MOVE_TO_GATE_ZONE:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed), 0.5);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed));
                         lastCommandedPose = robot.poses.gateZoneNotPushed;
                         nextState();
                         break;

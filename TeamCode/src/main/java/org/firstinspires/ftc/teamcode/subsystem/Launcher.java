@@ -1,28 +1,21 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
-
+// FTC SDK
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import com.pedropathing.control.PIDFCoefficients;
-import com.pedropathing.control.PIDFController;
-
+// Local helpers
 import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.leftLauncherCoefficients;
 import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.rightLauncherCoefficients;
-
 import org.firstinspires.ftc.teamcode.Robot;
 
 public class Launcher {
     // Timers
     private final ElapsedTime inToleranceTimer = new ElapsedTime();
     private final ElapsedTime timeSinceLastLaunch = new ElapsedTime();
-
-    // Motor velocity PIDF controllers
-    private final PIDFController leftMotorController;
-    private final PIDFController rightMotorController;
 
     // Other variables
     private LauncherState state = LauncherState.IDLE; // Current state of the launcher
@@ -31,22 +24,13 @@ public class Launcher {
     private boolean launchWhenReady = false; // Has the launcher been commanded to launch
     private boolean launchCycleCompleted = false; // Was a launch cycle completed in the last update
     private boolean prevIntaking = false; // Was the intake running in the previous update
-    private boolean returnToIdleAfterLaunch; // Should the launcher return to idle after launching
 
     // Constructor
     public Launcher(Robot robot) {
-        // Initialize motor controllers
-        leftMotorController = new PIDFController(leftLauncherCoefficients);
-        rightMotorController = new PIDFController(rightLauncherCoefficients);
-        leftMotorController.setTargetPosition(TARGET_RPM);
-        rightMotorController.setTargetPosition(TARGET_RPM);
-
-        // Configure motors
-        robot.leftLauncherMotor.setZeroPowerBehavior(BRAKE);
-        robot.leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rightLauncherMotor.setDirection(REVERSE); // Reverse right motor
-        robot.rightLauncherMotor.setZeroPowerBehavior(BRAKE);
-        robot.rightLauncherMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.leftLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(leftLauncherCoefficients.P, leftLauncherCoefficients.I, leftLauncherCoefficients.D, leftLauncherCoefficients.F));
+        robot.rightLauncherMotor.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(rightLauncherCoefficients.P, rightLauncherCoefficients.I, rightLauncherCoefficients.D, rightLauncherCoefficients.F));
     }
 
     // Called after each cycle to reset variables
@@ -62,16 +46,8 @@ public class Launcher {
     }
 
     private void updateControllers(Robot robot) {
-        // Set the current position of the PIDF controllers to the current RPM of the motors
-        leftMotorController.updatePosition(getLeftRPM(robot));
-        rightMotorController.updatePosition(getRightRPM(robot));
-
-        // Run the controllers to get the new powers
-        double leftPower = leftMotorController.run();
-        double rightPower = rightMotorController.run();
-
-        // powers
-        setPowers(leftPower, rightPower, robot);
+        robot.leftLauncherMotor.setVelocity(getTargetRPM());
+        robot.rightLauncherMotor.setVelocity(getTargetRPM());
     }
 
     /**
@@ -107,7 +83,7 @@ public class Launcher {
      * @return True if the launcher is launching, false otherwise
      */
     public boolean isLaunching() {
-        return launchesToPerform > 0;
+        return state == LauncherState.LAUNCH;
     }
 
     /**
@@ -144,8 +120,8 @@ public class Launcher {
      *
      * @param coefficients The new PIDF coefficients
      */
-    public void updateLeftControllerCoefficients(PIDFCoefficients coefficients) {
-        leftMotorController.setCoefficients(coefficients);
+    public void updateLeftControllerCoefficients(Robot robot, PIDFCoefficients coefficients) {
+        robot.leftLauncherMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
     }
 
     /**
@@ -153,17 +129,17 @@ public class Launcher {
      *
      * @param coefficients The new PIDF coefficients
      */
-    public void updateRightControllerCoefficients(PIDFCoefficients coefficients) {
-        rightMotorController.setCoefficients(coefficients);
+    public void updateRightControllerCoefficients(Robot robot, PIDFCoefficients coefficients) {
+        robot.rightLauncherMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
     }
 
     /**
      * Get the PDFT coefficients for the left motor
      *
-     * @return PIDF coefficients
+     * @return FilteredPIDF coefficients
      */
-    public PIDFCoefficients getLeftControllerCoefficients() {
-        return leftMotorController.getCoefficients();
+    public PIDFCoefficients getLeftControllerCoefficients(Robot robot) {
+        return robot.leftLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
@@ -171,16 +147,16 @@ public class Launcher {
      *
      * @return FilteredPIDF coefficients
      */
-    public PIDFCoefficients getRightControllerCoefficients() {
-        return rightMotorController.getCoefficients();
+    public PIDFCoefficients getRightControllerCoefficients(Robot robot) {
+        return robot.leftLauncherMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
      * Command the launcher to speed up to target RPM
      */
     public void speedUp() {
-        state = LauncherState.SPEED_UP;
-        inToleranceTimer.reset(); // Reset in tolerance timer when entering speed up state
+        state = LauncherState.SPEED_UP; // Move to speed up state
+        inToleranceTimer.reset(); // Reset in tolerance timer
     }
 
     /**
@@ -190,7 +166,6 @@ public class Launcher {
      * @param artifacts The number of artifacts to launch
      */
     public void launch(int artifacts) {
-        returnToIdleAfterLaunch = state == LauncherState.IDLE; // Determine if we should return to idle after launching
         if (state == LauncherState.IDLE) {
             speedUp(); // If the launcher hasn't sped up, start the speed up now
         }
@@ -217,22 +192,21 @@ public class Launcher {
                 // Run the launcher wheels at full intake power
                 setPowers(POWER_WHILE_INTAKING, POWER_WHILE_INTAKING, robot);
             }
-            prevIntaking = true; // Mark that the intake was running this update
+            prevIntaking = true; // Mark that the intake was running
             return;
         } else if (prevIntaking) { // Intaking last update but not this update
             // No longer intaking, move back to speed up state if the launcher wasn't previously idle
-            setPowers(0, 0, robot);
-            if (state != LauncherState.IDLE) { // If the launcher wasn't idle
-                speedUp(); // Return to speed up state
+            if (state != LauncherState.IDLE) {
+                state = LauncherState.SPEED_UP; // Move to speed up state
+                inToleranceTimer.reset(); // Reset in tolerance timer
             }
             prevIntaking = false; // Mark that the intake is no longer running
-            return;
         }
 
         switch(state) {
             case IDLE:
                 setPowers(0, 0, robot); // Stop the launcher motors
-
+                inToleranceTimer.reset(); // Reset in tolerance timer
                 break;
             case SPEED_UP:
                 // Update the motor speeds using the controllers
@@ -255,11 +229,16 @@ public class Launcher {
                 } else {
                     inToleranceTimer.reset(); // If the motors aren't in tolerance, reset the timer
                 }
-
                 break;
+
             case LAUNCH:
                 // Continue updating the motor speeds to maintain RPM
                 updateControllers(robot);
+
+                // Check if we need to wait before launching again
+                if (timeSinceLastLaunch.milliseconds() < 100) {
+                    break; // Wait until the minimum time between launches has passed
+                }
 
                 // Command and wait for the tapper to push an artifact into the launcher
                 if (!robot.tapper.isPushed()) {
@@ -272,14 +251,10 @@ public class Launcher {
                 if (launches >= launchesToPerform) { // If we have launched the target amount of artifacts
                     resetCycleVariables(); // Reset cycle variables
                     launchCycleCompleted = true; // Mark that a launch cycle was completed
-
-                    if (returnToIdleAfterLaunch) {
-                        stop(); // Stop the launcher if we were previously idle
-                    } else {
-                        speedUp(); // Otherwise, remain at speed for the next launch cycle
-                    }
+                    stop(); // Stop the launcher
                 } else {
-                    speedUp(); // Recover motor speed for the next launch
+                    state = LauncherState.SPEED_UP; // Recover motor speed for the next launch
+                    inToleranceTimer.reset(); // Reset in tolerance timer
                 }
 
                 // Reset variables for next launch

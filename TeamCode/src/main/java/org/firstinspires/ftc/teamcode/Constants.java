@@ -64,8 +64,8 @@ public class Constants {
         public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
         public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
         public static int TARGET_RPM = 700; // Target RPM for both launcher motors
-        public static int RPM_TOLERANCE = 30; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
-        public static int RPM_IN_RANGE_TIME = 300; // Time that the RPM must be within the tolerance before launching (milliseconds)
+        public static int RPM_TOLERANCE = 50; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
+        public static int RPM_IN_RANGE_TIME = 250; // Time that the RPM must be within the tolerance before launching (milliseconds)
         public static double POWER_WHILE_INTAKING = -0.3; // Power for launcher wheels while intaking to prevent jamming
         public static double DIRECTION_SWITCH_SAFETY_RPM = 100; // RPM threshold to prevent sudden direction changes when switching directions for intake
         public static double COAST_DOWN_POWER = -0.1; // Power to apply to the launcher wheels to help them coast down below the safety threshold when reversing for intake
@@ -77,7 +77,7 @@ public class Constants {
     }
 
     public static class IntakeConstants {
-        public static double INTAKE_POWER = 0.8; // Power for intake motor
+        public static double INTAKE_POWER = 1.0; // Power for intake motor
         public static double RAMP_HOLD_POSITION = 1.0; // Position for the intake ramp that holds artifacts in the storage area
         public static double RAMP_INTAKE_POSITION = 0.0; // Position for the intake ramp that allows the intake to put artifacts in the storage area
         public enum IntakeState {
@@ -151,7 +151,7 @@ public class Constants {
             this.GPPArtifactsEnd = buildPose(23, 95.5, 180, mirrorPoses);
 
             // Control points (heading has no effect on control points)
-            this.goalStartToScoreCP = buildPose(40, 110, 0, mirrorPoses);
+            this.goalStartToScoreCP = buildPose(40, 120, 0, mirrorPoses);
             this.toScoreCP = buildPose(80, 60, 0, mirrorPoses);
         }
 
