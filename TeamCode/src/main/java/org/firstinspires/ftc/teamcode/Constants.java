@@ -134,7 +134,7 @@ public class Constants {
             this.goalStart = buildPose(15.25, 111, 144, mirrorPoses);
             this.audienceStart = buildPose(56, 8.25, 90, mirrorPoses);
             this.localize = buildPose(8.25, 8, 0, mirrorPoses);
-            this.score = buildPose(66, 84, 144, mirrorPoses);
+            this.score = buildPose(67, 87, 138, mirrorPoses);
             this.gateZoneNotPushed = buildPose(25, 69, 90, mirrorPoses);
             this.PPGArtifacts = buildPose(55, 47.5, 180, mirrorPoses);
             this.PGPArtifacts = buildPose(55, 71.5, 180, mirrorPoses);
