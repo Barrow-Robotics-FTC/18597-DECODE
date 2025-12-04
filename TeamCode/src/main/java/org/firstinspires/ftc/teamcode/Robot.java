@@ -60,7 +60,9 @@ public class Robot {
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
         tapperServo = hardwareMap.get(Servo.class, "tapper");
         rampServo = hardwareMap.get(Servo.class, "ramp");
-        webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
+        if (useVision) {
+            webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
+        }
 
         // Launcher motor configuration
         leftLauncherMotor.setZeroPowerBehavior(BRAKE);
