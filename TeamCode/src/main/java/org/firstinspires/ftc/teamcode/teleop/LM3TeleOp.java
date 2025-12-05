@@ -52,8 +52,8 @@ public class LM3TeleOp extends LinearOpMode {
         artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
         liningUpWithGoal = true; // Start by lining up with the goal
 
-        // Follow path to scoring pose
-        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score));
+        // Follow path to scoring pose (Slowed down as this should be used in the vicinity of the goal, and we want precision)
+        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.5);
     }
 
     @Override
