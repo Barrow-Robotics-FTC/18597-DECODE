@@ -30,6 +30,18 @@ public class Constants {
         GPP
     }
 
+    public static class PVSCoefficients {
+        public double P;
+        public double V;
+        public double S;
+
+        public PVSCoefficients(double kP, double kV, double kS) {
+            this.P = kP;
+            this.V = kV;
+            this.S = kS;
+        }
+    }
+
     // Robot dimensions
     public static double LEFT_SIDE_TO_CENTER_DIST = 8.05; // Distance from the left side of the robot to the center (inches)
     public static double BACK_TO_CENTER_DIST = 8.4; // Distance from the back of the robot to the center (inches)
@@ -67,6 +79,8 @@ public class Constants {
     public static class LauncherConstants {
         public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
         public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
+        public static PVSCoefficients leftLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
+        public static PVSCoefficients rightLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
         public static int TARGET_RPM = 700; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 250; // Time that the RPM must be within the tolerance before launching (milliseconds)

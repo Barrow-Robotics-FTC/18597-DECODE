@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Constants.Alliance;
 import org.firstinspires.ftc.teamcode.Constants.StartPosition;
 import org.firstinspires.ftc.teamcode.Constants.Poses;
 import org.firstinspires.ftc.teamcode.subsystem.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystem.Launcher;
+import org.firstinspires.ftc.teamcode.subsystem.LauncherBackup;
 import org.firstinspires.ftc.teamcode.subsystem.Tapper;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Camera;
@@ -32,7 +32,7 @@ public class Robot {
 
     // Subsystems
     public Drivetrain drivetrain;
-    public Launcher launcher;
+    public LauncherBackup launcher;
     public Tapper tapper;
     public Intake intake;
     public Camera camera;
@@ -77,7 +77,7 @@ public class Robot {
 
         // Initialize subsystems (subsystems take a Robot object as a parameter)
         drivetrain = new Drivetrain(this, hardwareMap); // Drivetrain needs HardwareMap for Pedro Pathing
-        launcher = new Launcher(this);
+        launcher = new LauncherBackup(this);
         tapper = new Tapper(this);
         intake = new Intake(this);
         camera = useVision ? new Camera(this) : null; // Only initialize camera if vision is used
