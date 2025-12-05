@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 
 /*
 Launcher Tuning OpMode
-Tune the PDFT controllers for the launcher subsystem
+Tune the PDF controllers for the launcher subsystem
 Use the Panels graph to visualize the RPM response to changes in the constants
 See tuning instructions in robot class
 
