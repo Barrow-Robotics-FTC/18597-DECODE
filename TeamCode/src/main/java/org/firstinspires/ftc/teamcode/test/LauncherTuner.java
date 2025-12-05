@@ -7,14 +7,126 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 
+import static org.firstinspires.ftc.teamcode.Constants.PVSCoefficients;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Robot;
 
 /*
 Launcher Tuning OpMode
-Tune the PDF controllers for the launcher subsystem
+Tune the PVS controllers for the launcher subsystem
 Use the Panels graph to visualize the RPM response to changes in the constants
-See tuning instructions in robot class
+
+Controls:
+Right Bumper: Toggle launcher speed up
+Left Bumper: High step / low step toggle
+D-Pad Up/Down: Increase/Decrease S
+D-Pad Right/Left: Increase/Decrease V
+Triangle/Cross: Increase/Decrease P
+*/
+/*
+@TeleOp(name = "Launcher Tuner", group = "Tests")
+@SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
+public class LauncherTuner extends LinearOpMode {
+    public boolean tuningLeft = true;
+    private Robot robot; // Custom robot class
+    private double p;
+    private double v;
+    private double s;
+    private boolean highStepToggle = true;
+    private double highStep = 0.01;
+    private double lowStep = 0.0001;
+
+    private PVSCoefficients getCoefficients(Robot robot) {
+        if (tuningLeft) {
+            return robot.launcher.getLeftControllerCoefficients(robot);
+        } else {
+            return robot.launcher.getRightControllerCoefficients(robot);
+        }
+    }
+
+    @Override
+    public void runOpMode() {
+        TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
+        // Create instance of launcher and initialize
+        robot = new Robot(hardwareMap, Mode.TELEOP);
+
+        // Turn off the motor we aren't tuning
+        if (tuningLeft) {
+            robot.launcher.updateRightControllerCoefficients(robot, new PVSCoefficients(0, 0, 0));
+        } else {
+            robot.launcher.updateLeftControllerCoefficients(robot, new PVSCoefficients(0, 0, 0));
+        }
+
+        // Set initial coefficients from Constants
+        p = getCoefficients(robot).p;
+        v = getCoefficients(robot).v;
+        s = getCoefficients(robot).s;
+
+        // Log completed initialization
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+
+        // Wait for START to be pressed
+        waitForStart();
+
+        while (opModeIsActive()) {
+            // Update robot
+            robot.update(gamepad1, gamepad2);
+
+            // Tune with the gamepad
+            if (gamepad1.dpadUpWasPressed()) { s += highStepToggle ? highStep : lowStep; }
+            if (gamepad1.dpadDownWasPressed()) { s -= highStepToggle ? highStep : lowStep; }
+            if (gamepad1.dpadRightWasPressed()) { v += highStepToggle ? highStep : lowStep; }
+            if (gamepad1.dpadLeftWasPressed()) { v -= highStepToggle ? highStep : lowStep; }
+            if (gamepad1.triangleWasPressed()) { p += highStepToggle ? highStep : lowStep; }
+            if (gamepad1.crossWasPressed()) { p -= highStepToggle ? highStep : lowStep; }
+
+            // Update the controller coefficients
+            PVSCoefficients newCoeffs = new PVSCoefficients(p, v, s);
+            if (tuningLeft) {
+                robot.launcher.updateLeftControllerCoefficients(robot, newCoeffs);
+            } else {
+                robot.launcher.updateRightControllerCoefficients(robot, newCoeffs);
+            }
+
+            // Right Bumper: toggle launcher speed up
+            if (gamepad1.rightBumperWasPressed()) {
+                if (robot.launcher.isActive()) { // If launcher isn't idle
+                    robot.launcher.stop(); // Stop the launcher
+                } else {
+                    robot.launcher.speedUp(true); // Speed up the launcher
+                }
+            }
+
+            // Left Bumper: toggle high step / low step
+            if (gamepad1.leftBumperWasPressed()) {
+                highStepToggle = !highStepToggle;
+            }
+
+            // Panels telemetry for a graph
+            telemetryM.addData("target", robot.launcher.getTargetRPM());
+            telemetryM.addData("rpm", tuningLeft ? robot.launcher.getLeftRPM(robot) : robot.launcher.getRightRPM(robot));
+            telemetryM.update();
+
+            // Log status
+            telemetry.addData("Launcher State", robot.launcher.getState());
+            telemetry.addData("Target RPM", robot.launcher.getTargetRPM());
+            telemetry.addData("Left Motor RPM", robot.launcher.getLeftRPM(robot));
+            telemetry.addData("Right Motor RPM", robot.launcher.getRightRPM(robot));
+            telemetry.addData("P", newCoeffs.p);
+            telemetry.addData("V", newCoeffs.v);
+            telemetry.addData("S", newCoeffs.s);
+            telemetry.update();
+        }
+    }
+}
+*/
+
+/*
+Launcher Tuning OpMode
+Tune the PIDF controllers for the launcher subsystem
+Use the Panels graph to visualize the RPM response to changes in the constants
 
 Controls:
 Right Bumper: Toggle launcher speed up
@@ -33,6 +145,9 @@ public class LauncherTuner extends LinearOpMode {
     private double i;
     private double d;
     private double f;
+    private boolean highStepToggle = true;
+    private double highStep = 1;
+    private double lowStep = 0.01;
 
     private PIDFCoefficients getCoefficients(Robot robot) {
         if (tuningLeft) {
@@ -74,14 +189,14 @@ public class LauncherTuner extends LinearOpMode {
             robot.update(gamepad1, gamepad2);
 
             // Tune with the gamepad
-            if (gamepad1.dpadUpWasPressed()) { f += 0.1; }
-            if (gamepad1.dpadDownWasPressed()) { f -= 0.1; }
-            if (gamepad1.dpadRightWasPressed()) { p += 0.1; }
-            if (gamepad1.dpadLeftWasPressed()) { p -= 0.1; }
-            if (gamepad1.triangleWasPressed()) { d += 0.1; }
-            if (gamepad1.crossWasPressed()) { d -= 0.1; }
-            if (gamepad1.circleWasPressed()) { i += 0.1; }
-            if (gamepad1.squareWasPressed()) { i -= 0.1; }
+            if (gamepad1.dpadUpWasPressed()) { f += highStepToggle ? highStep : lowStep; }
+            if (gamepad1.dpadDownWasPressed()) { f -= highStepToggle ? highStep : lowStep; }
+            if (gamepad1.dpadRightWasPressed()) { p += highStepToggle ? highStep : lowStep; }
+            if (gamepad1.dpadLeftWasPressed()) { p -= highStepToggle ? highStep : lowStep; }
+            if (gamepad1.triangleWasPressed()) { d += highStepToggle ? highStep : lowStep; }
+            if (gamepad1.crossWasPressed()) { d -= highStepToggle ? highStep : lowStep; }
+            if (gamepad1.circleWasPressed()) { i += highStepToggle ? highStep : lowStep; }
+            if (gamepad1.squareWasPressed()) { i -= highStepToggle ? highStep : lowStep; }
 
             // Update the controller coefficients
             PIDFCoefficients newCoeffs = new PIDFCoefficients(p, i, d, f);

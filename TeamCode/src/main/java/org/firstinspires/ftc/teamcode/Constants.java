@@ -31,14 +31,14 @@ public class Constants {
     }
 
     public static class PVSCoefficients {
-        public double P;
-        public double V;
-        public double S;
+        public double p;
+        public double v;
+        public double s;
 
         public PVSCoefficients(double kP, double kV, double kS) {
-            this.P = kP;
-            this.V = kV;
-            this.S = kS;
+            this.p = kP;
+            this.v = kV;
+            this.s = kS;
         }
     }
 
