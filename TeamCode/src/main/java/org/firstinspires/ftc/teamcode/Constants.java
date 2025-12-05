@@ -30,6 +30,10 @@ public class Constants {
         GPP
     }
 
+    // Robot dimensions
+    public static double LEFT_SIDE_TO_CENTER_DIST = 8.05; // Distance from the left side of the robot to the center (inches)
+    public static double BACK_TO_CENTER_DIST = 8.4; // Distance from the back of the robot to the center (inches)
+
     // Omni movement vector class
     public static class MovementVectors {
         public double forward;
@@ -129,8 +133,8 @@ public class Constants {
 
             // Build the poses, see descriptions in definitions above
             this.goalStart = buildPose(15.25, 111, 144, mirrorPoses);
-            this.audienceStart = buildPose(56, 8.25, 90, mirrorPoses);
-            this.localize = buildPose(8.25, 8, 0, mirrorPoses);
+            this.audienceStart = buildPose(56, BACK_TO_CENTER_DIST, 90, mirrorPoses);
+            this.localize = buildPose(LEFT_SIDE_TO_CENTER_DIST, BACK_TO_CENTER_DIST, 0, mirrorPoses);
             this.score = buildPose(67, 87, 138, mirrorPoses);
             this.gateZoneNotPushed = buildPose(25, 69, 90, mirrorPoses);
             this.PPGArtifacts = buildPose(55, 47.5, 180, mirrorPoses);
