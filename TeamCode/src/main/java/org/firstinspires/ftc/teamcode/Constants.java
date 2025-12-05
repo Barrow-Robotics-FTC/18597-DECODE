@@ -123,9 +123,6 @@ public class Constants {
         public Pose PGPArtifactsEnd; // In front of PGPArtifacts
         public Pose GPPArtifactsEnd; // In front of GPPArtifacts
 
-        // Control Points
-        public Pose toScoreCP;
-
         public Poses(Alliance alliance) {
             // Set mirroring flag based on alliance
             this.mirrorPoses = (alliance == Alliance.RED);
@@ -142,9 +139,6 @@ public class Constants {
             this.PPGArtifactsEnd = buildPose(17, 47.5, 180, mirrorPoses);
             this.PGPArtifactsEnd = buildPose(17, 71.5, 180, mirrorPoses);
             this.GPPArtifactsEnd = buildPose(23, 95.5, 180, mirrorPoses);
-
-            // Control points (heading has no effect on control points)
-            this.toScoreCP = buildPose(80, 60, 0, mirrorPoses);
         }
 
         // Suppress warning about mirrorIfNeeded always being true

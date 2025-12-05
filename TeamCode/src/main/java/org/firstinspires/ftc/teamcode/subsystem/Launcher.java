@@ -248,7 +248,9 @@ public class Launcher {
                 if (launches >= launchesToPerform) { // If we have launched the target amount of artifacts
                     resetCycleVariables(); // Reset cycle variables
                     launchCycleCompleted = true; // Mark that a launch cycle was completed
-                    stop(); // Stop the launcher
+                    if (!holdSpeed) {
+                        stop(); // Stop the launcher
+                    }
                 } else {
                     state = LauncherState.SPEED_UP; // Recover motor speed for the next launch
                     inToleranceTimer.reset(); // Reset in tolerance timer
