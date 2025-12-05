@@ -154,8 +154,8 @@ public class LM3TeleOp extends LinearOpMode {
                 robot.setGamepad2Color(0, 255, 255);
             } else if (slowMode) { // Slow mode: blue
                 robot.setGamepad1Color(0, 0, 255);
-            } else { // None of the above conditions: green
-                robot.setGamepad1Color(0, 255, 0);
+            } else { // None of the above conditions: default
+                robot.setGamepad1Color(0, 0, 0);
             }
 
             // Set Gamepad 2 lights (priority goes first to last)
@@ -163,8 +163,8 @@ public class LM3TeleOp extends LinearOpMode {
                 robot.setGamepad2Color(0, 255, 255);
             } else if (robot.launcher.isActive()) { // Launcher is active: blue
                 robot.setGamepad2Color(0, 0, 255);
-            } else { // None of the above conditions: green
-                robot.setGamepad2Color(0, 255, 0);
+            } else { // None of the above conditions: default
+                robot.setGamepad2Color(0, 0, 0);
             }
 
             // Log status
