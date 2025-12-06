@@ -31,7 +31,7 @@ Gamepad 2 (Operator): Parley
     Right Trigger: Launch 3 artifacts (position will be held automatically until launch completes)
  */
 
-@TeleOp(name = "LM3 TeleOp", group = "TeleOp")
+@TeleOp(name = "Demo TeleOp (Backup)", group = "TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class DemoTeleOp extends LinearOpMode {
     // Values retrieved from blackboard
