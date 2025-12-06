@@ -2,22 +2,17 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-import com.pedropathing.ftc.InvertedFTCCoordinates;
-import com.pedropathing.geometry.PedroCoordinates;
-import com.pedropathing.ftc.PoseConverter;
-import com.pedropathing.geometry.Pose;
-
 import org.firstinspires.ftc.teamcode.Robot;
+import static org.firstinspires.ftc.teamcode.Constants.MovementVectors;
 import static org.firstinspires.ftc.teamcode.Constants.Pattern;
 import static org.firstinspires.ftc.teamcode.Constants.CameraConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.AprilTagConstants.*;
+
+import com.qualcomm.robotcore.util.Range;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -100,18 +95,25 @@ public class Camera {
         return this.getAprilTag(Collections.singletonList(targetId));
     }
 
-    /**
-     * Get the robot pose from an April Tag detection (Pedro Pathing pose)
-     *
-     * @param tag The detected April Tag
-     * @return The robot pose in Pedro Pathing format
-     */
-    public Pose getRobotPoseFromAprilTag(AprilTagDetection tag) {
-        // Get Pedro Pathing robot coordinates from April Tag output
-        Pose2D apriltagPose = new Pose2D(DistanceUnit.INCH, tag.robotPose.getPosition().x,
-                tag.robotPose.getPosition().y, AngleUnit.RADIANS, tag.robotPose.getOrientation().getYaw(AngleUnit.RADIANS));
-        Pose ftcStandard = PoseConverter.pose2DToPose(apriltagPose, InvertedFTCCoordinates.INSTANCE);
-        return ftcStandard.getAsCoordinateSystem(PedroCoordinates.INSTANCE); // Pedro Pathing format pose
+    public MovementVectors driveToAprilTag(AprilTagDetection tag) {
+        // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
+        double rangeError = (tag.ftcPose.range - DISTANCE_FROM_APRIL_TAG);
+        double headingError = tag.ftcPose.bearing;
+        double yawError = tag.ftcPose.yaw;
+
+        // Check if position is within tolerances
+        boolean rangeOk = Math.abs(rangeError) <= DRIVE_ERROR_TOL;
+        boolean yawOk = Math.abs(yawError) <= STRAFE_ERROR_TOL;
+        boolean headingOk = Math.abs(headingError) <= TURN_ERROR_TOL;
+        boolean moveCompleted = rangeOk && yawOk && headingOk;
+
+        // Calculate drive vectors
+        double forward = Range.clip(rangeError * DRIVE_GAIN, -MAX_FORWARD_SPEED, MAX_FORWARD_SPEED);
+        double strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_STRAFE_SPEED, MAX_STRAFE_SPEED);
+        double turn = Range.clip(headingError * TURN_GAIN, -MAX_TURN_SPEED, MAX_TURN_SPEED);
+
+        // Return movement vectors and completion status
+        return new MovementVectors(forward, strafe, turn, moveCompleted);
     }
 
     /**

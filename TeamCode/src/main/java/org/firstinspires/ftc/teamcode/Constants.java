@@ -114,6 +114,17 @@ public class Constants {
         public static final int PGP_TAG_ID = 22; // Tag ID for PGP on the obelisk
         public static final int PPG_TAG_ID = 23; // Tag ID for PPG on the obelisk
         public static final int RED_GOAL_TAG_ID = 24; // Tag ID for red goal
+
+        public static final double DISTANCE_FROM_APRIL_TAG = 52; // Distance to stop from April Tag when driving to it (inches)
+        public static final double DRIVE_GAIN = 0.035; // Forward speed gain (for driving to April Tag)
+        public static final double STRAFE_GAIN = 0.025; // Strafe speed gain (for driving to April Tag)
+        public static final double TURN_GAIN = 0.023; // Turn speed gain (for driving to April Tag)
+        public static final double MAX_FORWARD_SPEED = 0.25; // Max forward vector speed (for driving to April Tag)
+        public static final double MAX_STRAFE_SPEED = 0.25; // Max strafe vector speed (for driving to April Tag)
+        public static final double MAX_TURN_SPEED = 0.15; // Max turn vector speed (for driving to April Tag)
+        public static final double DRIVE_ERROR_TOL = 2; // Inches
+        public static final double STRAFE_ERROR_TOL = 2; // Degrees
+        public static final double TURN_ERROR_TOL = 2; // Degrees
     }
 
     public static class TeleOpConstants {
