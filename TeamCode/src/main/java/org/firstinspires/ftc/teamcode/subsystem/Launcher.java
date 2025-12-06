@@ -50,12 +50,12 @@ public class Launcher {
 
     private void updateControllers(Robot robot) {
         setPowers(
-                (leftLauncherPVSCoefficients.V * getTargetRPM()) +
-                        (leftLauncherPVSCoefficients.P * (getTargetRPM() - getLeftRPM(robot))) +
-                        leftLauncherPVSCoefficients.S,
-                (rightLauncherPVSCoefficients.V * getTargetRPM()) +
-                        (rightLauncherPVSCoefficients.P * (getTargetRPM() - getRightRPM(robot))) +
-                        rightLauncherPVSCoefficients.S,
+                (leftLauncherPVSCoefficients.v * getTargetRPM()) +
+                        (leftLauncherPVSCoefficients.p * (getTargetRPM() - getLeftRPM(robot))) +
+                        leftLauncherPVSCoefficients.s,
+                (rightLauncherPVSCoefficients.v * getTargetRPM()) +
+                        (rightLauncherPVSCoefficients.p * (getTargetRPM() - getRightRPM(robot))) +
+                        rightLauncherPVSCoefficients.s,
                 robot
         );
     }
