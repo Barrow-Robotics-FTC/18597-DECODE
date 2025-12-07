@@ -19,7 +19,7 @@ import java.util.List;
 @Autonomous(name = "LM3 Auto", group = "Autonomous")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM3Auto extends LinearOpMode {
-    // Autonomous states list
+    // Autonomous states list (9 artifact auto
     final List<State> stateList = new ArrayList<>(Arrays.asList(
             State.MOVE_TO_SCORING_POSITION, // Move from starting position to scoring position
             State.LAUNCH, // Score preloaded artifacts
@@ -28,10 +28,6 @@ public class LM3Auto extends LinearOpMode {
             State.MOVE_TO_SCORING_POSITION,
             State.LAUNCH,
             State.MOVE_TO_PGP,
-            State.INTAKE_ARTIFACT_ROW,
-            State.MOVE_TO_SCORING_POSITION,
-            State.LAUNCH,
-            State.MOVE_TO_PPG,
             State.INTAKE_ARTIFACT_ROW,
             State.MOVE_TO_SCORING_POSITION,
             State.LAUNCH,
@@ -99,7 +95,7 @@ public class LM3Auto extends LinearOpMode {
 
             // If the state machine is complete or time is almost up, exit this loop
             // TODO: Set back to normal value, this is just for testing
-            if (pathState == State.COMPLETED || runtime.milliseconds() > 60000) {
+            if (pathState == State.COMPLETED || runtime.milliseconds() > 45000) {
                 break;
             }
 
@@ -172,7 +168,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.8);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.75);
                         lastCommandedPose = robot.poses.score;
                         nextState();
                         break;
@@ -205,7 +201,7 @@ public class LM3Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.5);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.6);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
                             robot.intake.stop(); // Stop the intake
