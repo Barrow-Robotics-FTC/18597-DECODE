@@ -66,12 +66,13 @@ public class Constants {
     }
 
     public static class TapperConstants {
-        public static double POSITIONING_TIME = 400; // Time it takes for the tapper to move between positions (milliseconds)
+        public static double POSITIONING_TIME = 350; // Time it takes for the tapper to move between positions (milliseconds)
         public static double PUSHED_POSITION = 0.65; // Position that the tapper goes to when pushing an artifact into the launcher
         public static double HOME_POSITION = 0.1; // Position of the tapper when retracted
         public enum TapperState {
+            IDLE_COMMANDED,
             IDLE,
-            COMMANDED,
+            PUSHED_COMMANDED,
             PUSHED
         }
     }

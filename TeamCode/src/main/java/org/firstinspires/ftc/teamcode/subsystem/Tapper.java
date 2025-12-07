@@ -31,18 +31,25 @@ public class Tapper {
      *
      * @return True if the tapper is pushed, false otherwise
      */
-    public boolean isPushed() {
+    public boolean isInPushedPosition() {
         return state == TapperState.PUSHED;
+    }
+
+    /**
+     * Check if the tapper is in the idle position
+     */
+    public boolean isInIdlePosition() {
+        return state == TapperState.IDLE;
     }
 
     /**
      * Command the tapper to push an artifact into the launcher
      */
     public void push() {
-        if (state == TapperState.COMMANDED || state == TapperState.PUSHED) {
+        if (state == TapperState.PUSHED_COMMANDED || state == TapperState.PUSHED) {
             return; // Already commanded or pushed
         }
-        state = TapperState.COMMANDED;
+        state = TapperState.PUSHED_COMMANDED;
         tapperRaisedTimer.reset(); // Start timer to track positioning time
     }
 
@@ -50,7 +57,11 @@ public class Tapper {
      * Stop the tapper and return it to the home position
      */
     public void retract() {
-        state = TapperState.IDLE;
+        if (state == TapperState.IDLE_COMMANDED || state == TapperState.IDLE) {
+            return; // Already commanded or idle
+        }
+        state = TapperState.IDLE_COMMANDED;
+        tapperRaisedTimer.reset(); // Start timer to track positioning time
     }
 
     public void stop() {
@@ -60,16 +71,26 @@ public class Tapper {
     public void update(Robot robot) {
         /*
         * States:
-        * IDLE: Hold home position
-        * COMMANDED: Move to pushed position
-        * PUSHED: Hold pushed position
+        * IDLE_COMMANDED: Moving to home position
+        * IDLE: Holding home position
+        * PUSHED_COMMANDED: Moving to pushed position
+        * PUSHED: Holding pushed position
         */
         switch (state) {
+            case IDLE_COMMANDED:
+                // Move to home position
+                robot.tapperServo.setPosition(HOME_POSITION);
+
+                // Use the timer to determine when the tapper has reached the position
+                if (tapperRaisedTimer.milliseconds() >= POSITIONING_TIME) {
+                    state = TapperState.IDLE;
+                }
+                break;
             case IDLE:
                 // Hold home position
                 robot.tapperServo.setPosition(HOME_POSITION);
                 break;
-            case COMMANDED:
+            case PUSHED_COMMANDED:
                 // Move to pushed position
                 robot.tapperServo.setPosition(PUSHED_POSITION);
 
