@@ -232,13 +232,16 @@ public class Launcher {
                 // Continue updating the motor speeds to maintain RPM
                 updateControllers(robot);
 
-                // Check if we need to wait before launching again
-                if (timeSinceLastLaunch.milliseconds() < 100) {
-                    break; // Wait until the minimum time between launches has passed
+                // Make sure the tapper is fully at home
+                // This condition only returns true when the tapper is actually retracted
+                if (!robot.tapper.isInIdlePosition()) {
+                    robot.tapper.retract(); // Command the tapper to retract
+                    break; // Wait for the tapper to reach the idle position
                 }
 
                 // Command and wait for the tapper to push an artifact into the launcher
-                if (!robot.tapper.isPushed()) {
+                // This condition only returns true when the tapper is actually pushed
+                if (!robot.tapper.isInPushedPosition()) {
                     robot.tapper.push(); // Command the tapper to push
                     break; // Wait for the tapper to reach the pushed position
                 }
@@ -250,6 +253,8 @@ public class Launcher {
                     launchCycleCompleted = true; // Mark that a launch cycle was completed
                     if (!holdSpeed) {
                         stop(); // Stop the launcher
+                    } else {
+                        speedUp(true); // Keep the launcher at speed
                     }
                 } else {
                     state = LauncherState.SPEED_UP; // Recover motor speed for the next launch

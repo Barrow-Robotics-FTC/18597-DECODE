@@ -16,6 +16,17 @@ Launcher Tuning OpMode
 Tune the PVS controllers for the launcher subsystem
 Use the Panels graph to visualize the RPM response to changes in the constants
 
+Constants:
+kV: Velocity feedforward
+kP: Gain
+kS: Static feedforward (unit conversion from velocity to power)
+
+Tuning:
+- Increase kS until the flywheel moves, back off until it stops
+    - Like Pedro Pathing F
+- Increase kV until the flywheel reaches target speed
+- Tune kP to make it accelerate to the target speed quickly without overshooting
+
 Controls:
 Right Bumper: Toggle launcher speed up
 Left Bumper: High step / low step toggle
