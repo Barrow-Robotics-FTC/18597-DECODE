@@ -230,13 +230,6 @@ public class LauncherBackup {
                 // Continue updating the motor speeds to maintain RPM
                 updateControllers(robot);
 
-                // Make sure the tapper is fully at home
-                // This condition only returns true when the tapper is actually retracted
-                if (!robot.tapper.isInIdlePosition()) {
-                    robot.tapper.retract(); // Command the tapper to retract
-                    break; // Wait for the tapper to reach the idle position
-                }
-
                 // Command and wait for the tapper to push an artifact into the launcher
                 // This condition only returns true when the tapper is actually pushed
                 if (!robot.tapper.isInPushedPosition()) {
@@ -255,7 +248,7 @@ public class LauncherBackup {
                         speedUp(true); // Keep the launcher at speed
                     }
                 } else {
-                    state = LauncherState.SPEED_UP; // Recover motor speed for the next launch
+                    speedUp(holdSpeed); // Recover motor speed for the next launch
                     inToleranceTimer.reset(); // Reset in tolerance timer
                 }
 
