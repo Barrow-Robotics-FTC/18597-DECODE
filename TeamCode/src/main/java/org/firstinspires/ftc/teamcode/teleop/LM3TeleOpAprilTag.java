@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import com.pedropathing.geometry.Pose;
 
@@ -16,9 +15,10 @@ import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Robot;
 
 /*
-Gamepad Map for Demo TeleOp
-Doesn't use Pedro Pathing, relies on April tags
+Gamepad Map for LM3 TeleOp (With April Tags)
 
+Drive Coach: Katy
+Human Player: Cedar
 Gamepad 1 (Driver): Dylan
     Left Stick X: Robot translation movement
     Left Stick Y: Robot axial movement
@@ -29,11 +29,12 @@ Gamepad 2 (Operator): Parley
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact (position will be held automatically until launch completes)
     Right Trigger: Launch 3 artifacts (position will be held automatically until launch completes)
+    Square (X): Abort launch cycle
  */
 
-@TeleOp(name = "Demo TeleOp (Backup)", group = "TeleOp")
+@TeleOp(name = "LM3 TeleOp (April Tag)", group = "TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class DemoTeleOp extends LinearOpMode {
+public class LM3TeleOpAprilTag extends LinearOpMode {
     // Values retrieved from blackboard
     private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
     private Alliance alliance; // Alliance color
@@ -52,6 +53,8 @@ public class DemoTeleOp extends LinearOpMode {
     private void startLaunch(int numArtifacts) {
         artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
         liningUpWithGoal = true; // Start by lining up with the goal
+
+        // Line up happens after this
     }
 
     @Override
@@ -115,12 +118,6 @@ public class DemoTeleOp extends LinearOpMode {
                 slowMode = !slowMode;
             }
 
-            // Gamepad 1 Circle: Localize
-            if (gamepad1.circleWasPressed()) {
-                // Set the robot pose to the localization pose (human player corner)
-                robot.drivetrain.setPose(robot.poses.localize);
-            }
-
             // Gamepad 2 Left Bumper: Toggle intake
             if (gamepad2.leftBumperWasPressed()) {
                 if (robot.intake.isActive()) {
@@ -151,38 +148,35 @@ public class DemoTeleOp extends LinearOpMode {
 
             // If we are in the process of launching artifacts
             if (artifactsToLaunch > 0) {
-                if (liningUpWithGoalFailed) {
+                if (liningUpWithGoalFailed) { // This will run if the goal lineup failed
                     artifactsToLaunch = 0;
                     liningUpWithGoal = false;
                     liningUpWithGoalFailed = false;
-                } else if (!liningUpWithGoal) {
+                } else if (!liningUpWithGoal) { // This won't run until we are lined up with the goal
                     // Note: line up is handled above in drivetrain update
                     // Note: The launch command will call speedUp() if the launcher is idle, so no need to check here
                     robot.launcher.launch(artifactsToLaunch); // Start the launch of artifacts
 
                     // Reset flags
-                    artifactsToLaunch = 0; // Reset the launch request
+                    artifactsToLaunch = 0;
                 }
             }
 
             // Set Gamepad 1 lights (priority goes first to last)
-            if (liningUpWithGoal) { // Lining up with goal: green
-                robot.setGamepad1Color(0, 255, 0);
-            } else if (robot.launcher.isLaunching()) { // Launch process is running: purple
-                robot.setGamepad2Color(0, 255, 255);
-            } else if (slowMode) { // Slow mode: blue
-                robot.setGamepad1Color(0, 0, 255);
+            // Note when picking colors: Avoid red and blue as they are default colors
+            if (liningUpWithGoal || robot.launcher.isLaunching()) { // Lining up with goal or launch process is running: purple
+                robot.setGamepad1Color(150, 0, 255);
+            } else if (slowMode) { // Slow mode: yellow
+                robot.setGamepad1Color(255, 255, 0);
             } else { // None of the above conditions: default
                 robot.setGamepad1Color(0, 0, 0);
             }
 
             // Set Gamepad 2 lights (priority goes first to last)
-            if (liningUpWithGoal) { // Lining up with goal: green
-                robot.setGamepad2Color(0, 255, 0);
-            } else if (robot.launcher.isLaunching()) { // Launch process is running: purple
-                robot.setGamepad2Color(0, 255, 255);
-            } else if (robot.launcher.isActive()) { // Launcher is active: blue
-                robot.setGamepad2Color(0, 0, 255);
+            if (liningUpWithGoal || robot.launcher.isLaunching()) { // Lining up with goal or launch process is running: purple
+                robot.setGamepad2Color(150, 0, 255);
+            } else if (robot.launcher.isActive()) { // Launcher is active: yellow
+                robot.setGamepad2Color(255, 255, 0);
             } else { // None of the above conditions: default
                 robot.setGamepad2Color(0, 0, 0);
             }
