@@ -82,10 +82,10 @@ public class Constants {
         public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
         public static PVSCoefficients leftLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
         public static PVSCoefficients rightLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
-        public static int TARGET_RPM = 700; // Target RPM for both launcher motors
+        public static int TARGET_RPM = 710; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
-        public static int RPM_IN_RANGE_TIME = 250; // Time that the RPM must be within the tolerance before launching (milliseconds)
-        public static double POWER_WHILE_INTAKING = -0.1; // Power for launcher wheels while intaking to prevent jamming
+        public static int RPM_IN_RANGE_TIME = 350; // Time that the RPM must be within the tolerance before launching (milliseconds)
+        public static double POWER_WHILE_INTAKING = -0.6; // Power for launcher wheels while intaking to prevent jamming
         public enum LauncherState {
             IDLE,
             SPEED_UP,
@@ -161,7 +161,7 @@ public class Constants {
             this.goalStart = buildPose(15.25, 111, 144, mirrorPoses);
             this.audienceStart = buildPose(56, BACK_TO_CENTER_DIST, 90, mirrorPoses);
             this.localize = buildPose(LEFT_SIDE_TO_CENTER_DIST, BACK_TO_CENTER_DIST, 0, mirrorPoses);
-            this.score = buildPose(67, 87, 138, mirrorPoses);
+            this.score = buildPose(67,  104, 138, mirrorPoses);
             this.gateZoneNotPushed = buildPose(25, 69, 90, mirrorPoses);
             this.PPGArtifacts = buildPose(55, 47.5, 180, mirrorPoses);
             this.PGPArtifacts = buildPose(55, 71.5, 180, mirrorPoses);

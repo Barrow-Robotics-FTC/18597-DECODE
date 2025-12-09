@@ -95,6 +95,10 @@ public class LM3TeleOp extends LinearOpMode {
                 if (!robot.drivetrain.isDriving()) { // When we reach the scoring pose
                     liningUpWithGoal = false; // Finished lining up
                 }
+
+                if (gamepad2.triangleWasPressed()) {
+                    liningUpWithGoal = false;
+                }
             }
 
             // Gamepad 1 Left Bumper: Toggle slow mode

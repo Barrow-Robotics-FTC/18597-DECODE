@@ -104,6 +104,10 @@ public class LM3Auto extends LinearOpMode {
             telemetry.addData("Path State", pathState);
             telemetry.addData("Path Index", stateMachine.statesIndex);
             telemetry.addData("Launcher State", robot.launcher.getState());
+            telemetry.addData("Tapper State", robot.tapper.getState());
+            telemetry.addData("Intake State", robot.intake.getState());
+            telemetry.addData("launch when ready", robot.launcher.launchWhenReady);
+            telemetry.addData("left rpm", robot.launcher.getLeftRPM(robot));
             telemetry.addData("X", currentPose.getX());
             telemetry.addData("Y", currentPose.getY());
             telemetry.addData("Heading", currentPose.getHeading());
@@ -161,8 +165,7 @@ public class LM3Auto extends LinearOpMode {
                         if (!this.launchCommanded) { // If the launcher hasn't been commanded
                             robot.launcher.launch(3); // Command launcher to launch 3 artifacts
                             this.launchCommanded = true; // Launch has been commanded
-                        }
-                        if (robot.launcher.didCompleteCycle()) { // If the launch cycle is completed
+                        } else if (robot.launcher.didCompleteCycle()) { // If the launch cycle is completed
                             this.launchCommanded = false; // Reset launch commanded flag
                             nextState();
                         }

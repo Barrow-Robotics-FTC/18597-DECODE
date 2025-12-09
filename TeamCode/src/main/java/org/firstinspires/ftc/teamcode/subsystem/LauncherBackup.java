@@ -24,7 +24,7 @@ public class LauncherBackup {
     private int launchesToPerform; // How many launches to perform in this launch cycle
     private int launches; // How many artifacts have been launched in the current launch cycle
     private boolean holdSpeed = false; // Should the launcher return to the speed up state after any action
-    private boolean launchWhenReady = false; // Has the launcher been commanded to launch
+    public boolean launchWhenReady = false; // Has the launcher been commanded to launch
     private boolean launchCycleCompleted = false; // Was a launch cycle completed in the last update
 
     // Constructor
