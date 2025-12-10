@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.Constants.IntakeConstants.*;
+
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.Robot;
 
 public class Intake {
-    // Other variables
     private IntakeState state = IntakeState.STOPPED; // Current state of the intake
+    private final ElapsedTime rampPositionTimer = new ElapsedTime();
 
     // Constructor
     public Intake(Robot robot) {
@@ -41,22 +44,35 @@ public class Intake {
      * Command the intake motor to stop and the ramp to hold artifacts in the storage area
      */
     public void stop() {
-        state = IntakeState.STOPPED;
+        state = IntakeState.STOPPING;
+        rampPositionTimer.reset(); // Start timer to track ramp positioning time
     }
 
     public void update(Robot robot) {
         /*
          * States:
          * STOPPED - Intake motor is off, ramp is holding artifacts in the storage area
+         * STOPPING - Intake motor is stopping, ramp is moving to hold artifacts in the storage area
          * RUNNING - Intake motor is on, ramp is lowered to intake artifacts
          */
         switch (state) {
             case RUNNING:
-                robot.intakeMotor.setPower(INTAKE_POWER); // Run intake motor at set power
+                robot.intakeMotor.setPower(INTAKE_POWER);
                 robot.rampServo.setPosition(RAMP_INTAKE_POSITION); // Lower the intake ramp
                 break;
+            case STOPPING:
+                robot.intakeMotor.setPower(0);
+                robot.rampServo.setPosition(RAMP_HOLD_POSITION); // Hold artifacts in the storage
+
+                // Check if ramp has had enough time to move to hold position
+                if (rampPositionTimer.milliseconds() >= RAMP_POSITIONING_TIME) {
+                    robot.whacker.whack(); // Whack to settle artifacts (non-blocking)
+                    state = IntakeState.STOPPED;
+                }
+
+                break;
             case STOPPED:
-                robot.intakeMotor.setPower(0); // Stop the intake motor
+                robot.intakeMotor.setPower(0);
                 robot.rampServo.setPosition(RAMP_HOLD_POSITION); // Hold artifacts in the storage area
                 break;
         }

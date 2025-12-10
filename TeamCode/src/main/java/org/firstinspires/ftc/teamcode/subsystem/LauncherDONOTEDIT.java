@@ -13,7 +13,7 @@ import static org.firstinspires.ftc.teamcode.Constants.LauncherConstants.rightLa
 import static org.firstinspires.ftc.teamcode.Constants.PVSCoefficients;
 import org.firstinspires.ftc.teamcode.Robot;
 
-public class Launcher {
+public class LauncherDONOTEDIT {
     // Timers
     private final ElapsedTime inToleranceTimer = new ElapsedTime();
     private final ElapsedTime timeSinceLastLaunch = new ElapsedTime();
@@ -27,7 +27,7 @@ public class Launcher {
     private boolean launchCycleCompleted = false; // Was a launch cycle completed in the last update
 
     // Constructor
-    public Launcher(Robot robot) {
+    public LauncherDONOTEDIT(Robot robot) {
         // Launcher motor configuration
         robot.leftLauncherMotor.setZeroPowerBehavior(BRAKE);
         robot.leftLauncherMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);

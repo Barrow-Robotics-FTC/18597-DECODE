@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystem.LauncherBackup;
 import org.firstinspires.ftc.teamcode.subsystem.Tapper;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
+import org.firstinspires.ftc.teamcode.subsystem.Whacker;
 import org.firstinspires.ftc.teamcode.subsystem.Camera;
 
 public class Robot {
@@ -28,6 +29,7 @@ public class Robot {
     public DcMotor intakeMotor;
     public Servo tapperServo;
     public Servo rampServo;
+    public Servo whackerServo;
     public WebcamName webcam;
 
     // Subsystems
@@ -35,6 +37,7 @@ public class Robot {
     public LauncherBackup launcher;
     public Tapper tapper;
     public Intake intake;
+    public Whacker whacker;
     public Camera camera;
     public Poses poses;
 
@@ -60,6 +63,7 @@ public class Robot {
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
         tapperServo = hardwareMap.get(Servo.class, "tapper");
         rampServo = hardwareMap.get(Servo.class, "ramp");
+        whackerServo = hardwareMap.get(Servo.class, "whacker");
         if (useVision) {
             webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
         }
@@ -80,6 +84,7 @@ public class Robot {
         launcher = new LauncherBackup(this);
         tapper = new Tapper(this);
         intake = new Intake(this);
+        whacker = new Whacker(this);
         camera = useVision ? new Camera(this) : null; // Only initialize camera if vision is used
     }
 
@@ -239,6 +244,7 @@ public class Robot {
         launcher.update(this);
         tapper.update(this);
         intake.update(this);
+        whacker.update(this);
         if (camera != null) { camera.update(this); } // Only update camera if it is being used
     }
 
@@ -254,6 +260,7 @@ public class Robot {
         launcher.stop();
         tapper.stop();
         intake.stop();
+        whacker.stop();
         if (camera != null) { camera.stop(); } // Only stop camera if it is being used
 
         // Update all subsystems to apply the stop commands

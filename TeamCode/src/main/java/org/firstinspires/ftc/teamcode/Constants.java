@@ -85,7 +85,7 @@ public class Constants {
         public static int TARGET_RPM = 710; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 350; // Time that the RPM must be within the tolerance before launching (milliseconds)
-        public static double POWER_WHILE_INTAKING = -0.6; // Power for launcher wheels while intaking to prevent jamming
+        public static double POWER_WHILE_INTAKING = -0.075; // Power for launcher wheels while intaking to prevent jamming
         public enum LauncherState {
             IDLE,
             SPEED_UP,
@@ -97,9 +97,24 @@ public class Constants {
         public static double INTAKE_POWER = 1.0; // Power for intake motor
         public static double RAMP_HOLD_POSITION = 1.0; // Position for the intake ramp that holds artifacts in the storage area
         public static double RAMP_INTAKE_POSITION = 0.0; // Position for the intake ramp that allows the intake to put artifacts in the storage area
+        public static double RAMP_POSITIONING_TIME = 500; // Time it takes for the ramp to move between positions (milliseconds)
         public enum IntakeState {
             RUNNING,
+            STOPPING,
+            WHACKING,
             STOPPED
+        }
+    }
+
+    // WHILE WHACKING, RUN WHEELS LIKE INTAKE
+    public static class WhackerConstants {
+        public static double HOME_POSITION = 0; // Position for the whacker to be retracted
+        public static double WHACK_POSITION = 1; // Position for the whacker to whack the artifact
+        public static double POSITIONING_TIME = 700; // Time it takes for the whacker to move between positions (milliseconds)
+        public enum WhackerState {
+            IDLE,
+            WHACKING,
+            RESETTING
         }
     }
 
