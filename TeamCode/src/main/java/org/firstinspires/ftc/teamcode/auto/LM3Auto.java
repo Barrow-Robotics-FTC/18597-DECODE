@@ -49,7 +49,7 @@ public class LM3Auto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        // Initialize robot and subsystems
+        // Initialize robot
         robot = new Robot(hardwareMap, Mode.AUTO);
         stateMachine = new StateMachine();
 
