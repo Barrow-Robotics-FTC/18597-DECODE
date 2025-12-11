@@ -96,12 +96,6 @@ public class LM3Auto extends LinearOpMode {
             // Update state machine
             pathState = stateMachine.update();
 
-            // If the state machine is complete or time is almost up, exit this loop
-            // TODO: Set back to normal value, this is just for testing
-            if (pathState == State.COMPLETED || runtime.milliseconds() > 45000) {
-                break;
-            }
-
             // Log status
             telemetry.addData("Elapsed", runtime.toString());
             telemetry.addData("Path State", pathState);
@@ -109,8 +103,6 @@ public class LM3Auto extends LinearOpMode {
             telemetry.addData("Launcher State", robot.launcher.getState());
             telemetry.addData("Tapper State", robot.tapper.getState());
             telemetry.addData("Intake State", robot.intake.getState());
-            telemetry.addData("launch when ready", robot.launcher.launchWhenReady);
-            telemetry.addData("left rpm", robot.launcher.getLeftRPM(robot));
             telemetry.addData("X", currentPose.getX());
             telemetry.addData("Y", currentPose.getY());
             telemetry.addData("Heading", currentPose.getHeading());
@@ -174,7 +166,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.85);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.9);
                         lastCommandedPose = robot.poses.score;
                         nextState();
                         break;
@@ -207,7 +199,7 @@ public class LM3Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.8);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.75);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
                             robot.intake.stop(); // Stop the intake
@@ -215,7 +207,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_GATE_ZONE:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed), 0.8);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed), 0.9);
                         lastCommandedPose = robot.poses.gateZoneNotPushed;
                         nextState();
                         break;
