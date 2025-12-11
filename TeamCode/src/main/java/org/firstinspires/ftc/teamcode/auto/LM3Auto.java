@@ -29,9 +29,12 @@ public class LM3Auto extends LinearOpMode {
             State.LAUNCH,
             State.MOVE_TO_PGP,
             State.INTAKE_ARTIFACT_ROW,
+            State.MOVE_TO_PGP,
             State.MOVE_TO_SCORING_POSITION,
             State.LAUNCH,
-            State.MOVE_TO_GATE_ZONE, // Move to gate zone to prepare for TeleOp
+            State.MOVE_TO_PPG,
+            State.INTAKE_ARTIFACT_ROW,
+            State.MOVE_TO_PPG,
             State.COMPLETED // End of autonomous
     ));
 
@@ -171,7 +174,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.75);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.85);
                         lastCommandedPose = robot.poses.score;
                         nextState();
                         break;
@@ -204,7 +207,7 @@ public class LM3Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.6);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.8);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
                             robot.intake.stop(); // Stop the intake

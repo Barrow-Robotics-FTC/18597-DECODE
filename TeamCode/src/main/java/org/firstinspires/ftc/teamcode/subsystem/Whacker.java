@@ -67,7 +67,7 @@ public class Whacker {
                 break;
             case WHACKING:
                 // Move to whack position
-                robot.tapperServo.setPosition(WHACK_POSITION);
+                robot.whackerServo.setPosition(WHACK_POSITION);
 
                 // Use the timer to determine when the tapper has reached the position
                 if (whackTimer.milliseconds() >= POSITIONING_TIME) {

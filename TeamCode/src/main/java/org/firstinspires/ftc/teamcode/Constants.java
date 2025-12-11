@@ -84,7 +84,7 @@ public class Constants {
         public static PVSCoefficients rightLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
         public static int TARGET_RPM = 710; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
-        public static int RPM_IN_RANGE_TIME = 350; // Time that the RPM must be within the tolerance before launching (milliseconds)
+        public static int RPM_IN_RANGE_TIME = 500; // Time that the RPM must be within the tolerance before launching (milliseconds)
         public static double POWER_WHILE_INTAKING = -0.075; // Power for launcher wheels while intaking to prevent jamming
         public enum LauncherState {
             IDLE,
@@ -108,9 +108,9 @@ public class Constants {
 
     // WHILE WHACKING, RUN WHEELS LIKE INTAKE
     public static class WhackerConstants {
-        public static double HOME_POSITION = 0; // Position for the whacker to be retracted
-        public static double WHACK_POSITION = 1; // Position for the whacker to whack the artifact
-        public static double POSITIONING_TIME = 700; // Time it takes for the whacker to move between positions (milliseconds)
+        public static double HOME_POSITION = 1; // Position for the whacker to be retracted
+        public static double WHACK_POSITION = 0; // Position for the whacker to whack the artifact
+        public static double POSITIONING_TIME = 1750; // Time it takes for the whacker to move between positions (milliseconds)
         public enum WhackerState {
             IDLE,
             WHACKING,
@@ -176,14 +176,14 @@ public class Constants {
             this.goalStart = buildPose(15.25, 111, 144, mirrorPoses);
             this.audienceStart = buildPose(56, BACK_TO_CENTER_DIST, 90, mirrorPoses);
             this.localize = buildPose(LEFT_SIDE_TO_CENTER_DIST, BACK_TO_CENTER_DIST, 0, mirrorPoses);
-            this.score = buildPose(67,  104, 138, mirrorPoses);
+            this.score = buildPose(64,  103, 143, mirrorPoses);
             this.gateZoneNotPushed = buildPose(25, 69, 90, mirrorPoses);
-            this.PPGArtifacts = buildPose(55, 47.5, 180, mirrorPoses);
-            this.PGPArtifacts = buildPose(55, 71.5, 180, mirrorPoses);
-            this.GPPArtifacts = buildPose(55, 95.5, 180, mirrorPoses);
-            this.PPGArtifactsEnd = buildPose(17, 47.5, 180, mirrorPoses);
-            this.PGPArtifactsEnd = buildPose(17, 71.5, 180, mirrorPoses);
-            this.GPPArtifactsEnd = buildPose(23, 95.5, 180, mirrorPoses);
+            this.PPGArtifacts = buildPose(57, 51, 180, mirrorPoses);
+            this.PGPArtifacts = buildPose(57, 75, 180, mirrorPoses);
+            this.GPPArtifacts = buildPose(57, 97, 180, mirrorPoses);
+            this.PPGArtifactsEnd = buildPose(17, 51, 180, mirrorPoses);
+            this.PGPArtifactsEnd = buildPose(17, 75, 180, mirrorPoses);
+            this.GPPArtifactsEnd = buildPose(23, 97, 180, mirrorPoses);
         }
 
         // Suppress warning about mirrorIfNeeded always being true
