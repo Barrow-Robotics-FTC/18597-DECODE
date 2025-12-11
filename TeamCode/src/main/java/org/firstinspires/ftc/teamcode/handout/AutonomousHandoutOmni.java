@@ -4,13 +4,14 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
- * Barrow Robotics 18597 RoboClovers Delta - Omni Drive Autonomous Handout
+ * Barrow Robotics 18597 RoboClovers Delta - Autonomous Handout
  *
- * This is a simple autonomous that drives forward for 1 second using omni drive.
+ * This is a simple autonomous that drives forward for a quarter second on a mecanum drivetrain.
  * It is intended to be a simple autonomous for teams that do not have an autonomous yet.
+ * We have specifically designed this to work without interfering with our full autonomous programs.
+ * Starting your robot in the correct position is very important to not interfere with us or the other teams.
  *
  * You will need to change the motor names and directions to match your configuration. See the TODO comments below.
  * Also change the package name to match your code folder. See the TODO comment above.
@@ -20,15 +21,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * This is better than doing nothing, which earns 0 points.
  *
  * How do you use this?
- * Start your robot on the audience wall facing forwards on the far edge of the launch line.
- * When the match starts, your robot will drive forward for 1 second, then stop.
+ * Start your robot on the audience wall (farthest from goals) facing our alliances human player zone (your robot should be sideways).
+ * When the match starts, your robot will drive forward for a quarter second, then stop.
 */
 
-@Autonomous(name="18597 Omni Auto Handout", group="Autonomous")
+@Autonomous(name="18597 Auto Handout", group="Autonomous")
 public class AutonomousHandoutOmni extends LinearOpMode {
-    // Timer to track how long the robot has been moving
-    private final ElapsedTime robotMovingFor = new ElapsedTime();
-
     @Override
     public void runOpMode() {
         // TODO: CHANGE THESE TO MATCH YOUR CONFIGURATION
@@ -43,7 +41,7 @@ public class AutonomousHandoutOmni extends LinearOpMode {
         backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        // Set motors to brake mode
+        // Set motors to brake mode (so they stop quickly when power is set to zero)
         frontLeftDrive.setZeroPowerBehavior(BRAKE);
         frontRightDrive.setZeroPowerBehavior(BRAKE);
         backLeftDrive.setZeroPowerBehavior(BRAKE);
@@ -55,23 +53,19 @@ public class AutonomousHandoutOmni extends LinearOpMode {
 
         // Wait for the game to start (driver presses START)
         waitForStart();
-        robotMovingFor.reset(); // Reset the robot move timer to zero
 
-        while (opModeIsActive()) {
-            // Move the robot to the robot forward at half power
-            frontLeftDrive.setPower(0.5);
-            frontRightDrive.setPower(0.5);
-            backLeftDrive.setPower(0.5);
-            backRightDrive.setPower(0.5);
+        // Move the robot to the robot forward at half power
+        frontLeftDrive.setPower(0.5);
+        frontRightDrive.setPower(0.5);
+        backLeftDrive.setPower(0.5);
+        backRightDrive.setPower(0.5);
 
-            // If the robot has been moving for 1 second, stop the robot
-            if (robotMovingFor.seconds() >= 1) {
-                frontLeftDrive.setPower(0);
-                frontRightDrive.setPower(0);
-                backLeftDrive.setPower(0);
-                backRightDrive.setPower(0);
-                break; // Exit the loop (end OpMode)
-            }
-        }
+        sleep(250); // Pause for a quarter second
+
+        // Stop the robot
+        frontLeftDrive.setPower(0);
+        frontRightDrive.setPower(0);
+        backLeftDrive.setPower(0);
+        backRightDrive.setPower(0);
     }
 }
