@@ -17,7 +17,7 @@ Left Trigger: Launch 1 artifact
 Right Trigger: Launch 3 artifacts
 */
 
-@TeleOp(name = "Launcher Test", group = "Tests")
+@TeleOp(name = "Launcher and Intake Test", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LauncherAndIntakeTest extends LinearOpMode {
     private Robot robot; // Custom robot class
