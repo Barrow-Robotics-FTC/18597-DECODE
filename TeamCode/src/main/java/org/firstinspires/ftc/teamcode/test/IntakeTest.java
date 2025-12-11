@@ -35,7 +35,7 @@ public class IntakeTest extends LinearOpMode {
             // Update robot
             robot.update(gamepad1, gamepad2);
 
-            // Right Bumper: toggle launcher speed up
+            // Left Bumper: toggle intake
             if (gamepad1.leftBumperWasPressed()) {
                 if (robot.intake.isActive()) { // If intake isn't idle
                     robot.intake.stop(); // Stop the intake
