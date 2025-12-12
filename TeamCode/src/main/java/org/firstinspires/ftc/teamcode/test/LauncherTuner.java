@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
+//import com.bylazar.telemetry.PanelsTelemetry;
+//import com.bylazar.telemetry.TelemetryManager;
 
 import static org.firstinspires.ftc.teamcode.Constants.PVSCoefficients;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
@@ -170,7 +170,7 @@ public class LauncherTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+        //TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         // Create instance of launcher and initialize
         robot = new Robot(hardwareMap, Mode.TELEOP);
@@ -227,9 +227,9 @@ public class LauncherTuner extends LinearOpMode {
             }
 
             // Panels telemetry for a graph
-            telemetryM.addData("target", robot.launcher.getTargetRPM());
-            telemetryM.addData("rpm", tuningLeft ? robot.launcher.getLeftRPM(robot) : robot.launcher.getRightRPM(robot));
-            telemetryM.update();
+            //telemetryM.addData("target", robot.launcher.getTargetRPM());
+            //telemetryM.addData("rpm", tuningLeft ? robot.launcher.getLeftRPM(robot) : robot.launcher.getRightRPM(robot));
+            //telemetryM.update();
 
             // Log status
             telemetry.addData("Launcher State", robot.launcher.getState());
