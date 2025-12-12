@@ -19,6 +19,9 @@ import java.util.List;
 @Autonomous(name = "LM3 Auto", group = "Autonomous")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class LM3Auto extends LinearOpMode {
+    // Time to wait before starting the autonomous
+    private static final double AUTO_START_DELAY = 0; // Milliseconds
+
     // Autonomous states list (9 artifact auto
     final List<State> stateList = new ArrayList<>(Arrays.asList(
             State.MOVE_TO_SCORING_POSITION, // Move from starting position to scoring position
@@ -89,6 +92,13 @@ public class LM3Auto extends LinearOpMode {
         robot.launcher.speedUp(true);
 
         while (opModeIsActive()) {
+            if (runtime.milliseconds() < AUTO_START_DELAY) {
+                // Wait for the auto start delay to finish
+                telemetry.addData("Status", "Waiting to start...");
+                telemetry.update();
+                continue;
+            }
+
             // Update robot and current pose
             robot.update(gamepad1, gamepad2);
             currentPose = robot.drivetrain.getPose();

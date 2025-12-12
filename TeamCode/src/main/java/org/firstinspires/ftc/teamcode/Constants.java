@@ -85,7 +85,7 @@ public class Constants {
         public static int TARGET_RPM = 710; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 500; // Time that the RPM must be within the tolerance before launching (milliseconds)
-        public static double POWER_WHILE_INTAKING = -0.075; // Power for launcher wheels while intaking to prevent jamming
+        public static double POWER_WHILE_INTAKING = -0.2; // Power for launcher wheels while intaking to prevent jamming
         public enum LauncherState {
             IDLE,
             SPEED_UP,
