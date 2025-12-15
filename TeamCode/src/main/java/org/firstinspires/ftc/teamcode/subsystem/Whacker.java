@@ -32,24 +32,18 @@ public class Whacker {
      * @return True if the whacker is whacking, false otherwise
      */
     public boolean isWhacking() {
-        return state == WhackerState.WHACKING;
+        return state == WhackerState.PUSHED;
     }
 
     /**
      * Command the whacker to whack the artifacts
      */
-    public void whack() {
-        if (state == WhackerState.WHACKING) {
-            return; // Already whacking
-        }
-        state = WhackerState.WHACKING;
+    public void push() {
+        state = WhackerState.PUSHED;
         whackTimer.reset(); // Start timer to track positioning time
     }
 
     public void stop() {
-        if (state == WhackerState.IDLE) {
-            return; // Already idle
-        }
         state = WhackerState.IDLE;
     }
 
@@ -57,33 +51,15 @@ public class Whacker {
         /*
         * States:
         * IDLE - Whacker is in the home position
-        * WHACKING - Whacker is in the process of whacking artifacts
-        * RESETTING - Whacker is returning to the home position after whacking
+        * PUSHED - Stopping artifacts from bouncing up
         */
         switch (state) {
             case IDLE:
                 // Maintain home position
                 robot.whackerServo.setPosition(HOME_POSITION);
                 break;
-            case WHACKING:
-                // Move to whack position
+            case PUSHED:
                 robot.whackerServo.setPosition(WHACK_POSITION);
-
-                // Use the timer to determine when the tapper has reached the position
-                if (whackTimer.milliseconds() >= POSITIONING_TIME) {
-                    state = WhackerState.RESETTING;
-                    whackTimer.reset(); // Used for resetting too
-                }
-                break;
-             case RESETTING:
-                // Move to home position
-                robot.whackerServo.setPosition(HOME_POSITION);
-
-                // Use the timer to determine when the whacker has reached the home position
-                if (whackTimer.milliseconds() >= POSITIONING_TIME) {
-                    state = WhackerState.IDLE; // Finished resetting
-                }
-
                 break;
         }
     }

@@ -108,13 +108,12 @@ public class Constants {
 
     // WHILE WHACKING, RUN WHEELS LIKE INTAKE
     public static class WhackerConstants {
-        public static double HOME_POSITION = 0.8; // Position for the whacker to be retracted
+        public static double HOME_POSITION = 1; // Position for the whacker to be retracted
         public static double WHACK_POSITION = 0; // Position for the whacker to whack the artifact
         public static double POSITIONING_TIME = 1750; // Time it takes for the whacker to move between positions (milliseconds)
         public enum WhackerState {
             IDLE,
-            WHACKING,
-            RESETTING
+            PUSHED
         }
     }
 

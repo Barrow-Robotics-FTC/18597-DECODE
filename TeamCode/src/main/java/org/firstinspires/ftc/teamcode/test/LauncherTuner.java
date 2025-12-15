@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.test;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-//import com.bylazar.telemetry.PanelsTelemetry;
-//import com.bylazar.telemetry.TelemetryManager;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 
 import static org.firstinspires.ftc.teamcode.Constants.PVSCoefficients;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
@@ -29,23 +30,17 @@ Tuning:
 
 Controls:
 Right Bumper: Toggle launcher speed up
-Left Bumper: High step / low step toggle
-D-Pad Up/Down: Increase/Decrease S
-D-Pad Right/Left: Increase/Decrease V
-Triangle/Cross: Increase/Decrease P
 */
 /*
 @TeleOp(name = "Launcher Tuner", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
+@Configurable
 public class LauncherTuner extends LinearOpMode {
     public boolean tuningLeft = true;
     private Robot robot; // Custom robot class
     private double p;
     private double v;
     private double s;
-    private boolean highStepToggle = true;
-    private double highStep = 0.01;
-    private double lowStep = 0.0001;
 
     private PVSCoefficients getCoefficients(Robot robot) {
         if (tuningLeft) {
@@ -85,14 +80,6 @@ public class LauncherTuner extends LinearOpMode {
             // Update robot
             robot.update(gamepad1, gamepad2);
 
-            // Tune with the gamepad
-            if (gamepad1.dpadUpWasPressed()) { s += highStepToggle ? highStep : lowStep; }
-            if (gamepad1.dpadDownWasPressed()) { s -= highStepToggle ? highStep : lowStep; }
-            if (gamepad1.dpadRightWasPressed()) { v += highStepToggle ? highStep : lowStep; }
-            if (gamepad1.dpadLeftWasPressed()) { v -= highStepToggle ? highStep : lowStep; }
-            if (gamepad1.triangleWasPressed()) { p += highStepToggle ? highStep : lowStep; }
-            if (gamepad1.crossWasPressed()) { p -= highStepToggle ? highStep : lowStep; }
-
             // Update the controller coefficients
             PVSCoefficients newCoeffs = new PVSCoefficients(p, v, s);
             if (tuningLeft) {
@@ -108,11 +95,6 @@ public class LauncherTuner extends LinearOpMode {
                 } else {
                     robot.launcher.speedUp(true); // Speed up the launcher
                 }
-            }
-
-            // Left Bumper: toggle high step / low step
-            if (gamepad1.leftBumperWasPressed()) {
-                highStepToggle = !highStepToggle;
             }
 
             // Panels telemetry for a graph
@@ -141,14 +123,11 @@ Use the Panels graph to visualize the RPM response to changes in the constants
 
 Controls:
 Right Bumper: Toggle launcher speed up
-D-Pad Up/Down: Increase/Decrease F
-D-Pad Right/Left: Increase/Decrease P
-Triangle/Cross: Increase/Decrease D
-Circle/Square: Increase/Decrease I
 */
 
 @TeleOp(name = "Launcher Tuner", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
+@Configurable
 public class LauncherTuner extends LinearOpMode {
     public boolean tuningLeft = true;
     private Robot robot; // Custom robot class
@@ -170,7 +149,7 @@ public class LauncherTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        //TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+        TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         // Create instance of launcher and initialize
         robot = new Robot(hardwareMap, Mode.TELEOP);
@@ -199,16 +178,6 @@ public class LauncherTuner extends LinearOpMode {
             // Update robot
             robot.update(gamepad1, gamepad2);
 
-            // Tune with the gamepad
-            if (gamepad1.dpadUpWasPressed()) { f += highStepToggle ? highStep : lowStep; }
-            if (gamepad1.dpadDownWasPressed()) { f -= highStepToggle ? highStep : lowStep; }
-            if (gamepad1.dpadRightWasPressed()) { p += highStepToggle ? highStep : lowStep; }
-            if (gamepad1.dpadLeftWasPressed()) { p -= highStepToggle ? highStep : lowStep; }
-            if (gamepad1.triangleWasPressed()) { d += highStepToggle ? highStep : lowStep; }
-            if (gamepad1.crossWasPressed()) { d -= highStepToggle ? highStep : lowStep; }
-            if (gamepad1.circleWasPressed()) { i += highStepToggle ? highStep : lowStep; }
-            if (gamepad1.squareWasPressed()) { i -= highStepToggle ? highStep : lowStep; }
-
             // Update the controller coefficients
             PIDFCoefficients newCoeffs = new PIDFCoefficients(p, i, d, f);
             if (tuningLeft) {
@@ -227,9 +196,9 @@ public class LauncherTuner extends LinearOpMode {
             }
 
             // Panels telemetry for a graph
-            //telemetryM.addData("target", robot.launcher.getTargetRPM());
-            //telemetryM.addData("rpm", tuningLeft ? robot.launcher.getLeftRPM(robot) : robot.launcher.getRightRPM(robot));
-            //telemetryM.update();
+            telemetryM.addData("target", robot.launcher.getTargetRPM());
+            telemetryM.addData("rpm", tuningLeft ? robot.launcher.getLeftRPM(robot) : robot.launcher.getRightRPM(robot));
+            telemetryM.update();
 
             // Log status
             telemetry.addData("Launcher State", robot.launcher.getState());

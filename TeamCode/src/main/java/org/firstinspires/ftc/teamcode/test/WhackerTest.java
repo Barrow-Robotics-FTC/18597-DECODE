@@ -35,7 +35,9 @@ public class WhackerTest extends LinearOpMode {
 
             if (gamepad1.rightBumperWasPressed()) {
                 if (!robot.whacker.isWhacking()) {
-                    robot.whacker.whack();
+                    robot.whacker.push();
+                } else {
+                    robot.whacker.stop();
                 }
             }
 

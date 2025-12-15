@@ -66,7 +66,6 @@ public class Intake {
 
                 // Check if ramp has had enough time to move to hold position
                 if (rampPositionTimer.milliseconds() >= RAMP_POSITIONING_TIME) {
-                    robot.whacker.whack(); // Whack to settle artifacts (non-blocking)
                     state = IntakeState.STOPPED;
                 }
 
