@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -8,14 +7,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.pedropathing.geometry.Pose;
 
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
-import static org.firstinspires.ftc.teamcode.Constants.AprilTagConstants.*;
 import org.firstinspires.ftc.teamcode.Constants.MovementVectors;
 import org.firstinspires.ftc.teamcode.Constants.Alliance;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Robot;
 
 /*
-Gamepad Map for LM3 TeleOp (With April Tags)
+Gamepad Map for LM3 TeleOp (Backup)
 
 Drive Coach: Katy
 Human Player: Cedar
@@ -29,12 +27,11 @@ Gamepad 2 (Operator): Parley
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact (position will be held automatically until launch completes)
     Right Trigger: Launch 3 artifacts (position will be held automatically until launch completes)
-    Square (X): Abort launch cycle
  */
 
-@TeleOp(name = "LM3 TeleOp (April Tag)", group = "TeleOp")
+@TeleOp(name = "LM3 TeleOp (Backup)", group = "TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class LM3TeleOpAprilTag extends LinearOpMode {
+public class LM3TeleOpBackup extends LinearOpMode {
     // Values retrieved from blackboard
     private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
     private Alliance alliance; // Alliance color
@@ -46,15 +43,9 @@ public class LM3TeleOpAprilTag extends LinearOpMode {
     // Variables
     private boolean slowMode = false;
     private Pose currentPose; // Current pose of the robot
-    private int artifactsToLaunch = 0; // Number of artifacts to launch
-    private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
-    private boolean liningUpWithGoalFailed = false; // Did the robot fail to line up with the goal?
 
     private void startLaunch(int numArtifacts) {
-        artifactsToLaunch = numArtifacts; // Indicate that we want to launch the specified number of artifacts
-        liningUpWithGoal = true; // Start by lining up with the goal
-
-        // Line up happens after this
+        robot.launcher.launch(numArtifacts); // Start the launch of artifacts
     }
 
     @Override
@@ -64,7 +55,7 @@ public class LM3TeleOpAprilTag extends LinearOpMode {
         autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", null);
 
         // Initialize robot
-        robot = new Robot(hardwareMap, Mode.TELEOP, true);
+        robot = new Robot(hardwareMap, Mode.TELEOP, false);
         robot.buildPoses(alliance);
 
         // Set starting pose to the end pose of auto (if it doesn't exist, use audience start)
@@ -83,35 +74,12 @@ public class LM3TeleOpAprilTag extends LinearOpMode {
             robot.update(gamepad1, gamepad2);
             currentPose = robot.drivetrain.getPose();
 
-            // Check if we are lining up with the goal
-            if (!liningUpWithGoal) {
-                // Set movement vectors based on gamepad inputs
-                robot.drivetrain.setMovementVectors(new MovementVectors(
-                        -gamepad1.left_stick_y * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
-                        -gamepad1.left_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
-                        -gamepad1.right_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER)
-                ));
-            } else {
-                // Gamepad 2 Square (X): Abort lining up with goal
-                if (gamepad2.xWasPressed()) {
-                    // Abort lining up with goal
-                    liningUpWithGoalFailed = true;
-                    robot.drivetrain.stop(); // Stop drivetrain movement
-                }
-
-                // Line up with the April Tag
-                AprilTagDetection tag = robot.camera.getAprilTag(alliance == Alliance.BLUE ? BLUE_GOAL_TAG_ID : RED_GOAL_TAG_ID);
-                if (tag != null) {
-                    liningUpWithGoalFailed = false; // Still lining up successfully
-                    MovementVectors alignmentVectors = robot.camera.driveToAprilTag(tag);
-                    if (alignmentVectors.moveCompleted) {
-                        liningUpWithGoal = false; // Finished lining up
-                        robot.drivetrain.stop(); // Stop drivetrain movement
-                    } else {
-                        robot.drivetrain.setMovementVectors(alignmentVectors); // Set drivetrain movement vectors
-                    }
-                }
-            }
+            // Set movement vectors based on gamepad inputs
+            robot.drivetrain.setMovementVectors(new MovementVectors(
+                    -gamepad1.left_stick_y * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
+                    -gamepad1.left_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
+                    -gamepad1.right_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER)
+            ));
 
             // Gamepad 1 Left Bumper: Toggle slow mode
             if (gamepad1.leftBumperWasPressed()) {
@@ -146,25 +114,10 @@ public class LM3TeleOpAprilTag extends LinearOpMode {
                 startLaunch(3); // Indicate that we want to launch 3 artifacts
             }
 
-            // If we are in the process of launching artifacts
-            if (artifactsToLaunch > 0) {
-                if (liningUpWithGoalFailed) { // This will run if the goal lineup failed
-                    artifactsToLaunch = 0;
-                    liningUpWithGoal = false;
-                    liningUpWithGoalFailed = false;
-                } else if (!liningUpWithGoal) { // This won't run until we are lined up with the goal
-                    // Note: line up is handled above in drivetrain update
-                    // Note: The launch command will call speedUp() if the launcher is idle, so no need to check here
-                    robot.launcher.launch(artifactsToLaunch); // Start the launch of artifacts
-
-                    // Reset flags
-                    artifactsToLaunch = 0;
-                }
-            }
 
             // Set Gamepad 1 lights (priority goes first to last)
             // Note when picking colors: Avoid red and blue as they are default colors
-            if (liningUpWithGoal || robot.launcher.isLaunching()) { // Lining up with goal or launch process is running: purple
+            if (robot.launcher.isLaunching()) { // Lining up with goal or launch process is running: purple
                 robot.setGamepad1Color(150, 0, 255);
             } else if (slowMode) { // Slow mode: yellow
                 robot.setGamepad1Color(255, 255, 0);
@@ -173,7 +126,7 @@ public class LM3TeleOpAprilTag extends LinearOpMode {
             }
 
             // Set Gamepad 2 lights (priority goes first to last)
-            if (liningUpWithGoal || robot.launcher.isLaunching()) { // Lining up with goal or launch process is running: purple
+            if (robot.launcher.isLaunching()) { // Lining up with goal or launch process is running: purple
                 robot.setGamepad2Color(150, 0, 255);
             } else if (robot.launcher.isActive()) { // Launcher is active: yellow
                 robot.setGamepad2Color(255, 255, 0);

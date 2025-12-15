@@ -58,6 +58,11 @@ public class LauncherBackup {
         robot.rightLauncherMotor.setVelocity(getTargetRPM());
     }
 
+    private void stopMotors(Robot robot) {
+        robot.leftLauncherMotor.setVelocity(0);
+        robot.rightLauncherMotor.setVelocity(0);
+    }
+
     /**
      * Get the current state of the launcher
      *
@@ -190,16 +195,19 @@ public class LauncherBackup {
     public void update(Robot robot) {
         launchCycleCompleted = false; // Reset launch cycle completed flag
 
+
         // Check if intake is running or the whacker is whacking
         if (robot.intake.isActive() || robot.whacker.isWhacking()) {
             // Run the launcher wheels in reverse to avoid jamming
-            setPowers(POWER_WHILE_INTAKING, POWER_WHILE_INTAKING, robot);
+            robot.leftLauncherMotor.setVelocity(-500);
+            robot.rightLauncherMotor.setVelocity(-500);
             return;
         }
 
+
         switch(state) {
             case IDLE:
-                setPowers(0, 0, robot); // Stop the launcher motors
+                stopMotors(robot); // Stop the launcher motors
                 inToleranceTimer.reset(); // Reset in tolerance timer
 
                 break;

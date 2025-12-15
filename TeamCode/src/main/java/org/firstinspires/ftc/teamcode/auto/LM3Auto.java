@@ -89,7 +89,7 @@ public class LM3Auto extends LinearOpMode {
         runtime.reset();
 
         // Start the launcher, it will stay active throughout the auto
-        robot.launcher.speedUp(true);
+        robot.launcher.speedUp(false);
 
         while (opModeIsActive()) {
             if (runtime.milliseconds() < AUTO_START_DELAY) {
@@ -111,6 +111,8 @@ public class LM3Auto extends LinearOpMode {
             telemetry.addData("Path State", pathState);
             telemetry.addData("Path Index", stateMachine.statesIndex);
             telemetry.addData("Launcher State", robot.launcher.getState());
+            telemetry.addData("Launcher Left RPM", robot.launcher.getLeftRPM(robot));
+            telemetry.addData("Launcher Right RPM", robot.launcher.getRightRPM(robot));
             telemetry.addData("Tapper State", robot.tapper.getState());
             telemetry.addData("Intake State", robot.intake.getState());
             telemetry.addData("X", currentPose.getX());
@@ -176,7 +178,7 @@ public class LM3Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.9);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.8);
                         lastCommandedPose = robot.poses.score;
                         nextState();
                         break;
@@ -209,10 +211,11 @@ public class LM3Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.75);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.85);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
                             robot.intake.stop(); // Stop the intake
+                            robot.launcher.speedUp(false);
                             nextState();
                         }
                         break;
