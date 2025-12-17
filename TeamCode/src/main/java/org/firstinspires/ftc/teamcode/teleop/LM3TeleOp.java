@@ -106,11 +106,13 @@ public class LM3TeleOp extends LinearOpMode {
                 slowMode = !slowMode;
             }
 
+            /* Temporarily disabled to prevent accidental localization because it doesn't work
             // Gamepad 1 Circle: Localize
             if (gamepad1.circleWasPressed()) {
                 // Set the robot pose to the localization pose (human player corner)
                 robot.drivetrain.setPose(robot.poses.localize);
             }
+            */
 
             // Gamepad 2 Left Bumper: Toggle intake
             if (gamepad2.leftBumperWasPressed()) {

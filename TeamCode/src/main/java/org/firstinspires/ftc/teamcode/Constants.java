@@ -46,6 +46,10 @@ public class Constants {
     public static double LEFT_SIDE_TO_CENTER_DIST = 8.05; // Distance from the left side of the robot to the center (inches)
     public static double BACK_TO_CENTER_DIST = 8.4; // Distance from the back of the robot to the center (inches)
 
+    // Speed for Pedro to slow down to when approaching a pose
+    public static double PATH_SLOW_DOWN_T_VALUE = 0.9; // T value to start slowing down at (0-1)
+    public static double PATH_SLOW_DOWN_SPEED = 0.3; // Speed to slow down to when approaching a pose (0-1)
+
     // Omni movement vector class
     public static class MovementVectors {
         public double forward;
@@ -218,6 +222,7 @@ public class Constants {
             return drivetrain.follower.pathBuilder()
                     .addPath(new BezierCurve(createCurvePoints(pose1, pose2, controlPoints)))
                     .setLinearHeadingInterpolation(pose1.getHeading(), pose2.getHeading())
+                    //.addParametricCallback(PATH_SLOW_DOWN_T_VALUE, drivetrain::slowDownForPathEnd)
                     .build();
         }
 
@@ -233,6 +238,7 @@ public class Constants {
             return drivetrain.follower.pathBuilder()
                     .addPath(new BezierLine(pose1, pose2))
                     .setLinearHeadingInterpolation(pose1.getHeading(), pose2.getHeading())
+                    //.addParametricCallback(PATH_SLOW_DOWN_T_VALUE, drivetrain::slowDownForPathEnd)
                     .build();
         }
 

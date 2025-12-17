@@ -7,6 +7,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants;
+import static org.firstinspires.ftc.teamcode.Constants.PATH_SLOW_DOWN_SPEED;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Constants.MovementVectors;
 import org.firstinspires.ftc.teamcode.pedro.PedroConstants;
@@ -78,7 +79,7 @@ public class Drivetrain {
      *
      * @param pose The pose to hold
      */
-    public void holdPose(Pose pose) {
+    public void holdPoint(Pose pose) {
         follower.holdPoint(pose); // Hold the provided pose
         holdingPose = true; // We only need to set this when we are deliberately holding a pose
     }
@@ -92,6 +93,22 @@ public class Drivetrain {
             follower.breakFollowing(); // Stop holding the point
             holdingPose = false; // Reset the holding pose flag
         }
+    }
+
+    /**
+     * Set the maximum power for Pedro Pathing movements
+     *
+     * @param maxPower The maximum power to set (0.0 to 1.0)
+     */
+    public void setMaxPower(double maxPower) {
+        follower.setMaxPower(maxPower); // Set the maximum power for Pedro Pathing
+    }
+
+    /**
+     * Set the max power near the end of the path for smoother stopping
+     */
+    public void slowDownForPathEnd() {
+        follower.setMaxPower(PATH_SLOW_DOWN_SPEED); // Set max power to slow down near path end
     }
 
     /**
@@ -125,6 +142,7 @@ public class Drivetrain {
         if (robot.mode == Mode.TELEOP) {
             // Check if an autonomous drive has just completed
             if (lastState && !isDriving() && !holdingPose) {
+                setMaxPower(1.0); // Reset max power to full
                 startTeleOp(); // Start the TeleOp again
             }
             lastState = isDriving() || holdingPose; // Update the last state
