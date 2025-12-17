@@ -36,11 +36,11 @@ Right Bumper: Toggle launcher speed up
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 @Configurable
 public class LauncherTuner extends LinearOpMode {
-    public boolean tuningLeft = true;
     private Robot robot; // Custom robot class
-    private double p;
-    private double v;
-    private double s;
+    public static boolean tuningLeft = true;
+    public static double p;
+    public static double v;
+    public static double s;
 
     private PVSCoefficients getCoefficients(Robot robot) {
         if (tuningLeft) {
@@ -124,20 +124,17 @@ Use the Panels graph to visualize the RPM response to changes in the constants
 Controls:
 Right Bumper: Toggle launcher speed up
 */
-
 @TeleOp(name = "Launcher Tuner", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 @Configurable
 public class LauncherTuner extends LinearOpMode {
-    public boolean tuningLeft = true;
+
     private Robot robot; // Custom robot class
-    private double p;
-    private double i;
-    private double d;
-    private double f;
-    private boolean highStepToggle = true;
-    private double highStep = 1;
-    private double lowStep = 0.01;
+    public static boolean tuningLeft = true;
+    public static double p;
+    public static double i;
+    public static double d;
+    public static double f;
 
     private PIDFCoefficients getCoefficients(Robot robot) {
         if (tuningLeft) {
