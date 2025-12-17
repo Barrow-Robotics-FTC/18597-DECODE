@@ -31,7 +31,6 @@ Tuning:
 Controls:
 Right Bumper: Toggle launcher speed up
 */
-/*
 @TeleOp(name = "Launcher Tuner", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 @Configurable
@@ -114,7 +113,6 @@ public class LauncherTuner extends LinearOpMode {
         }
     }
 }
-*/
 
 /*
 Launcher Tuning OpMode
@@ -135,13 +133,14 @@ Tuning:
 - Tune kP to make it accelerate to the target speed quickly with minimal overshoot
 - Increase kD if there is overshoot or oscillation
 */
+/*
 @TeleOp(name = "Launcher Tuner", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 @Configurable
 public class LauncherTuner extends LinearOpMode {
 
     private Robot robot; // Custom robot class
-    public static boolean tuningLeft = true;
+    public static boolean tuningLeft = false;
     public static double p;
     public static double i;
     public static double d;
@@ -221,3 +220,4 @@ public class LauncherTuner extends LinearOpMode {
         }
     }
 }
+*/

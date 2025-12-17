@@ -86,12 +86,12 @@ public class Constants {
     }
 
     public static class LauncherConstants {
-        public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(0, 0, 0, 0);
-        public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(0, 0, 0, 0);
+        public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(3, 0, 3, 11.193);
+        public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(10, 0, 0.1, 12.215);
         public static PVSCoefficients leftLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
         public static PVSCoefficients rightLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
-        public static int TARGET_RPM = 690; // Target RPM for both launcher motors
-        public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
+        public static int TARGET_RPM = 700; // Target RPM for both launcher motors
+        public static int RPM_TOLERANCE = 60; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 500; // Time that the RPM must be within the tolerance before launching (milliseconds)
         public static double POWER_WHILE_INTAKING = -0.2; // Power for launcher wheels while intaking to prevent jamming
         public enum LauncherState {
