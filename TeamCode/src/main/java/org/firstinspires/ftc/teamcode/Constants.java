@@ -86,8 +86,8 @@ public class Constants {
     }
 
     public static class LauncherConstants {
-        public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
-        public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(85, 0, 80, 13.2);
+        public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(0, 0, 0, 0);
+        public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(0, 0, 0, 0);
         public static PVSCoefficients leftLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
         public static PVSCoefficients rightLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
         public static int TARGET_RPM = 690; // Target RPM for both launcher motors

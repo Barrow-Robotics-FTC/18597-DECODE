@@ -123,6 +123,17 @@ Use the Panels graph to visualize the RPM response to changes in the constants
 
 Controls:
 Right Bumper: Toggle launcher speed up
+
+Constants:
+kP: Gain
+kI: Ignore
+kD: Damping
+kF: Static feedforward (unit conversion from velocity to power)
+
+Tuning:
+- Increase kF until the flywheel reaches target speed
+- Tune kP to make it accelerate to the target speed quickly with minimal overshoot
+- Increase kD if there is overshoot or oscillation
 */
 @TeleOp(name = "Launcher Tuner", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
