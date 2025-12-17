@@ -50,6 +50,10 @@ public class Constants {
     public static double PATH_SLOW_DOWN_T_VALUE = 0.9; // T value to start slowing down at (0-1)
     public static double PATH_SLOW_DOWN_SPEED = 0.3; // Speed to slow down to when approaching a pose (0-1)
 
+    // Constants for slowing down when approaching a wall
+    public static double WALL_SLOW_DOWN_DISTANCE = BACK_TO_CENTER_DIST + 12; // Distance to start slowing down at (inches)
+    public static double WALL_SLOW_DOWN_SPEED = 0.5; // Speed to slow down to when approaching a wall (0-1)
+
     // Omni movement vector class
     public static class MovementVectors {
         public double forward;

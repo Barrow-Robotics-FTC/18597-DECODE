@@ -8,6 +8,8 @@ import com.pedropathing.geometry.Pose;
 
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants;
 import static org.firstinspires.ftc.teamcode.Constants.PATH_SLOW_DOWN_SPEED;
+import static org.firstinspires.ftc.teamcode.Constants.WALL_SLOW_DOWN_DISTANCE;
+import static org.firstinspires.ftc.teamcode.Constants.WALL_SLOW_DOWN_SPEED;
 import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Constants.MovementVectors;
 import org.firstinspires.ftc.teamcode.pedro.PedroConstants;
@@ -142,10 +144,22 @@ public class Drivetrain {
         if (robot.mode == Mode.TELEOP) {
             // Check if an autonomous drive has just completed
             if (lastState && !isDriving() && !holdingPose) {
-                setMaxPower(1.0); // Reset max power to full
                 startTeleOp(); // Start the TeleOp again
             }
             lastState = isDriving() || holdingPose; // Update the last state
         }
+
+        /* Needs to be tested before enabling
+        // Check if we're near a wall and adjust max power if necessary
+        if (getPose().getX() < WALL_SLOW_DOWN_DISTANCE ||
+                getPose().getX() > 144 - WALL_SLOW_DOWN_DISTANCE ||
+                getPose().getY() < WALL_SLOW_DOWN_DISTANCE ||
+                getPose().getY() > 144 - WALL_SLOW_DOWN_DISTANCE)
+        {
+            setMaxPower(WALL_SLOW_DOWN_SPEED); // Slow down near the wall
+        } else if (!isDriving() && !holdingPose) {
+            setMaxPower(1.0); // Reset max power to full if not driving or holding
+        } // Max speed will be managed during autonomous driving
+        */
     }
 }
