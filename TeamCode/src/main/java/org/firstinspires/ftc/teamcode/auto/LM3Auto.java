@@ -22,7 +22,7 @@ public class LM3Auto extends LinearOpMode {
     // Time to wait before starting the autonomous
     private static final double AUTO_START_DELAY = 0; // Milliseconds
 
-    // Autonomous states list (9 artifact auto
+    // 9 artifact auto
     final List<State> stateList = new ArrayList<>(Arrays.asList(
             State.MOVE_TO_SCORING_POSITION, // Move from starting position to scoring position
             State.LAUNCH, // Score preloaded artifacts
@@ -40,6 +40,29 @@ public class LM3Auto extends LinearOpMode {
             State.MOVE_TO_PPG,
             State.COMPLETED // End of autonomous
     ));
+
+    /*
+    // 12 artifact auto
+    final List<State> stateList = new ArrayList<>(Arrays.asList(
+            State.MOVE_TO_SCORING_POSITION, // Move from starting position to scoring position
+            State.LAUNCH, // Score preloaded artifacts
+            State.MOVE_TO_GPP, // Move in front of the PPG artifact row
+            State.INTAKE_ARTIFACT_ROW, // Intake the artifacts from the GPP row
+            State.MOVE_TO_SCORING_POSITION,
+            State.LAUNCH,
+            State.MOVE_TO_PGP,
+            State.INTAKE_ARTIFACT_ROW,
+            State.MOVE_TO_PGP,
+            State.MOVE_TO_SCORING_POSITION,
+            State.LAUNCH,
+            State.MOVE_TO_PPG,
+            State.INTAKE_ARTIFACT_ROW,
+            State.MOVE_TO_SCORING_POSITION,
+            State.LAUNCH,
+            State.MOVE_TO_GATE_ZONE
+            State.COMPLETED // End of autonomous
+    ));
+     */
 
     // Utilities
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
