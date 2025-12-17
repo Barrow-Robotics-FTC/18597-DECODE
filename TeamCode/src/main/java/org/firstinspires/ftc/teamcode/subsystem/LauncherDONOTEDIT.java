@@ -60,6 +60,11 @@ public class LauncherDONOTEDIT {
         );
     }
 
+    private void stopMotors(Robot robot) {
+        robot.leftLauncherMotor.setVelocity(0);
+        robot.rightLauncherMotor.setVelocity(0);
+    }
+
     /**
      * Get the current state of the launcher
      *
@@ -192,22 +197,17 @@ public class LauncherDONOTEDIT {
     public void update(Robot robot) {
         launchCycleCompleted = false; // Reset launch cycle completed flag
 
-        // Check if intake is running or the whacker is whacking
-        if (robot.intake.isActive() || robot.whacker.isWhacking()) {
-            // Run the launcher wheels in reverse to avoid jamming
-            setPowers(POWER_WHILE_INTAKING, POWER_WHILE_INTAKING, robot);
-            return;
-        }
-
         switch(state) {
             case IDLE:
-                setPowers(0, 0, robot); // Stop the launcher motors
+                stopMotors(robot); // Stop the launcher motors
                 inToleranceTimer.reset(); // Reset in tolerance timer
+                robot.whacker.push();
 
                 break;
             case SPEED_UP:
                 // Update the motor speeds using the controllers
                 updateControllers(robot);
+                robot.whacker.stop();
 
                 // Create variables to check if each motor is within the RPM tolerance
                 boolean leftInTol = Math.abs(getTargetRPM() - getLeftRPM(robot)) <= RPM_TOLERANCE;

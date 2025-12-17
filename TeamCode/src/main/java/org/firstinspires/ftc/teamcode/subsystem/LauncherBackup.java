@@ -195,14 +195,6 @@ public class LauncherBackup {
     public void update(Robot robot) {
         launchCycleCompleted = false; // Reset launch cycle completed flag
 
-        // Check if intake is running or the whacker is whacking
-        if (robot.intake.isActive()) {
-            // Run the launcher wheels in reverse to avoid jamming
-            robot.leftLauncherMotor.setVelocity(-500);
-            robot.rightLauncherMotor.setVelocity(-500);
-            return;
-        }
-
         switch(state) {
             case IDLE:
                 stopMotors(robot); // Stop the launcher motors
