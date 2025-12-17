@@ -198,14 +198,14 @@ public class LauncherBackup {
         switch(state) {
             case IDLE:
                 stopMotors(robot); // Stop the launcher motors
+                robot.blocker.block(); // The blocker should be blocking artifacts from entering the launcher
                 inToleranceTimer.reset(); // Reset in tolerance timer
-                robot.whacker.push();
 
                 break;
             case SPEED_UP:
                 // Update the motor speeds using the controllers
                 updateControllers(robot);
-                robot.whacker.stop();
+                robot.blocker.raise(); // The blocker should be raised to allow artifacts into the launcher
 
                 // Create variables to check if each motor is within the RPM tolerance
                 boolean leftInTol = Math.abs(getTargetRPM() - getLeftRPM(robot)) <= RPM_TOLERANCE;
@@ -216,7 +216,8 @@ public class LauncherBackup {
                     // Check if they have been within tolerance for long enough
                     if (inToleranceTimer.milliseconds() >= RPM_IN_RANGE_TIME) {
                         // At this point, the launcher is ready to launch
-                        if (!launchWhenReady) { // But if a launch hasn't been commanded
+                        // Make sure a launch has been commanded and the blocker is fully raised
+                        if (!launchWhenReady || !robot.blocker.isFinishedRaising()) {
                             break; // Stay in speed up state
                         }
                         state = LauncherState.LAUNCH; // Move to launch state

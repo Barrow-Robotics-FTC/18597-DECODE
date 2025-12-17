@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystem.LauncherBackup;
 import org.firstinspires.ftc.teamcode.subsystem.Tapper;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
-import org.firstinspires.ftc.teamcode.subsystem.Whacker;
+import org.firstinspires.ftc.teamcode.subsystem.Blocker;
 import org.firstinspires.ftc.teamcode.subsystem.Camera;
 
 public class Robot {
@@ -37,7 +37,7 @@ public class Robot {
     public LauncherBackup launcher;
     public Tapper tapper;
     public Intake intake;
-    public Whacker whacker;
+    public Blocker blocker;
     public Camera camera;
     public Poses poses;
 
@@ -84,7 +84,7 @@ public class Robot {
         launcher = new LauncherBackup(this);
         tapper = new Tapper(this);
         intake = new Intake(this);
-        whacker = new Whacker(this);
+        blocker = new Blocker(this);
         camera = useVision ? new Camera(this) : null; // Only initialize camera if vision is used
     }
 
@@ -244,7 +244,7 @@ public class Robot {
         launcher.update(this);
         tapper.update(this);
         intake.update(this);
-        whacker.update(this);
+        blocker.update(this);
         if (camera != null) { camera.update(this); } // Only update camera if it is being used
     }
 
@@ -260,7 +260,7 @@ public class Robot {
         launcher.stop();
         tapper.stop();
         intake.stop();
-        whacker.stop();
+        blocker.stop();
         if (camera != null) { camera.stop(); } // Only stop camera if it is being used
 
         // Update all subsystems to apply the stop commands

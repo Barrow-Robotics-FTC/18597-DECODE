@@ -7,14 +7,13 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Robot;
 
 /*
-Position Recorder OpMode
-Displays the current position of the robot in telemetry to help record positions for autonomous paths
-Start the robot in the blue alliance human player zone corner (localize position)
+Blocker Test OpMode
+
 */
 
-@TeleOp(name = "Whacker Test", group = "Tests")
+@TeleOp(name = "Blocker Test", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class WhackerTest extends LinearOpMode {
+public class BlockerTest extends LinearOpMode {
     private Robot robot; // Custom robot class
 
     @Override
@@ -34,15 +33,15 @@ public class WhackerTest extends LinearOpMode {
             robot.update(gamepad1, gamepad2);
 
             if (gamepad1.rightBumperWasPressed()) {
-                if (!robot.whacker.isWhacking()) {
-                    robot.whacker.push();
+                if (robot.blocker.isBlocking()) {
+                    robot.blocker.raise();
                 } else {
-                    robot.whacker.stop();
+                    robot.blocker.block();
                 }
             }
 
             // Log status
-            telemetry.addData("Whacker State", robot.whacker.getState());
+            telemetry.addData("Whacker State", robot.blocker.getState());
             telemetry.update();
         }
     }

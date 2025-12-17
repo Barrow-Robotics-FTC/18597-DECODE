@@ -101,19 +101,18 @@ public class Constants {
         public enum IntakeState {
             RUNNING,
             STOPPING,
-            WHACKING,
             STOPPED
         }
     }
 
-    // WHILE WHACKING, RUN WHEELS LIKE INTAKE
-    public static class WhackerConstants {
-        public static double HOME_POSITION = 1; // Position for the whacker to be retracted
-        public static double WHACK_POSITION = 0; // Position for the whacker to whack the artifact
-        public static double POSITIONING_TIME = 1750; // Time it takes for the whacker to move between positions (milliseconds)
-        public enum WhackerState {
-            IDLE,
-            PUSHED
+    public static class BlockerConstants {
+        public static double RAISED_POSITION = 1; // Position for the whacker to be retracted
+        public static double BLOCK_POSITION = 0; // Position for the whacker to whack the artifact
+        public static double POSITIONING_TIME = 1000; // Time it takes for the whacker to move between positions (milliseconds)
+        public enum BlockerState {
+            BLOCKING,
+            RAISING,
+            RAISED
         }
     }
 
