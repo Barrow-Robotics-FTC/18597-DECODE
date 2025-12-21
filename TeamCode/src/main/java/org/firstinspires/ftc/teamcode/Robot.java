@@ -266,4 +266,79 @@ public class Robot {
         // Update all subsystems to apply the stop commands
         update(gamepad1, gamepad2);
     }
+
+    /**
+     * Periodic update for command-based operation (without gamepad parameters)
+     */
+    public void periodic() {
+        // Update all subsystems
+        drivetrain.update(this);
+        launcher.update(this);
+        tapper.update(this);
+        intake.update(this);
+        blocker.update(this);
+        if (camera != null) { camera.update(this); }
+    }
+
+    // ========== Command-based methods for Ivy ==========
+
+    /**
+     * Command to launch artifacts (returns a Sequential command)
+     * Mimics the exact launch sequence from LM3Auto
+     *
+     * @param numArtifacts The number of artifacts to launch
+     * @return Sequential command for launching
+     */
+    public com.pedropathing.ivy.groups.Sequential launchCommand(int numArtifacts) {
+        return new com.pedropathing.ivy.groups.Sequential(
+                new com.pedropathing.ivy.commands.Instant(() -> launcher.launch(numArtifacts)),
+                new com.pedropathing.ivy.commands.WaitUntil(() -> launcher.didCompleteCycle())
+        );
+    }
+
+    /**
+     * Command to run intake
+     *
+     * @return Instant command to start intake
+     */
+    public com.pedropathing.ivy.commands.Instant startIntakeCommand() {
+        return new com.pedropathing.ivy.commands.Instant(() -> intake.run());
+    }
+
+    /**
+     * Command to stop intake
+     *
+     * @return Instant command to stop intake
+     */
+    public com.pedropathing.ivy.commands.Instant stopIntakeCommand() {
+        return new com.pedropathing.ivy.commands.Instant(() -> intake.stop());
+    }
+
+    /**
+     * Command to speed up launcher
+     *
+     * @param holdSpeed Whether to hold speed after completion
+     * @return Instant command to speed up launcher
+     */
+    public com.pedropathing.ivy.commands.Instant speedUpLauncherCommand(boolean holdSpeed) {
+        return new com.pedropathing.ivy.commands.Instant(() -> launcher.speedUp(holdSpeed));
+    }
+
+    /**
+     * Hold the current pose using drivetrain
+     *
+     * @return Instant command to hold pose
+     */
+    public com.pedropathing.ivy.commands.Instant holdPose() {
+        return new com.pedropathing.ivy.commands.Instant(() -> drivetrain.holdPose(true));
+    }
+
+    /**
+     * Release the held pose
+     *
+     * @return Instant command to release pose
+     */
+    public com.pedropathing.ivy.commands.Instant releasePose() {
+        return new com.pedropathing.ivy.commands.Instant(() -> drivetrain.holdPose(false));
+    }
 }
