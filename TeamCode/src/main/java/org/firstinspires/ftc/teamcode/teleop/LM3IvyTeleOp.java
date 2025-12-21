@@ -5,6 +5,7 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import com.pedropathing.geometry.Pose;
 
@@ -45,6 +46,9 @@ public class LM3IvyTeleOp extends CommandOpMode {
 
     // Robot
     private Robot robot;
+
+    // Utilities
+    private final ElapsedTime runtime = new ElapsedTime();
 
     // Variables
     private boolean slowMode = false;
@@ -88,7 +92,7 @@ public class LM3IvyTeleOp extends CommandOpMode {
                             setGamepadColors();
 
                             // Update telemetry
-                            telemetry.addData("Run Time: ", getRuntime());
+                            telemetry.addData("Run Time: ", runtime.seconds());
                             telemetry.addData("Automated Drive: ", robot.drivetrain.isDriving());
                             telemetry.addData("Launcher State: ", robot.launcher.getState());
                             telemetry.addData("X: ", currentPose.getX());
@@ -104,6 +108,9 @@ public class LM3IvyTeleOp extends CommandOpMode {
     public void start() {
         // Start TeleOp driving
         robot.drivetrain.follower.startTeleOpDrive(BRAKE_MODE);
+        
+        // Reset runtime
+        runtime.reset();
     }
 
     private void handleDriverControls() {
@@ -197,20 +204,32 @@ public class LM3IvyTeleOp extends CommandOpMode {
     private void setGamepadColors() {
         // Set Gamepad 1 lights (priority goes first to last)
         if (robot.launcher.isLaunching()) { // Launch process is running: purple
-            robot.setGamepad1Color(150, 0, 255);
+            gamepad1Color[0] = 150;
+            gamepad1Color[1] = 0;
+            gamepad1Color[2] = 255;
         } else if (slowMode) { // Slow mode: yellow
-            robot.setGamepad1Color(255, 255, 0);
+            gamepad1Color[0] = 255;
+            gamepad1Color[1] = 255;
+            gamepad1Color[2] = 0;
         } else { // None of the above conditions: default
-            robot.setGamepad1Color(0, 0, 0);
+            gamepad1Color[0] = 0;
+            gamepad1Color[1] = 0;
+            gamepad1Color[2] = 0;
         }
 
         // Set Gamepad 2 lights (priority goes first to last)
         if (robot.launcher.isLaunching()) { // Launch process is running: purple
-            robot.setGamepad2Color(150, 0, 255);
+            gamepad2Color[0] = 150;
+            gamepad2Color[1] = 0;
+            gamepad2Color[2] = 255;
         } else if (robot.launcher.isActive()) { // Launcher is active: yellow
-            robot.setGamepad2Color(255, 255, 0);
+            gamepad2Color[0] = 255;
+            gamepad2Color[1] = 255;
+            gamepad2Color[2] = 0;
         } else { // None of the above conditions: default
-            robot.setGamepad2Color(0, 0, 0);
+            gamepad2Color[0] = 0;
+            gamepad2Color[1] = 0;
+            gamepad2Color[2] = 0;
         }
 
         // Apply gamepad colors
