@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Autonomous(name = "LM3 Auto", group = "Autonomous")
+@Autonomous(name = "LM4 Auto", group = "Autonomous")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class LM3Auto extends LinearOpMode {
+public class LM4Auto extends LinearOpMode {
     // Time to wait before starting the autonomous
     private static final double AUTO_START_DELAY = 0; // Milliseconds
 

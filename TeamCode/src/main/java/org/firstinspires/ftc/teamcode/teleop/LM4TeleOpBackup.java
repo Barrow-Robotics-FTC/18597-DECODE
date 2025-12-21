@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Constants.Mode;
 import org.firstinspires.ftc.teamcode.Robot;
 
 /*
-Gamepad Map for LM3 TeleOp (Backup)
+Gamepad Map for LM4 TeleOp (Backup)
 
 Drive Coach: Katy
 Human Player: Cedar
@@ -29,9 +29,9 @@ Gamepad 2 (Operator): Parley
     Right Trigger: Launch 3 artifacts (position will be held automatically until launch completes)
  */
 
-@TeleOp(name = "LM3 TeleOp (Backup)", group = "TeleOp")
+@TeleOp(name = "LM4 TeleOp (Backup)", group = "TeleOp")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
-public class LM3TeleOpBackup extends LinearOpMode {
+public class LM4TeleOpBackup extends LinearOpMode {
     // Values retrieved from blackboard
     private Pose autoEndPose; // End pose of the autonomous, start pose of TeleOp
     private Alliance alliance; // Alliance color
