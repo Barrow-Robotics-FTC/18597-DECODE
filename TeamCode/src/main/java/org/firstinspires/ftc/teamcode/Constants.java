@@ -102,7 +102,7 @@ public class Constants {
     }
 
     public static class IntakeConstants {
-        public static double INTAKE_POWER = 1.0; // Power for intake motor
+        public static double INTAKE_POWER = 0.8; // Power for intake motor
         public static double RAMP_HOLD_POSITION = 1.0; // Position for the intake ramp that holds artifacts in the storage area
         public static double RAMP_INTAKE_POSITION = 0.0; // Position for the intake ramp that allows the intake to put artifacts in the storage area
         public static double RAMP_POSITIONING_TIME = 500; // Time it takes for the ramp to move between positions (milliseconds)
