@@ -15,6 +15,16 @@ import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.paths.PathConstraints;
 
+/*
+Tuning w/ predictive braking
+- Forward velocity tuner
+- Translational velocity tuner
+- Heading PIDF
+- Predictivr braking tuner 
+- Predictive braking P (line test)
+- Centripetal
+*/
+
 public class PedroConstants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(19);
