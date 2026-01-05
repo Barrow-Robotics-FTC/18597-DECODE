@@ -219,7 +219,7 @@ public class Launcher {
                     if (inToleranceTimer.milliseconds() >= RPM_IN_RANGE_TIME) {
                         // At this point, the launcher is ready to launch
                         // Make sure a launch has been commanded and the blocker is fully raised
-                        if (!launchWhenReady || !robot.blocker.isFinishedRaising()) {
+                        if (!launchWhenReady) {
                             break; // Stay in speed up state
                         }
                         state = LauncherState.LAUNCH; // Move to launch state

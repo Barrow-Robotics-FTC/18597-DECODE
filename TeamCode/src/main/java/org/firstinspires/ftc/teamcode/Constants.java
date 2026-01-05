@@ -88,12 +88,11 @@ public class Constants {
     public static class LauncherConstants {
         public static PIDFCoefficients leftLauncherCoefficients = new PIDFCoefficients(3, 0, 3, 11.193);
         public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(10, 0, 0.1, 12.215);
-        public static PVSCoefficients leftLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
-        public static PVSCoefficients rightLauncherPVSCoefficients = new PVSCoefficients(0.0, 0.0, 0.0);
-        public static int TARGET_RPM = 700; // Target RPM for both launcher motors
-        public static int RPM_TOLERANCE = 60; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
+        public static PVSCoefficients leftLauncherPVSCoefficients = new PVSCoefficients(0.005, 0.00042, 0.002);
+        public static PVSCoefficients rightLauncherPVSCoefficients = new PVSCoefficients(0.005, 0.00042, 0.002);
+        public static int TARGET_RPM = 710; // Target RPM for both launcher motors
+        public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 500; // Time that the RPM must be within the tolerance before launching (milliseconds)
-        public static double POWER_WHILE_INTAKING = -0.2; // Power for launcher wheels while intaking to prevent jamming
         public enum LauncherState {
             IDLE,
             SPEED_UP,
@@ -182,7 +181,7 @@ public class Constants {
             this.goalStart = buildPose(15.25, 111, 144, mirrorPoses);
             this.audienceStart = !mirrorPoses ? buildPose(56, BACK_TO_CENTER_DIST, 90, false) : buildPose(88, BACK_TO_CENTER_DIST + 8, 90, false);
             this.localize = buildPose(144 - LEFT_SIDE_TO_CENTER_DIST, BACK_TO_CENTER_DIST, 0, mirrorPoses);
-            this.score = buildPose(64,  103, 143, mirrorPoses);
+            this.score = buildPose(59,  102, 135, mirrorPoses);
             this.gateZoneNotPushed = buildPose(25, 69, 90, mirrorPoses);
             this.PPGArtifacts = buildPose(60, 51, 180, mirrorPoses);
             this.PGPArtifacts = buildPose(60, 75, 180, mirrorPoses);
