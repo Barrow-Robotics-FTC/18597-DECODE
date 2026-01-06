@@ -64,6 +64,9 @@ public class LM4TeleOp extends LinearOpMode {
 
         // Initialize robot
         robot = new Robot(hardwareMap, Mode.TELEOP);
+        if (alliance == null) {
+            alliance = robot.selectAlliance(gamepad1, telemetry); // Prompt for alliance selection if not found on blackboard
+        }
         robot.buildPoses(alliance);
 
         // Set starting pose to the end pose of auto (if it doesn't exist, use audience start)

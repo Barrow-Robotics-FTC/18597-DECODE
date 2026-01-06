@@ -90,7 +90,7 @@ public class Constants {
         public static PIDFCoefficients rightLauncherCoefficients = new PIDFCoefficients(10, 0, 0.1, 12.215);
         public static PVSCoefficients leftLauncherPVSCoefficients = new PVSCoefficients(0.005, 0.00042, 0.002);
         public static PVSCoefficients rightLauncherPVSCoefficients = new PVSCoefficients(0.005, 0.00042, 0.002);
-        public static int TARGET_RPM = 710; // Target RPM for both launcher motors
+        public static int TARGET_RPM = 700; // Target RPM for both launcher motors
         public static int RPM_TOLERANCE = 40; // Launch RPM tolerance (must be within the range of target RPM +- tolerance)
         public static int RPM_IN_RANGE_TIME = 500; // Time that the RPM must be within the tolerance before launching (milliseconds)
         public enum LauncherState {
