@@ -27,6 +27,7 @@ Gamepad 2 (Operator): Parley
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact (position will be held automatically until launch completes)
     Right Trigger: Launch 3 artifacts (position will be held automatically until launch completes)
+    Square (X): Fix tapper jam
  */
 
 @TeleOp(name = "LM4 TeleOp (Backup)", group = "TeleOp")
@@ -79,9 +80,9 @@ public class LM4TeleOpBackup extends LinearOpMode {
 
             // Set movement vectors based on gamepad inputs
             robot.drivetrain.setMovementVectors(new MovementVectors(
-                    -gamepad1.left_stick_y * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
-                    -gamepad1.left_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
-                    -gamepad1.right_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER)
+                -gamepad1.left_stick_y * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
+                -gamepad1.left_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
+                -gamepad1.right_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER)
             ));
 
             // Gamepad 1 Left Bumper: Toggle slow mode
@@ -107,6 +108,11 @@ public class LM4TeleOpBackup extends LinearOpMode {
                 }
             }
 
+            // Gamepad 2 Square: Fix tapper jam
+            if (gamepad2.squareWasPressed()) {
+                robot.blocker.fixTapper();
+            }
+
             // Gamepad 2 Left Trigger: Launch 1 artifact
             if (robot.gamepad2LeftTriggerPressed(gamepad2) && !robot.launcher.isLaunching()) {
                 startLaunch(1); // Indicate that we want to launch 1 artifact
@@ -116,7 +122,6 @@ public class LM4TeleOpBackup extends LinearOpMode {
             if (robot.gamepad2RightTriggerPressed(gamepad2) && !robot.launcher.isLaunching()) {
                 startLaunch(3); // Indicate that we want to launch 3 artifacts
             }
-
 
             // Set Gamepad 1 lights (priority goes first to last)
             // Note when picking colors: Avoid red and blue as they are default colors

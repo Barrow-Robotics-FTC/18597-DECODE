@@ -23,12 +23,14 @@ Gamepad 1 (Driver): Dylan
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
     Left Bumper: Toggle slow mode
-    Circle: Localize (set robot pose to human player corner)
+    Square (X): Localize (set robot pose to human player corner)
 Gamepad 2 (Operator): Parley
     Left Bumper: Toggle intake
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
     Left Trigger: Launch 1 artifact (position will be held automatically until launch completes)
     Right Trigger: Launch 3 artifacts (position will be held automatically until launch completes)
+    Triangle (Y): Cancel launch and return to manual drive
+    Square (X): Fix tapper jam
  */
 
 @TeleOp(name = "LM4 TeleOp", group = "TeleOp")
@@ -110,8 +112,8 @@ public class LM4TeleOp extends LinearOpMode {
             }
 
             /* Temporarily disabled to prevent accidental localization because it doesn't work
-            // Gamepad 1 Circle: Localize
-            if (gamepad1.circleWasPressed()) {
+            // Gamepad 1 Square: Localize
+            if (gamepad1.squareWasPressed()) {
                 // Set the robot pose to the localization pose (human player corner)
                 robot.drivetrain.setPose(robot.poses.localize);
             }
@@ -133,6 +135,11 @@ public class LM4TeleOp extends LinearOpMode {
                 } else {
                     robot.launcher.speedUp(true); // Speed up the launcher
                 }
+            }
+
+            // Gamepad 2 Square: Fix tapper jam
+            if (gamepad2.squareWasPressed()) {
+                robot.blocker.fixTapper();
             }
 
             // Gamepad 2 Left Trigger: Launch 1 artifact

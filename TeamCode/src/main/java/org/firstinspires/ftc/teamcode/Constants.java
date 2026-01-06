@@ -114,12 +114,13 @@ public class Constants {
 
     public static class BlockerConstants {
         public static double RAISED_POSITION = 1; // Position for the whacker to be retracted
-        public static double BLOCK_POSITION = 0; // Position for the whacker to whack the artifact
-        public static double POSITIONING_TIME = 1000; // Time it takes for the whacker to move between positions (milliseconds)
+        public static double BLOCK_POSITION = 0.5; // Position for the whacker to whack the artifact
+        public static double FIX_TAPPER_POSITION = 0.0; // Position which fixes artifacts getting tangled in the tapper
+        public static double TIME_TO_FIX_TAPPER = 1000; // Time it takes for the whacker to move to the position to fix the tapper (milliseconds)
         public enum BlockerState {
             BLOCKING,
-            RAISING,
-            RAISED
+            RAISED,
+            FIX_TAPPER
         }
     }
 

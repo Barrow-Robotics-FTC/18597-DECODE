@@ -6,11 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Robot;
 
-/*
-Blocker Test OpMode
-
-*/
-
 @TeleOp(name = "Blocker Test", group = "Tests")
 @SuppressWarnings("FieldCanBeLocal") // Suppress pointless Android Studio warnings
 public class BlockerTest extends LinearOpMode {
@@ -32,6 +27,12 @@ public class BlockerTest extends LinearOpMode {
             // Update robot
             robot.update(gamepad1, gamepad2);
 
+            // Gamepad 1 Left Bumper: Fix tapper jam
+            if (gamepad1.leftBumperWasPressed()) {
+                robot.blocker.fixTapper();
+            }
+
+            // Gamepad 1 Right Bumper: Toggle blocker state
             if (gamepad1.rightBumperWasPressed()) {
                 if (robot.blocker.isBlocking()) {
                     robot.blocker.raise();
@@ -41,7 +42,7 @@ public class BlockerTest extends LinearOpMode {
             }
 
             // Log status
-            telemetry.addData("Whacker State", robot.blocker.getState());
+            telemetry.addData("Blocker State", robot.blocker.getState());
             telemetry.update();
         }
     }
