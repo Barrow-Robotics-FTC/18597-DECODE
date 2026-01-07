@@ -173,6 +173,8 @@ public class Constants {
         public Pose PPGArtifactsEnd; // In front of PPGArtifacts
         public Pose PGPArtifactsEnd; // In front of PGPArtifacts
         public Pose GPPArtifactsEnd; // In front of GPPArtifacts
+        public Pose moveOffLineAudience; // Move off the audience wall after starting if not running full auto
+        public Pose moveOffLineGoal; // Move off the goal wall after starting if not running full auto
 
         public Poses(Alliance alliance) {
             // Set mirroring flag based on alliance
@@ -190,6 +192,8 @@ public class Constants {
             this.PPGArtifactsEnd = buildPose(19, 51, 180, mirrorPoses);
             this.PGPArtifactsEnd = buildPose(19, 75, 180, mirrorPoses);
             this.GPPArtifactsEnd = buildPose(25, 97, 180, mirrorPoses);
+            this.moveOffLineAudience = buildPose(40, BACK_TO_CENTER_DIST + 4, 90, mirrorPoses);
+            this.moveOffLineGoal = buildPose(56, 134, 90, mirrorPoses);
         }
 
         // Suppress warning about mirrorIfNeeded always being true

@@ -63,6 +63,13 @@ public class LM4Auto extends LinearOpMode {
             State.COMPLETED // End of autonomous
     ));
      */
+    
+    /* // Move off the line auto
+    final List<State> stateList = new ArrayList<>(Arrays.asList(
+            State.MOVE_OFF_LAUNCH_LINE, // Move off the launch line
+            State.COMPLETED // End of autonomous
+    ));
+     */
 
     // Utilities
     private final ElapsedTime runtime = new ElapsedTime(); // Runtime elapsed timer
@@ -161,6 +168,7 @@ public class LM4Auto extends LinearOpMode {
         MOVE_TO_GPP, // Move in front of the GPP artifact row
         INTAKE_ARTIFACT_ROW, // Intake the artifacts from the current artifact row (move to the PPG/PGP/GPP end position with intake running)
         MOVE_TO_GATE_ZONE, // Move in front of the gate zone to prepare for TeleOp
+        MOVE_OFF_LAUNCH_LINE, // Move off the launch line (only used when not doing full auto)
         COMPLETED // Autonomous path is completed
     }
 
@@ -247,6 +255,13 @@ public class LM4Auto extends LinearOpMode {
                         lastCommandedPose = robot.poses.gateZoneNotPushed;
                         nextState();
                         break;
+                    case MOVE_OFF_LAUNCH_LINE:
+                        if (startPosition == StartPosition.GOAL_WALL) {
+                            lastCommandedPose = robot.poses.moveOffLineGoal;
+                        } else {
+                            lastCommandedPose = robot.poses.moveOffLineAudience;
+                        }
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, lastCommandedPose), 0.75);
                     case COMPLETED:
                         break;
                 }
