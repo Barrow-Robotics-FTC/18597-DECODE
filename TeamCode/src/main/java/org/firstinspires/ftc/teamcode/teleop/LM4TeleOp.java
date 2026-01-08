@@ -55,7 +55,7 @@ public class LM4TeleOp extends LinearOpMode {
         liningUpWithGoal = true; // Start by lining up with the goal
 
         // Follow path to scoring pose (Slowed down as this should be used in the vicinity of the goal, and we want precision)
-        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.75);
+        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.85);
     }
 
     @Override
@@ -188,6 +188,7 @@ public class LM4TeleOp extends LinearOpMode {
             telemetry.addData("Run Time: ", runtime.seconds());
             telemetry.addData("Automated Drive: ", robot.drivetrain.isDriving());
             telemetry.addData("Launcher State: ", robot.launcher.getState());
+            telemetry.addData("Blocker State: ", robot.blocker.getState());
             telemetry.addData("X: ", currentPose.getX());
             telemetry.addData("Y: ", currentPose.getY());
             telemetry.addData("Heading: ", Math.toDegrees(currentPose.getHeading()));

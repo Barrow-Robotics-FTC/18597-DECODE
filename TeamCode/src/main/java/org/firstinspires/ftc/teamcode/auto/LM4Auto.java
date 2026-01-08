@@ -118,9 +118,6 @@ public class LM4Auto extends LinearOpMode {
         // Reset runtime timer
         runtime.reset();
 
-        // Start the launcher, it will stay active throughout the auto
-        robot.launcher.speedUp(false);
-
         while (opModeIsActive()) {
             if (runtime.milliseconds() < AUTO_START_DELAY) {
                 // Wait for the auto start delay to finish
@@ -209,7 +206,7 @@ public class LM4Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.8);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score));
                         lastCommandedPose = robot.poses.score;
                         nextState();
                         break;
@@ -242,11 +239,10 @@ public class LM4Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.85);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.6);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
                             robot.intake.stop(); // Stop the intake
-                            robot.launcher.speedUp(false);
                             nextState();
                         }
                         break;
