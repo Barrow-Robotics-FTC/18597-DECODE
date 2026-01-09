@@ -42,6 +42,10 @@ public class Constants {
         }
     }
 
+    public static Pose mirrorPose(Pose pose) {
+        return new Pose(144 - pose.getX(), pose.getY(), Math.PI - pose.getHeading());
+    }
+
     // Robot dimensions
     public static double LEFT_SIDE_TO_CENTER_DIST = 8.05; // Distance from the left side of the robot to the center (inches)
     public static double BACK_TO_CENTER_DIST = 8.4; // Distance from the back of the robot to the center (inches)
@@ -114,7 +118,7 @@ public class Constants {
 
     public static class BlockerConstants {
         public static double RAISED_POSITION = 1; // Position for the whacker to be retracted
-        public static double BLOCK_POSITION = 0.115; // Position for the whacker to whack the artifact
+        public static double BLOCK_POSITION = 0.14; // Position for the whacker to whack the artifact
         public static double FIX_TAPPER_POSITION = -1; // Position which fixes artifacts getting tangled in the tapper
         public static double TIME_TO_FIX_TAPPER = 1000; // Time it takes for the whacker to move to the position to fix the tapper (milliseconds)
         public enum BlockerState {
@@ -182,15 +186,15 @@ public class Constants {
 
             // Build the poses, see descriptions in definitions above
             this.goalStart = buildPose(15.25, 111, 144, mirrorPoses);
-            this.audienceStart = !mirrorPoses ? buildPose(56, BACK_TO_CENTER_DIST, 90, false) : buildPose(88, BACK_TO_CENTER_DIST + 8, 90, false);
+            this.audienceStart = mirrorPoses ? buildPose(56, BACK_TO_CENTER_DIST - 10, 90, true) : buildPose(56, BACK_TO_CENTER_DIST, 90, false);;
             this.localize = buildPose(144 - LEFT_SIDE_TO_CENTER_DIST, BACK_TO_CENTER_DIST, 0, mirrorPoses);
             this.score = buildPose(54,  97, 135, mirrorPoses);
             this.gateZoneNotPushed = buildPose(23, 67, 90, mirrorPoses);
             this.PPGArtifacts = buildPose(60, 51, 180, mirrorPoses);
-            this.PGPArtifacts = buildPose(60, 75, 180, mirrorPoses);
+            this.PGPArtifacts = buildPose(60, 72.5, 180, mirrorPoses);
             this.GPPArtifacts = buildPose(60, 97, 180, mirrorPoses);
-            this.PPGArtifactsEnd = buildPose(16, 51, 180, mirrorPoses);
-            this.PGPArtifactsEnd = buildPose(16, 73.5, 180, mirrorPoses);
+            this.PPGArtifactsEnd = buildPose(14, 51, 180, mirrorPoses);
+            this.PGPArtifactsEnd = buildPose(14, 72.5, 180, mirrorPoses);
             this.GPPArtifactsEnd = buildPose(23, 97, 180, mirrorPoses);
             this.moveOffLineAudience = buildPose(40, BACK_TO_CENTER_DIST + 4, 90, mirrorPoses);
             this.moveOffLineGoal = buildPose(56, 134, 90, mirrorPoses);
@@ -200,7 +204,7 @@ public class Constants {
         private static Pose buildPose(double x, double y, double heading, boolean mirror) {
             Pose pose = new Pose(x, y, Math.toRadians(heading));
             if (mirror) {
-                pose = pose.mirror();
+                pose = mirrorPose(pose);
             }
             return pose;
         }
