@@ -6,6 +6,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,6 +23,8 @@ import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Blocker;
 import org.firstinspires.ftc.teamcode.subsystem.Camera;
 
+import java.util.List;
+
 public class Robot {
     // Hardware
     public DcMotorEx leftLauncherMotor;
@@ -32,7 +35,6 @@ public class Robot {
     public Servo whackerServo;
     public WebcamName webcam;
 
-    // Subsystems
     public Drivetrain drivetrain;
     public Launcher launcher;
     public Tapper tapper;
@@ -86,6 +88,12 @@ public class Robot {
         intake = new Intake(this);
         blocker = new Blocker(this);
         camera = useVision ? new Camera(this) : null; // Only initialize camera if vision is used
+
+        // Subsystems
+        List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : hubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
     }
 
     public Robot(HardwareMap hardwareMap, Constants.Mode mode) {
