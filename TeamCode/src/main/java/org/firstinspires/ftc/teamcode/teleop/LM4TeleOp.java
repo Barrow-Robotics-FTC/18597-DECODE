@@ -62,7 +62,7 @@ public class LM4TeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Get variables from Blackboard
-        alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE);
+        alliance = (Alliance) blackboard.getOrDefault("alliance", null);
         autoEndPose = (Pose) blackboard.getOrDefault("autoEndPose", null);
 
         // Initialize robot
@@ -92,9 +92,6 @@ public class LM4TeleOp extends LinearOpMode {
             if (gamepad1.leftBumperWasPressed()) {
                 slowMode = !slowMode;
             }
-
-            // Gamepad 1 Left Joystick Button: Toggle really slow mode
-            reallySlowMode = gamepad1.left_stick_button;
 
             // Check if we are lining up with the goal
             if (!liningUpWithGoal) {

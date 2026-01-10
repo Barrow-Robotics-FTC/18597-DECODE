@@ -22,6 +22,7 @@ Gamepad 1 (Driver): Dylan
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
     Left Bumper: Toggle slow mode
+    Left Stick Button: Hold for really slow mode (overrides slow mode while held)
 Gamepad 2 (Operator): Parley
     Left Bumper: Toggle intake
     Right Bumper: Toggle launcher speed up (will hold speed once sped up until you press this again)
@@ -43,6 +44,7 @@ public class LM4TeleOpBackup extends LinearOpMode {
 
     // Variables
     private boolean slowMode = false;
+    private boolean reallySlowMode = false;
     private Pose currentPose; // Current pose of the robot
 
     private void startLaunch(int numArtifacts) {
@@ -78,17 +80,18 @@ public class LM4TeleOpBackup extends LinearOpMode {
             robot.update(gamepad1, gamepad2);
             currentPose = robot.drivetrain.getPose();
 
-            // Set movement vectors based on gamepad inputs
-            robot.drivetrain.setMovementVectors(new MovementVectors(
-                -gamepad1.left_stick_y * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
-                -gamepad1.left_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
-                -gamepad1.right_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER)
-            ));
-
             // Gamepad 1 Left Bumper: Toggle slow mode
             if (gamepad1.leftBumperWasPressed()) {
                 slowMode = !slowMode;
             }
+
+            // Set movement vectors based on gamepad inputs
+            // Set movement vectors based on gamepad inputs
+            robot.drivetrain.setMovementVectors(new MovementVectors(
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x
+            ), reallySlowMode ? REALLY_SLOW_SPEED_MULTIPLIER : (slowMode ? SLOW_SPEED_MULTIPLIER : NORMAL_SPEED_MULTIPLIER));
 
             // Gamepad 2 Left Bumper: Toggle intake
             if (gamepad2.leftBumperWasPressed()) {
