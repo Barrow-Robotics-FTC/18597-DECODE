@@ -156,8 +156,9 @@ public class Constants {
     public static class TeleOpConstants {
         public static final boolean BRAKE_MODE = true; // Whether the motors should brake on stop (recommended)
         public static final boolean ROBOT_CENTRIC = true; // True for robot centric driving, false for field centric
-        public static final double SLOW_MODE_MULTIPLIER = 0.3; // Multiplier for slow mode speed
-        public static final double NORMAL_SPEED_MULTIPLIER = 0.8; // Multiplier for normal driving speed
+        public static final double REALLY_SLOW_SPEED_MULTIPLIER = 0.25; // Multiplier for really slow driving speed
+        public static final double SLOW_SPEED_MULTIPLIER = 0.5; // Multiplier for slow driving speed
+        public static final double NORMAL_SPEED_MULTIPLIER = 1.0; // Multiplier for normal driving speed
     }
 
     // Pedro Pathing poses
@@ -189,13 +190,13 @@ public class Constants {
             this.audienceStart = mirrorPoses ? buildPose(56, BACK_TO_CENTER_DIST - 10, 90, true) : buildPose(56, BACK_TO_CENTER_DIST, 90, false);;
             this.localize = buildPose(144 - LEFT_SIDE_TO_CENTER_DIST, BACK_TO_CENTER_DIST, 0, mirrorPoses);
             this.score = buildPose(54,  97, 135, mirrorPoses);
-            this.gateZoneNotPushed = buildPose(23, 67, 90, mirrorPoses);
+            this.gateZoneNotPushed = buildPose(25, 67, 90, mirrorPoses);
             this.PPGArtifacts = buildPose(60, 51, 180, mirrorPoses);
-            this.PGPArtifacts = buildPose(60, 72.5, 180, mirrorPoses);
+            this.PGPArtifacts = buildPose(60,  72, 180, mirrorPoses);
             this.GPPArtifacts = buildPose(60, 97, 180, mirrorPoses);
-            this.PPGArtifactsEnd = buildPose(14, 51, 180, mirrorPoses);
-            this.PGPArtifactsEnd = buildPose(14, 72.5, 180, mirrorPoses);
-            this.GPPArtifactsEnd = buildPose(23, 97, 180, mirrorPoses);
+            this.PPGArtifactsEnd = buildPose(13, 51, 180, mirrorPoses);
+            this.PGPArtifactsEnd = buildPose(13, 72, 180, mirrorPoses);
+            this.GPPArtifactsEnd = buildPose(22, 97, 180, mirrorPoses);
             this.moveOffLineAudience = buildPose(40, BACK_TO_CENTER_DIST + 4, 90, mirrorPoses);
             this.moveOffLineGoal = buildPose(56, 134, 90, mirrorPoses);
         }

@@ -23,6 +23,7 @@ Gamepad 1 (Driver): Dylan
     Left Stick Y: Robot axial movement
     Right Stick X: Robot rotational movement
     Left Bumper: Toggle slow mode
+    Left Stick Button: Hold for really slow mode (overrides slow mode while held)
     Square (X): Localize (set robot pose to human player corner)
 Gamepad 2 (Operator): Parley
     Left Bumper: Toggle intake
@@ -30,7 +31,6 @@ Gamepad 2 (Operator): Parley
     Left Trigger: Launch 1 artifact (position will be held automatically until launch completes)
     Right Trigger: Launch 3 artifacts (position will be held automatically until launch completes)
     Triangle (Y): Cancel launch and return to manual drive
-    Square (X): Fix tapper jam
  */
 
 @TeleOp(name = "LM4 TeleOp", group = "TeleOp")
@@ -46,6 +46,7 @@ public class LM4TeleOp extends LinearOpMode {
 
     // Variables
     private boolean slowMode = false;
+    private boolean reallySlowMode = false;
     private Pose currentPose; // Current pose of the robot
     private int artifactsToLaunch = 0; // Number of artifacts to launch
     private boolean liningUpWithGoal = false; // Is the robot currently lining up with the goal?
@@ -55,7 +56,7 @@ public class LM4TeleOp extends LinearOpMode {
         liningUpWithGoal = true; // Start by lining up with the goal
 
         // Follow path to scoring pose (Slowed down as this should be used in the vicinity of the goal, and we want precision)
-        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.85);
+        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.75);
     }
 
     @Override
@@ -87,14 +88,22 @@ public class LM4TeleOp extends LinearOpMode {
             robot.update(gamepad1, gamepad2);
             currentPose = robot.drivetrain.getPose();
 
+            // Gamepad 1 Left Bumper: Toggle slow mode
+            if (gamepad1.leftBumperWasPressed()) {
+                slowMode = !slowMode;
+            }
+
+            // Gamepad 1 Left Joystick Button: Toggle really slow mode
+            reallySlowMode = gamepad1.left_stick_button;
+
             // Check if we are lining up with the goal
             if (!liningUpWithGoal) {
                 // Set movement vectors based on gamepad inputs
                 robot.drivetrain.setMovementVectors(new MovementVectors(
-                        -gamepad1.left_stick_y * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
-                        -gamepad1.left_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER),
-                        -gamepad1.right_stick_x * (slowMode ? SLOW_MODE_MULTIPLIER : NORMAL_SPEED_MULTIPLIER)
-                ));
+                        -gamepad1.left_stick_y,
+                        -gamepad1.left_stick_x,
+                        -gamepad1.right_stick_x
+                ), reallySlowMode ? REALLY_SLOW_SPEED_MULTIPLIER : (slowMode ? SLOW_SPEED_MULTIPLIER : NORMAL_SPEED_MULTIPLIER));
             } else {
                 // When the launch is started, we should be following a path to the scoring pose
                 if (!robot.drivetrain.isDriving()) { // When we reach the scoring pose
@@ -104,11 +113,6 @@ public class LM4TeleOp extends LinearOpMode {
                 if (gamepad2.triangleWasPressed()) {
                     liningUpWithGoal = false;
                 }
-            }
-
-            // Gamepad 1 Left Bumper: Toggle slow mode
-            if (gamepad1.leftBumperWasPressed()) {
-                slowMode = !slowMode;
             }
 
             /* Temporarily disabled to prevent accidental localization because it doesn't work

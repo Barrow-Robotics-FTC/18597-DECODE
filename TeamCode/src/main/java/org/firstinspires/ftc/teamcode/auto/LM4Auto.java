@@ -22,7 +22,7 @@ public class LM4Auto extends LinearOpMode {
     // Time to wait before starting the autonomous
     private static final double AUTO_START_DELAY = 0; // Milliseconds
 
-    // 9 artifact auto
+    // 9 artifact auto + move to gate zone
     final List<State> stateList = new ArrayList<>(Arrays.asList(
             State.MOVE_TO_SCORING_POSITION, // Move from starting position to scoring position
             State.LAUNCH, // Score preloaded artifacts
@@ -35,9 +35,7 @@ public class LM4Auto extends LinearOpMode {
             State.MOVE_TO_PGP,
             State.MOVE_TO_SCORING_POSITION,
             State.LAUNCH,
-            State.MOVE_TO_PPG,
-            State.INTAKE_ARTIFACT_ROW,
-            State.MOVE_TO_PPG,
+            State.MOVE_TO_GATE_ZONE,
             State.COMPLETED // End of autonomous
     ));
 
@@ -206,7 +204,7 @@ public class LM4Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_SCORING_POSITION:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score));
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.score), 0.8);
                         lastCommandedPose = robot.poses.score;
                         nextState();
                         break;
@@ -239,7 +237,7 @@ public class LM4Auto extends LinearOpMode {
                             } else {
                                 intakeEndPose = robot.poses.GPPArtifactsEnd;
                             }
-                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.6);
+                            robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, intakeEndPose), 0.5);
                             lastCommandedPose = intakeEndPose;
                         } else { // We have reached the intake end position
                             robot.intake.stop(); // Stop the intake
@@ -247,7 +245,7 @@ public class LM4Auto extends LinearOpMode {
                         }
                         break;
                     case MOVE_TO_GATE_ZONE:
-                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed), 0.9);
+                        robot.drivetrain.followPath(Poses.buildPath(robot.drivetrain, robot.poses.gateZoneNotPushed));
                         lastCommandedPose = robot.poses.gateZoneNotPushed;
                         nextState();
                         break;

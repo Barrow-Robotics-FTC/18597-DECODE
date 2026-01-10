@@ -38,11 +38,14 @@ public class Drivetrain {
      *
      * @param movementVectors The movement vectors to set
      */
-    public void setMovementVectors(MovementVectors movementVectors) {
+    public void setMovementVectors(MovementVectors movementVectors, double speedModifier) {
         if (!follower.isBusy()) { // Make sure we are not auto-driving
-            // Set TeleOp drive with the provided movement vectors
-            follower.setTeleOpDrive(movementVectors.forward, movementVectors.strafe,
-                    movementVectors.turn, TeleOpConstants.ROBOT_CENTRIC
+            // Set TeleOp drive with the provided movement vectors and speed modifier
+            follower.setTeleOpDrive(
+                    movementVectors.forward * speedModifier,
+                    movementVectors.strafe * speedModifier,
+                    movementVectors.turn * speedModifier,
+                    TeleOpConstants.ROBOT_CENTRIC
             );
         }
     }
